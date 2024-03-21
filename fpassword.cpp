@@ -192,6 +192,26 @@ char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs fire
                  "rsh rtsp s7-300 sapr3 sip smb smb2 smtp[s] smtp-enum snmp socks5 ssh "
                  "sshkey svn teamspeak telnet[s] vmauthd vnc xmpp";
 
+#define MAXBUF 520
+#define MAXLINESIZE ((MAXBUF / 2) - 4)
+#define MAXTASKS 64
+#define MAXSERVERS 16
+#define MAXFAIL 3
+#define MAXENDWAIT 20
+#define WAITTIME 32
+#define TASKS 16
+#define SKIPLOGIN 256
+#define USLEEP_LOOP 10
+#define MAX_LINES 50000000
+#define MAX_BYTES 500000000
+
+#define RESTOREFILE "./fpassword.restore"
+
+#define PROGRAM "FPASSWORD"
+#define VERSION "v0.0dev"
+#define AUTHOR "h4ck3r-04"
+#define RESOURCE "https://github.com/h4ck3r-04/fpassword"
+
 void help(int32_t ext){
   std::cout << "help" << std::endl;
 }
