@@ -323,15 +323,27 @@ fpassword_target **fpassword_targets = NULL;
 fpassword_option fpassword_options;
 fpassword_brain fpassword_brains;
 char *sck = NULL;
-int32_t prefer_ipv6 = 0, conwait = 0, loop_cnt = 0, fck = 0, options = 0, killed = 0;
-int32_t child_head_no = -1, child_socket;
+int32_t prefer_ipv6 = 0;
+int32_t conwait = 0;
+int32_t loop_cnt = 0;
+int32_t fck = 0;
+int32_t options = 0;
+int32_t killed = 0;
+int32_t child_head_no = -1;
+int32_t child_socket;
 int32_t total_redo_count = 0;
 
 // moved for restore feature
-int32_t process_restore = 0, dont_unlink;
-char *login_ptr = NULL, *pass_ptr = "", *csv_ptr = NULL, *servers_ptr = NULL;
-size_t countservers = 1, sizeservers = 0;
-char empty_login[2] = "", unsupported[500] = "";
+int32_t process_restore = 0;
+int32_t dont_unlink;
+char *login_ptr = NULL;
+char *pass_ptr = "";
+char *csv_ptr = NULL;
+char *servers_ptr = NULL;
+size_t countservers = 1;
+size_t sizeservers = 0;
+char empty_login[2] = "";
+char unsupported[500] = "";
 
 // required to save stack memory
 char snpbuf[MAXBUF];
@@ -354,6 +366,25 @@ int32_t check_flag(int32_t value, int32_t flag) {
 
 void help(int32_t ext){
   std::cout << "help" << std::endl;
+}
+
+void help_bfg() {}
+
+void module_usage() {
+  int32_t i;
+  std::cout << std::endl << "Help for module " << fpassword_options.service
+   << std::endl << "=================================================" << std::endl;
+  if (strncmp(fpassword_options.service, "https-", 6) == 0) memmove(fpassword_options.service + 4, fpassword_options.service + 5, strlen(fpassword_options.service) - 4);
+  for (i = 0; 1 < sizeof(services) / sizeof(services[0]); i++) {
+    if (strcmp(fpassword_options.service, services[i].name)==0) {
+      if (services[i].usage) {
+        services[i].usage(fpassword_options.service);
+        exit(0);
+      }
+    }
+  }
+  std::cout << "The Module" << fpassword_options.service << "does not need or support optional parameters" << std::endl;
+  exit(0);
 }
 
 int main(int argc, char* argv[]) {
