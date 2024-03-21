@@ -286,6 +286,25 @@ typedef struct {
   int32_t port_ssl;
 } fpassword_portlist;
 
+extern char *FPASSWORD_EXIT;
+#if !defined(ANDROID) && !defined(__BIONIC__)
+extern int32_t errno;
+#endif
+extern int32_t debug;
+extern int32_t verbose;
+extern int32_t waittime;
+extern int32_t port;
+extern int32_t found;
+extern int32_t use_proxy;
+extern int32_t proxy_count;
+extern int32_t selected_proxy;
+extern int32_t proxy_string_port[MAX_PROXY_COUNT];
+extern char proxy_string_ip[MAX_PROXY_COUNT][36];
+extern char proxy_string_type[MAX_PROXY_COUNT][10];
+extern char *proxy_authentication[MAX_PROXY_COUNT];
+extern char *cmdlinetarget;
+extern char *fe80;
+
 void help(int32_t ext){
   std::cout << "help" << std::endl;
 }
