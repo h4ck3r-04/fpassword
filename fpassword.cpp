@@ -33,6 +33,7 @@ void usage_snmp(const char *service);
 void usage_http(const char *service);
 void usage_smb2(const char *service);
 
+// general services
 extern void service_asterisk(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 extern void service_telnet(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 extern void service_ftp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
@@ -114,6 +115,7 @@ extern int32_t service_s7_300_init(char *ip, int32_t sp, unsigned char options, 
 extern int32_t service_rtsp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 extern int32_t service_rpcap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 
+// additional services
 #if defined(LIBSMBCLIENT)
 extern int32_t service_smb2_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 extern void service_smb2(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
@@ -184,6 +186,7 @@ extern void service_mongodb(char *ip, int32_t sp, unsigned char options, char *m
 extern int32_t service_mongodb_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 #endif
 
+// services name
 char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs firebird ftp[s] "
                  "http[s]-{head|get|post} http[s]-{get|post}-form http-proxy "
                  "http-proxy-urlenum icq imap[s] irc ldap2[s] ldap3[-{cram|digest}md5][s] "
@@ -192,6 +195,7 @@ char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs fire
                  "rsh rtsp s7-300 sapr3 sip smb smb2 smtp[s] smtp-enum snmp socks5 ssh "
                  "sshkey svn teamspeak telnet[s] vmauthd vnc xmpp";
 
+// basic definitions
 #define MAXBUF 520
 #define MAXLINESIZE ((MAXBUF / 2) - 4)
 #define MAXTASKS 64
@@ -207,6 +211,7 @@ char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs fire
 
 #define RESTOREFILE "./fpassword.restore"
 
+// basic description
 #define PROGRAM "FPASSWORD"
 #define VERSION "v0.0dev"
 #define AUTHOR "h4ck3r-04"
@@ -224,10 +229,12 @@ extern int32_t old_ssl;
 
 void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail);
 
+// some enum definitions
 typedef enum { HEAD_DISABLED = -1, HEAD_UNUSED = 0, HEAD_ACTIVE = 1 } head_state_t;
 
 typedef enum { TARGET_ACTIVE = 0, TARGET_FINISHED = 1, TARGET_ERROR = 2, TARGET_UNRESOLVED = 3 } target_state_t;
 
+// some struct definitions
 typedef struct {
   pid_t pid;
   int32_t sp[2];
@@ -286,6 +293,7 @@ typedef struct {
   int32_t port_ssl;
 } fpassword_portlist;
 
+// required external variables
 extern char *FPASSWORD_EXIT;
 #if !defined(ANDROID) && !defined(__BIONIC__)
 extern int32_t errno;
@@ -304,6 +312,18 @@ extern char proxy_string_type[MAX_PROXY_COUNT][10];
 extern char *proxy_authentication[MAX_PROXY_COUNT];
 extern char *cmdlinetarget;
 extern char *fe80;
+
+// required global variables
+char *prg;
+size_t size_of_data = -1;
+fpassword_head **fpassword_heads = NULL;
+fpassword_target **fpassword_targets = NULL;
+fpassword_option fpassword_options;
+fpassword_brain fpassword_brains;
+char *sck = NULL;
+int32_t prefer_ipv6 = 0, conwait = 0, loop_cnt = 0, fck = 0, options = 0, killed = 0;
+int32_t child_head_no = -1, child_socket;
+int32_t total_redo_count = 0;
 
 void help(int32_t ext){
   std::cout << "help" << std::endl;
