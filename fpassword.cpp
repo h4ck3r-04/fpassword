@@ -1,6 +1,7 @@
 #include <iostream>
 #include <getopt.h>
-#include <fpassword.h>
+#include "include/fpassword.h"
+#include <string.h>
 
 void usage_oracle(const char *service);
 void usage_oracle_listener(const char *service);
@@ -188,7 +189,7 @@ extern int32_t service_mongodb_init(char *ip, int32_t sp, unsigned char options,
 #endif
 
 // services name
-char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs firebird ftp[s] "
+std::string SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs firebird ftp[s] "
                  "http[s]-{head|get|post} http[s]-{get|post}-form http-proxy "
                  "http-proxy-urlenum icq imap[s] irc ldap2[s] ldap3[-{cram|digest}md5][s] "
                  "memcached mongodb mssql mysql ncp nntp oracle oracle-listener oracle-sid "
@@ -346,6 +347,10 @@ static const struct {
   service_t exec;
   service_usage_t usage;
 } services[]  = {};
+
+int32_t check_flag(int32_t value, int32_t flag) {
+  return (value & flag) == flag;
+}
 
 void help(int32_t ext){
   std::cout << "help" << std::endl;
