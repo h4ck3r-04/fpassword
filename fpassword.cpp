@@ -325,6 +325,16 @@ int32_t prefer_ipv6 = 0, conwait = 0, loop_cnt = 0, fck = 0, options = 0, killed
 int32_t child_head_no = -1, child_socket;
 int32_t total_redo_count = 0;
 
+// moved for restore feature
+int32_t process_restore = 0, dont_unlink;
+char *login_ptr = NULL, *pass_ptr = "", *csv_ptr = NULL, *servers_ptr = NULL;
+size_t countservers = 1, sizeservers = 0;
+char empty_login[2] = "", unsupported[500] = "";
+
+// required to save stack memory
+char snpbuf[MAXBUF];
+int32_t snpdone, snp_is_redo, snpbuflen, snpi, snpj, snpdont;
+
 void help(int32_t ext){
   std::cout << "help" << std::endl;
 }
