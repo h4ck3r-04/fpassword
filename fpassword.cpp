@@ -212,6 +212,80 @@ char *SERVICES = "adam6500 asterisk afp cisco cisco-enable cobaltstrike cvs fire
 #define AUTHOR "h4ck3r-04"
 #define RESOURCE "https://github.com/h4ck3r-04/fpassword"
 
+extern char *fpassword_strcasestr(const char *haystack, const char *needle);
+extern void fpassword_tobase64(unsigned char *buf, int32_t buflen, int32_t bufsize);
+extern char *fpassword_string_replace(const char *string, const char *substr, const char *replacement);
+extern char *fpassword_address2string(char *address);
+extern char *fpassword_address2string_beautiful(char *address);
+extern uint32_t colored_output;
+extern char quiet;
+extern int32_t do_retry;
+extern int32_t old_ssl;
+
+void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail);
+
+typedef enum { HEAD_DISABLED = -1, HEAD_UNUSED = 0, HEAD_ACTIVE = 1 } head_state_t;
+
+typedef enum { TARGET_ACTIVE = 0, TARGET_FINISHED = 1, TARGET_ERROR = 2, TARGET_UNRESOLVED = 3 } target_state_t;
+
+typedef struct {
+  pid_t pid;
+  int32_t sp[2];
+  int32_t target_no;
+  char *current_login_ptr;
+  char *current_pass_ptr;
+  char reverse[256];
+  head_state_t active;
+  int32_t redo;
+  time_t last_seen;
+} fpassword_head;
+
+typedef struct {
+  char *target;
+  char ip[36];
+  char *login_ptr;
+  char *pass_ptr;
+  uint64_t login_no;
+  uint64_t pass_no;
+  uint64_t sent;
+  int32_t pass_state;
+  int32_t use_count;
+  target_state_t done;
+  int32_t fail_count;
+  int32_t redo_state;
+  int32_t redo;
+  int32_t ok;
+  int32_t failed;
+  int32_t skipcnt;
+  int32_t port;
+  char *redo_login[MAXTASKS * 2 + 2];
+  char *redo_pass[MAXTASKS * 2 + 2];
+  char *skiplogin[SKIPLOGIN];
+  //  char *bfg_ptr[MAXTASKS];
+} fpassword_target;
+
+typedef struct {
+  int32_t active;
+  int32_t targets;
+  int32_t finished;
+  int32_t exit;
+  uint64_t todo_all;
+  uint64_t todo;
+  uint64_t sent;
+  uint64_t found;
+  uint64_t countlogin;
+  uint64_t countpass;
+  size_t sizelogin;
+  size_t sizepass;
+  FILE *ofp;
+} fpassword_brain;
+
+typedef struct {
+  char *name;
+  int32_t port;
+  int32_t port_ssl;
+} fpassword_portlist;
+
 void help(int32_t ext){
   std::cout << "help" << std::endl;
 }
