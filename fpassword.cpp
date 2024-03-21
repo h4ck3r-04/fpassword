@@ -387,6 +387,36 @@ void module_usage() {
   exit(0);
 }
 
+#define STR_NULL(s) ((s) == NULL ? "(null)" : (s))
+
+void fpassword_debug(int32_t force, char *string) {
+  int32_t active = 0;
+  int32_t inactive = 0;
+  int32_t i;
+  if (!debug && !force) return;
+  std::cout << "[DEBUG] Code: " << string << "Time: " << (uint64_t)time(NULL) << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  for (i = 0; i < fpassword_brains.targets; i++) {
+    fpassword_target *target = fpassword_targets[i];
+    std::cout << "[DEBUG] Target: " << i << " - target " << STR_NULL(target->target) << " ip " << fpassword_address2string_beautiful(target->ip)
+    << " login_no " << target->login_no << " pass_no " << target->pass_no << " sent " << target->sent << " pass_state " << target->pass_state
+    << " redo_state " << target->redo_state << "(" << target->redo << " redos) use_count " << target->use_count << " failed " << target->failed
+    << " done " << target->done << " fail_count " << target->fail_count << " login_ptr " << STR_NULL(target->login_ptr) << " pass_ptr " << STR_NULL(target->pass_ptr) << std::endl;
+  }
+  if (fpassword_heads == NULL) return;
+  for (i = 0; i < fpassword_options.max_use; i++) {
+    if (fpassword_heads[i]->active >= HEAD_UNUSED) {
+      std::cout << "[DEBUG] Task " << i << " - pid " << (int32_t)fpassword_heads[i]->pid << " active " << fpassword_heads[i]->active
+      << " redo " << fpassword_heads[i]->redo << " current_login_ptr " << STR_NULL(fpassword_heads[i]->current_login_ptr) << " current_pass_ptr "
+      << STR_NULL(fpassword_heads[i]->current_pass_ptr) << std::endl;
+      if (fpassword_heads[i]->active == HEAD_UNUSED) inactive++;
+      else active++;
+    }
+  }
+  std::cout << "[DEBUG] Tasks " << inactive << " active " << active << std::endl;
+}
+
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
   if (argc < 2) help(0);
