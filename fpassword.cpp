@@ -1,5 +1,6 @@
 #include <iostream>
 #include <getopt.h>
+#include <fpassword.h>
 
 void usage_oracle(const char *service);
 void usage_oracle_listener(const char *service);
@@ -334,6 +335,17 @@ char empty_login[2] = "", unsupported[500] = "";
 // required to save stack memory
 char snpbuf[MAXBUF];
 int32_t snpdone, snp_is_redo, snpbuflen, snpi, snpj, snpdont;
+
+typedef void (*service_t)(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
+typedef int32_t (*service_init_t)(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
+typedef void (*service_usage_t)(const char *service);
+
+static const struct {
+  const char *name;
+  service_init_t init;
+  service_t exec;
+  service_usage_t usage;
+} services[]  = {};
 
 void help(int32_t ext){
   std::cout << "help" << std::endl;
