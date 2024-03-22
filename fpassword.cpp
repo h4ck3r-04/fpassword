@@ -547,6 +547,22 @@ int32_t fpassword_check_for_exit_condition() {
   return 0;
 }
 
+int32_t fpassword_select_target() {
+  int32_t target_no = -1;
+  int32_t i;
+  int32_t j = -1000;
+  for (i = 0; i < fpassword_brains.targets; i++) {
+    if (fpassword_targets[i]->use_count < fpassword_options.tasks && fpassword_targets[i]-> done == TARGET_ACTIVE)
+      if (j < fpassword_options.tasks - fpassword_targets[i]->failed - fpassword_targets[i]->use_count) {
+        target_no = i;
+        j = fpassword_options.tasks - fpassword_targets[i]->failed - fpassword_targets[i]->use_count;
+      }
+  }
+  return target_no;
+}
+
+void process_proxy_line(int32_t type, char *string);
+
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
   if (argc < 2) help(0);
