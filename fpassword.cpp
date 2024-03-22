@@ -417,8 +417,34 @@ void fpassword_debug(int32_t force, char *string) {
   std::cout << "[DEBUG] Tasks " << inactive << " active " << active << std::endl;
 }
 
+void bail(char *text) {
+  std::cout << stderr << "[ERROR]" << text << std::endl;
+  exit(-1);
+}
+
+void fpassword_restore_write(int32_t print_msg);
+
+void fpassword_restore_read();
+
+void killed_childs(int32_t signo) {
+  int32_t pid;
+  int32_t i;
+  killed++;
+  pid = waitpid(-1, NULL, WNOHANG);
+  for (i = 0; i < fpassword_options.max_use; i++) {
+    if (pid == fpassword_heads[i]->pid) {
+      fpassword_heads[i]->pid = -1;
+      fpassword_kill_head(i, 1, 0);
+      return;
+    }
+  }
+}
+
+
+
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
   if (argc < 2) help(0);
 
 }
+
