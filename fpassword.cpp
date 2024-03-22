@@ -457,6 +457,22 @@ void kill_children(int32_t signo) {
   exit(0);
 }
 
+uint64_t countlines(FILE *fd, int32_t colonmode);
+
+void fill_mem(char *ptr, FILE *fd, int32_t colonmode);
+
+char *fpassword_build_time() {
+  static char datetime[24];
+  struct tm *the_time;
+  time_t epoch;
+  time(&epoch);
+  the_time = localtime(&epoch);
+  strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", the_time);
+  return (char *)&datetime;
+}
+
+void fpassword_service_init(int32_t target_no);
+
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
   if (argc < 2) help(0);
