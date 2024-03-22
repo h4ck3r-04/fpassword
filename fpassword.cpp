@@ -440,7 +440,22 @@ void killed_childs(int32_t signo) {
   }
 }
 
+void killed_childs_report(int32_t signo) {
+  std::cout << "[ERROR] children crashed: " << child_head_no << std::endl;
+  fck = write(child_socket, "E", 1);
+  _exit(-1);
+}
 
+void kill_children(int32_t signo) {
+  int32_t i;
+  if (verbose) std::cout << "[ERROR] Received signal: " << signo << ", going fown ..." << std::endl;
+  if (process_restore == 1) fpassword_restore_write(1);
+  if (fpassword_heads  != NULL) {
+    for (i = 0; i < fpassword_options.max_use; i++) { if (fpassword_heads[i] != NULL && fpassword_heads[i]->pid > 0) kill(fpassword_heads[i]->pid, SIGTERM); }
+    for (i = 0; i < fpassword_options.max_use; i++) { if (fpassword_heads[i] != NULL && fpassword_heads[i]->pid > 0) kill(fpassword_heads[i]->pid, SIGKILL); }
+  }
+  exit(0);
+}
 
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
