@@ -473,6 +473,80 @@ char *fpassword_build_time() {
 
 void fpassword_service_init(int32_t target_no);
 
+int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no);
+
+int32_t fpassword_lookup_port(char *service);
+
+void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail);
+
+void fpassword_increase_fail_count(int32_t target_no, int32_t head_no);
+
+char *fpassword_reverse_login(int32_t head_no, char *login) {
+  int32_t i;
+  int32_t j;
+  char *start;
+  char *pos;
+  unsigned char keep;
+  if (login == NULL || (j = strlen(login)) < 1) return empty_login;
+  if (j > 248) j = 248; // limit to max length of login name
+  for (i = 0; i < j; i++) {fpassword_heads[head_no]->reverse[i] = login[j - (i + 1)];}
+  fpassword_heads[head_no]->reverse[j] = 0;
+  start = fpassword_heads[head_no]->reverse;
+  pos = start + j;
+  while (start < --pos) {
+    switch ((*pos & 0xF0) >> 4) {
+      case 0xF:
+        keep = *pos;
+        *pos = *(pos - 3);
+        *(pos - 3) = keep;
+        keep = *(pos - 1);
+        *(pos - 1) = *(pos - 2);
+        *(pos - 2) = keep;
+        pos -= 3;
+        break;
+      case 0xE:
+        keep = *pos;
+        *pos = *(pos - 2);
+        *(pos - 2) = keep;
+        pos -= 2;
+        break;
+      case 0xc:
+      case 0xD:
+        keep = *pos;
+        *pos = *(pos - 1);
+        *(pos - 1) = keep;
+        pos--;
+        break;
+    }
+  }
+  return fpassword_heads[head_no]->reverse;
+}
+
+int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no);
+
+void fpassword_skip_user(int32_t target_no, char *username);
+
+int32_t fpassword_check_for_exit_condition() {
+  int32_t i;
+  int32_t k = 0;
+  if (fpassword_brains.exit) {
+    if (debug) std::cout << "[DEBUG] exit was forced" << std::endl;
+    return -1;
+  }
+  if (fpassword_brains.targets <= fpassword_brains.finished && fpassword_brains.active < 1) {
+    if (debug) std::cout << "[DEBUG] all targets done and all heads finished" << std::endl;
+    return 1;
+  }
+  if (fpassword_brains.active < 1) {
+    for (i = 0; i < fpassword_options.max_use && k == 0; i++) { if (fpassword_heads[i]->active >= HEAD_UNUSED) k = 1; }
+    if (k == 0) {
+      std::cout << stderr << "[ERROR] all children were disabled due too many connection errors" << std::endl;
+      return -1;
+    }
+  }
+  return 0;
+}
+
 int main(int argc, char* argv[]) {
   if (argc > 1 && strncmp(argv[1], "-h", 2) == 0) help(1);
   if (argc < 2) help(0);
