@@ -2,8 +2,6 @@
 #define CRC32_H
 
 #include <sys/types.h>
-#include <stdint.h>
-
 #ifndef HAVE_ZLIB
 uint32_t crc32(const void *buf, uint32_t size);
 #endif
