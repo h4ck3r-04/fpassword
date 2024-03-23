@@ -1,7 +1,11 @@
 #include <iostream>
-#include <getopt.h>
 #include "include/fpassword.h"
 #include <string.h>
+
+#ifdef LIBNCURSES
+#include <curses.h>
+#include <term.h>
+#endif
 
 void usage_oracle(const char *service);
 void usage_oracle_listener(const char *service);
