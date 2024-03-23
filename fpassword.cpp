@@ -540,7 +540,11 @@ void help(int32_t ext){
   exit(-1);
 }
 
-void help_bfg() {}
+void help_bfg() {
+  std::cout << "Fpassword bruteforce password generation option usage:" << std::endl << std::endl;
+  // To work
+  exit(-1);
+}
 
 void module_usage() {
   int32_t i;
