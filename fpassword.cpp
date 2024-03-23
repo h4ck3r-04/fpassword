@@ -278,7 +278,7 @@ typedef struct {
 } fpassword_target;
 
 typedef struct {
-  int32_t active;
+  int32_t active; // active tasks of fpassword_options.max_use
   int32_t targets;
   int32_t finished;
   int32_t exit;
@@ -362,7 +362,105 @@ static const struct {
   service_init_t init;
   service_t exec;
   service_usage_t usage;
-} services[]  = {};
+} services[]  = {
+  {"adam6500", service_adam6500_init, service_adam6500, NULL},
+  #ifdef LIBAFP
+  {"afp", service_afp_init, service_afp, NULL},
+  #endif
+  {"asterisk", service_asterisk_init, service_asterisk, NULL},
+  {"cisco", service_cisco_init, service_cisco, usage_cisco},
+  {"cisco-enable", service_cisco_enable_init, service_cisco_enable, usage_cisco_enable},
+  {"cvs", service_cvs_init, service_cvs, usage_cvs},
+  #ifdef LIBFIREBIRD
+  {"firebird", service_firebird_init, service_firebird, usage_firebird},
+  #endif
+  {"ftp", service_ftp_init, service_ftp, NULL},
+  {"ftps", service_ftp_init, service_ftps, NULL},
+  {"http-get", service_http_init, service_http_get, usage_http},
+  {"http-get-form", service_http_form_init, service_http_get_form, usage_http_form},
+  {"http-head", service_http_init, service_http_head, NULL},
+  {"http-form", service_http_form_init, NULL, usage_http_form},
+  {"http-post", service_http_init, service_http_post, usage_http},
+  {"http-post-form", service_http_form_init, service_http_post_form, usage_http_form},
+  {"http-proxy", service_http_proxy_init, service_http_proxy, usage_http_proxy},
+  {"http-proxy-urlenum", service_http_proxy_urlenum_init, service_http_proxy_urlenum, usage_http_proxy_urlenum},
+  {"icq", service_icq_init, service_icq, NULL},
+  {"imap", service_imap_init, service_imap, usage_imap},
+  {"irc", service_irc_init, service_irc, usage_irc},
+  {"ldap", service_ldap_init, service_ldap2, usage_ldap},
+  {"ldap2", service_ldap_init, service_ldap2, usage_ldap},
+  {"ldap3", service_ldap_init, service_ldap3, usage_ldap},
+  {"ldap3-crammd5", service_ldap_init, service_ldap3_cram_md5, usage_ldap},
+  {"ldap3-digestmd5", service_ldap_init, service_ldap3_digest_md5, usage_ldap},
+  #ifdef LIBMCACHED
+  {"memcached", service_mcached_init, service_mcached, NULL};
+  #endif
+  {"mssql", service_mssql_init, service_mssql, NULL},
+  {"cobaltstrike", service_cobaltstrike_init, service_cobaltstrike, NULL},
+  #ifdef LIBMONGODB
+  {"mongodb", service_mongodb_init, service_mongodb, usage_mongodb},
+  #endif
+  #ifdef HAVE_MATH_H
+  {"mysql", service_mysql_init, service_mysql, usage_mysql},
+  #endif
+  #ifdef LIBNCP
+  {"ncp", service_ncp_init, service_ncp, usage_ncp},
+  #endif
+  {"nntp", service_nntp_init, service_nntp, usage_nntp},
+  #ifdef LIBORACLE
+  {"oracle", service_oracle_init, service_oracle, usage_oracle}
+  #endif
+  #ifdef LIBOPENSSL
+  {"oracle-listener", service_oracle_listener_init, service_oracle_listener, usage_oracle_listener},
+  {"oracle-sid", service_oracle_sid_init, service_oracle_sid, NULL},
+  #endif
+  {"pcanywhere", service_pcanywhere_init, service_pcanywhere, NULL},
+  {"pcnfs", service_pcnfs_init, service_pcnfs, NULL},
+  {"pop3", service_pop3_init, service_pop3, usage_pop3},
+  #ifdef LIBPOSTGRES
+  {"postgresql", service_postgres_init, service_postgres, usage_postgres},
+  #endif
+  {"redis", service_redis_init, service_redis, NULL},
+  {"rexec", service_rexec_init, service_rexec, NULL},
+  #ifdef LIBFREERDP
+  {"rdp", service_rdp_init, service_rdp, usage_rdp},
+  #endif
+  {"rlogin", service_rlogin_init, service_rlogin, NULL},
+  {"rsh", service_rsh_init, service_rsh, NULL},
+  {"rtsp", service_rtsp_init, service_rtsp, NULL},
+  {"rpcap", service_rpcap_init, service_rpcap, NULL},
+  {"s7-300", service_s7_300_init, service_s7_300, usage_s7_300},
+  #ifdef LIBSAPR3
+  {"sarp3", service_sapr3_init, service_sapr3, usage_sapr3},
+  #endif
+  #ifdef LIBOPENSSL
+  {"sip", service_sip_init, service_sip, NULL},
+  {"smbnt", service_smbnt_init, service_smbnt, usage_smb},
+  {"smb", service_smb_init, service_smb, usage_smb},
+  #endif
+  #if defined(LIBSMBCLIENT)
+  {"smb2", service_smb2_init, service_smb2, usage_smb2},
+  #endif
+  {"smtp", service_smtp_init, service_smtp, usage_smtp},
+  {"smtp-enum", service_smtp_enum_init, service_smtp_enum, usage_smtp_enum},
+  {"snmp", service_snmp_init, service_snmp, usage_snmp},
+  {"socks5", service_socks5_init, service_socks5, NULL},
+  #ifdef LIBSSH
+  {"ssh", NULL, service_ssh, NULL},
+  {"sshkey", service_sshkey_init, service_sshkey, usage_sshkey},
+  #endif
+  #ifdef LIBSVN
+  {"svn", service_svn_init, service_svn, usage_svn},
+  #endif
+  {"teamspeak", service_teamspeak_init, service_teamspeak, NULL},
+  {"telnet", service_telnet_init, service_telnet, usage_telnet},
+  {"vmauthd", service_vmauthd_init, service_vmauthd, NULL},
+  {"vnc", service_vnc_init, service_vnc, NULL},
+  #ifdef HAVE_GCRYPT
+  {"radmin2", service_radmin2_init, service_radmin2, NULL},
+  #endif
+  {"xmpp", service_xmpp_init, NULL, usage_xmpp}
+};
 
 int32_t check_flag(int32_t value, int32_t flag) {
   return (value & flag) == flag;
