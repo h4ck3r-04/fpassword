@@ -477,6 +477,67 @@ void help(int32_t ext){
   //"[server service [OPT]]|"
   "[service://server[:PORT][/OPT]]"
   << std::endl;
+  std::cout << ext << std::endl << "Options" << std::endl;
+  std::cout << ext << "  -R        restore a previous aborted/crashed session" << std::endl
+  << "  -I        ignore an existing restore file (don't wait 10 seconds)" << std::endl
+  #ifdef LIBOPENSSL
+  << "  -S        perform an SSL connect" << std::endl
+  #endif
+  << "  -s PORT   if the service is on a different default port, define it here" << std::endl;
+  std::cout << ext << "  -l LOGIN or -L FILE  login with LOGIN name, or load several logins from FILE" << std::endl
+  << "  -p PASS  or -P FILE  try password PASS, or load several passwords from FILE" << std::endl;
+  std::cout << ext
+  #ifdef HAVE_MATH_H
+  << "  -x MIN:MAX:CHARSET  password bruteforce generation, type \"-x -h\" to get help" << std::endl
+  << "  -y        disable use of symbols in bruteforce, see above" << std::endl
+  << "  -r        use a non-random shuffling method for option -x" << std::endl
+  #endif
+  << "  -e nsr    try \"n\" null password, \"s\" login as pass and/or \"r\" reversed login" << std::endl
+  << "  -u        loop around users, not passwords (effective! implied with -x)" << std::endl;
+  std::cout << ext << "  -C FILE   colon separated \"login:pass\" format, instead of -L/-P options" << std::endl
+  << "  -M FILE   list of servers to attack, one entry per line, ':' to specify port" << std::endl;
+  std::cout << ext << "  -o FILE   write found login/password pairs to FILE instead of stdout" << std::endl
+  << "  -b FORMAT specify the format for the -o FILE: text(default), json, jsonv1" << std::endl
+  << "  -f / -F   exit when a login/pass pair is found (-M: -f per host, -F global)" << std::endl;
+  std::cout << ext << "  -t TASKS  run TASKS number of connects in parallel per target (default:" << TASKS << ")" << std::endl;
+  std::cout << ext <<  "  -T TASKS  run TASKS connects in parallel overall (for -M, default: " << MAXTASKS << ")" << std::endl
+  << "  -w / -W TIME  wait time for a response (" << WAITTIME << ") / between connects per thread (" << conwait << ")" << std::endl
+  #ifdef MSG_PEEK
+  << "  -c TIME   wait time per login attempt over all threads (enforces -t 1)" << std::endl
+  #endif
+  << "  -4 / -6   use IPv4 (default) / IPv6 addresses (put always in [] also in -M)" << std::endl
+  << "  -v / -V / -d  verbose mode / show login+pass for each attempt / debug mode " << std::endl
+  << "  -O        use old SSL v2 and v3" << std::endl
+  << "  -K        do not redo failed attempts (good for -M mass scanning)" << std::endl
+  << "  -q        do not print messages about connection errors" << std::endl;
+  std::cout << ext << "  -U        service module usage details" << std::endl
+  << "  -m OPT    options specific for a module, see -U output for information" << std::endl
+  << "  -h        more command line options (COMPLETE HELP)" << std::endl
+  << "  server    the target: DNS, IP or 192.168.0.0/24 (this OR the -M option)" << std::endl
+  << "  service   the service to crack (see below for supported protocols)" << std::endl
+  << "  OPT       some service modules support additional input (-U for module help)" << std::endl;
+  std::cout << ext << std::endl << "Supported services: " << SERVICES << std::endl
+  << std::endl << PROGRAM << " is a tool to guess/crack valid login/password pairs." << std::endl
+  << "Licensed under MIT LICENSE. The newest version is always available at;" << std::endl << RESOURCE << std ::endl
+  << "Please don't use in military or secret service organizations, or for illegal" << std::endl
+  << "purposes. (This is a wish and non-binding - most such people do not care about" << std::endl
+  << "laws and ethics anyway - and tell themselves they are one of the good ones.)" << std::endl;
+  if (ext && strlen(unsupported) > 0) {
+    if (unsupported[strlen(unsupported) - 1] == ' ')
+      unsupported[strlen(unsupported) - 1] = 0;
+    std::cout << "These services were not compiled in: " << unsupported << "." << std::endl;
+  }
+  std::cout << ext << std::endl << "Use FPASSWORD_PROXY_HTTP or FPASSWORD_PROXY environment variables for a proxy setup." << std::endl
+  << "E.g. %% export FPASSWORD_PROXY=socks5://l:p@127.0.0.1:9150 (or: socks4:// connect://)" << std::endl
+  << "     %% export FPASSWORD_PROXY=connect_and_socks_proxylist.txt  (up to 64 entries)" << std::endl
+  << "     %% export FPASSWORD_PROXY_HTTP=http://login:pass@proxy:8080" << std::endl
+  << "     %% export FPASSWORD_PROXY_HTTP=proxylist.txt  (up to 64 entries)" << std::endl;
+  std::cout << ext << std::endl << "Example" << (ext == 0 ? "" : "s") << ":" << (ext == 0 ? "" : "\n") << " fpassword -l user -P passlist.txt ftp://192.168.0.1" << std::endl;
+  std::cout << ext << "  fpassword -L userlist.txt -p defaultpw imap://192.168.0.1/PLAIN" << std::endl
+  << "  fpassword -C defaults.txt -6 pop3s://[2001:db8::1]:143/TLS:DIGEST-MD5" << std::endl
+  << "  fpassword -l admin -p password ftp://[192.168.0.0/24]/" << std::endl
+  << "  fpassword -L logins.txt -P pws.txt -M targets.txt ssh" << std::endl;
+  exit(-1);
 }
 
 void help_bfg() {}
