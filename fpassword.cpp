@@ -467,7 +467,16 @@ int32_t check_flag(int32_t value, int32_t flag) {
 }
 
 void help(int32_t ext){
-  std::cout << "help" << std::endl;
+  std::cout << ext << "Syntax: fpassword [[[-l LOGIN|-L FILE] [-p PASS|-P FILE]] |"
+  "[-C FILE]] [-e nsr] [-o FILE] [-t TASKS] [-M FILE [-T TASKS]] [-w TIME] [-W "
+  "TIME] [-f] [-s PORT]"
+  #ifdef HAVE_MATH_H
+  " [-x MIN:MAX:CHARSET]"
+  #endif
+  " [-c TIME] [-ISOuvVd46] [-m MODULE_OPT] "
+  //"[server service [OPT]]|"
+  "[service://server[:PORT][/OPT]]"
+  << std::endl;
 }
 
 void help_bfg() {}
