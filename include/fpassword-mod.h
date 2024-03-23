@@ -35,7 +35,7 @@ extern int32_t fpassword_data_ready(int32_t socket);
 extern int32_t fpassword_recv(int32_t socket, char *buf, uint32_t length);
 extern int32_t fpassword_recv_nb(int32_t socket, char *buf, uint32_t length);
 extern char *fpassword_receive_line(int32_t socket);
-extern int32_t fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options);
+extern int32_t fpassword_send(int32_t socket, unsigned char *buf, uint32_t size, int32_t options);
 extern int32_t make_to_lower(char *buf);
 extern unsigned char fpassword_conv64(unsigned char in);
 extern void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize);
