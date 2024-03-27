@@ -52,7 +52,7 @@ int32_t sasl_saslprep(const char *in, sasl_saslprep_flags flags, char **out) {
       return -1;
     }
   }
-  *out = malloc(inlen + 1);
+  *out = (char *)malloc(inlen + 1);
   if (!*out) {
     fpassword_report(stderr, "Error: Can't allocate memory\n");
     return -1;
@@ -77,7 +77,7 @@ char *sasl_plain(char *result, char *login, char *pass) {
     result = NULL;
     return result;
   }
-  rc = sasl_saslprep(pass, 0, &preppasswd);
+  rc = sasl_saslprep(pass, (sasl_saslprep_flags)0, &preppasswd);
   if (rc) {
     free(preplogin);
     result = NULL;
