@@ -197,7 +197,7 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
       }
 #endif
     }
-    signal(SIGALRM, alarming);
+    signal(SIGALRM, (void (*) (int))alarming);
     do {
       if (fail > 0)
         sleep(WAIT_BETWEEN_CONNECT_RETRY);
@@ -258,7 +258,7 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
 
     err = 0;
     if (use_proxy == 2) {
-      if ((buf = malloc(4096)) == NULL) {
+      if ((buf = (char *) malloc(4096)) == NULL) {
         fprintf(stderr, "[ERROR] could not malloc()\n");
         close(s);
         if (reset_selected)
@@ -924,7 +924,7 @@ int32_t fpassword_recv(int32_t socket, char *buf, uint32_t length) {
   ret = internal__fpassword_recv(socket, buf, length);
   if (debug) {
     sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
-    fpassword_dump_data(buf, ret, text);
+    fpassword_dump_data((unsigned char *)buf, ret, text);
     // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN|%s|END [pid:%d ret:%d]",
     // buf, getpid(), ret);
   }
@@ -940,13 +940,13 @@ int32_t fpassword_recv_nb(int32_t socket, char *buf, uint32_t length) {
       buf[0] = 0;
       if (debug) {
         sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
-        fpassword_dump_data(buf, ret, text);
+        fpassword_dump_data((unsigned char *)buf, ret, text);
       }
       return ret;
     }
     if (debug) {
       sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
-      fpassword_dump_data(buf, ret, text);
+      fpassword_dump_data((unsigned char *)buf, ret, text);
       // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN|%s|END [pid:%d ret:%d]",
       // buf, getpid(), ret);
     }
@@ -958,7 +958,7 @@ char *fpassword_receive_line(int32_t socket) {
   char buf[1024], *buff, *buff2, pid[64];
   int32_t i, j, k, got = 0;
 
-  if ((buff = malloc(sizeof(buf))) == NULL) {
+  if ((buff = (char *)malloc(sizeof(buf))) == NULL) {
     fprintf(stderr, "[ERROR] could not malloc\n");
     return NULL;
   }
@@ -980,7 +980,7 @@ char *fpassword_receive_line(int32_t socket) {
 
         buf[j] = 0;
 
-        if ((buff2 = realloc(buff, got + j + 1)) == NULL) {
+        if ((buff2 = (char *)realloc(buff, got + j + 1)) == NULL) {
           free(buff);
           return NULL;
         }
@@ -1002,7 +1002,7 @@ char *fpassword_receive_line(int32_t socket) {
     if (got > 0) {
       if (debug) {
         sprintf(pid, "[DEBUG] RECV [pid:%d]", getpid());
-        fpassword_dump_data(buff, got, pid);
+        fpassword_dump_data((unsigned char *)buff, got, pid);
         // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN [pid:%d len:%d]|%s|END",
         // getpid(), got, buff);
       }
@@ -1036,7 +1036,7 @@ int32_t fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options
 
   if (debug) {
     sprintf(text, "[DEBUG] SEND [pid:%d]", getpid());
-    fpassword_dump_data(buf, size, text);
+    fpassword_dump_data((unsigned char *)buf, size, text);
 
     /*    int32_t k;
         char *debugbuf = malloc(size + 1);
@@ -1332,10 +1332,10 @@ char *fpassword_string_replace(const char *string, const char *substr, const cha
     return NULL;
   if (substr == NULL || replacement == NULL)
     return strdup(string);
-  tok = strstr(string, substr);
+  tok = (char *)strstr(string, substr);
   if (tok == NULL)
     return strdup(string);
-  newstr = malloc(strlen(string) - strlen(substr) + strlen(replacement) + 2);
+  newstr = (char *)malloc(strlen(string) - strlen(substr) + strlen(replacement) + 2);
   if (newstr == NULL)
     return NULL;
   memset(newstr, 0, strlen(string) - strlen(substr) + strlen(replacement) + 2);
