@@ -1,7 +1,7 @@
 #ifndef _FPASSWORD_MOD_H
 #define _FPASSWORD_MOD_H
 
-#include "fpassword.h"
+#include "include/fpassword.h"
 
 #ifdef __sun
 #include <sys/int_types.h>
