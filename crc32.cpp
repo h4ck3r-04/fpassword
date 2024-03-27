@@ -63,7 +63,7 @@ uint32_t crc32(const void *buf, uint32_t size) {
   const unsigned char *p;
   uint32_t crc;
 
-  p = buf;
+  p = (unsigned char *)buf;
   crc = ~0U;
 
   while (size--)
