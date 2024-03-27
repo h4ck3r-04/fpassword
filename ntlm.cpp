@@ -601,7 +601,7 @@ static void concat(char *out, char *in1, char *in2, int32_t l1, int32_t l2) {
     *out++ = *in2++;
 }
 
-void xor
+void XOR
     (char *out, char *in1, char *in2, int32_t n) {
       int32_t i;
 
@@ -652,7 +652,7 @@ void xor
 
     permute(er, r, perm4, 48);
 
-    xor(erk, er, ki[forw ? i : 15 - i], 48);
+    XOR(erk, er, ki[forw ? i : 15 - i], 48);
 
     for (j = 0; j < 8; j++)
       for (k = 0; k < 6; k++)
@@ -674,7 +674,7 @@ void xor
         cb[j * 4 + k] = b[j][k];
     permute(pcb, cb, perm5, 32);
 
-    xor(r2, l, pcb, 32);
+    XOR(r2, l, pcb, 32);
 
     for (j = 0; j < 32; j++)
       l[j] = r[j];
@@ -1374,7 +1374,8 @@ int32_t from64tobits(char *out, const char *in)
 /* base 64 to raw bytes in quasi-big-endian order, returning count of bytes */
 {
   int32_t len = 0;
-  register unsigned char digit1, digit2, digit3, digit4;
+  // register unsigned char digit1, digit2, digit3, digit4;
+  unsigned char digit1, digit2, digit3, digit4;
 
   if (in[0] == '+' && in[1] == ' ')
     in += 2;

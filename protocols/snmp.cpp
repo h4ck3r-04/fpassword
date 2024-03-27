@@ -317,7 +317,7 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
       j = htonl(engine_boots);
       memcpy(privacy_params, (char *)&j, 4);
       memcpy(privacy_params + 4, salt, 4); // ??? correct?
-      // xor initVect with salt
+      // XOR initVect with salt
       for (i = 0; i < 8; i++)
         initVect[i] ^= privacy_params[i];
       DES_key_sched((const_DES_cblock *)key, &symcbc);

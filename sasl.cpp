@@ -673,7 +673,7 @@ char *sasl_scram_sha1(char *result, char *pass, char *clientfirstmessagebare, ch
   HMAC(EVP_sha1(), StoredKey, SHA_DIGEST_LENGTH, (const unsigned char *)AuthMessage, strlen(AuthMessage), ClientSignature, &resultlen);
 
   /* ClientProof := ClientKey XOR ClientSignature */
-  xor(ClientProof, (char *)ClientKey, (char *)ClientSignature, 20);
+  XOR(ClientProof, (char *)ClientKey, (char *)ClientSignature, 20);
   to64frombits(clientproof_b64, (const unsigned char *)ClientProof, 20);
   snprintf(result, 500, "%s,p=%s", clientfinalmessagewithoutproof, clientproof_b64);
   if (debug)

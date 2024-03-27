@@ -142,7 +142,7 @@ void buildAuthResponse(tSmbNtlmAuthChallenge *challenge, tSmbNtlmAuthResponse *r
 int32_t from64tobits(char *out, const char *in);
 void to64frombits(unsigned char *out, const unsigned char *in, int32_t inlen);
 
-void xor (char *out, char *in1, char *in2, int32_t n);
+void XOR (char *out, char *in1, char *in2, int32_t n);
 
 // info functions
 void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request);
