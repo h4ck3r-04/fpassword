@@ -32,7 +32,7 @@ int32_t start_http(int32_t s, char *ip, int32_t port, unsigned char options, cha
   header = stringify_headers(&ptr_head);
 
   buffer_size = strlen(header) + 500;
-  if (!(buffer = malloc(buffer_size))) {
+  if (!(buffer = (char *)malloc(buffer_size))) {
     free(header);
     return 3;
   }
@@ -218,7 +218,7 @@ int32_t start_http(int32_t s, char *ip, int32_t port, unsigned char options, cha
       http_buf = fpassword_receive_line(s);
     } else if (tmpreplybuf[0] != 0) {
       complete_line = 1;
-      if ((tmpreplybufptr = malloc(strlen(tmpreplybuf) + strlen(http_buf) + 1)) != NULL) {
+      if ((tmpreplybufptr = (char *)malloc(strlen(tmpreplybuf) + strlen(http_buf) + 1)) != NULL) {
         strcpy(tmpreplybufptr, tmpreplybuf);
         strcat(tmpreplybufptr, http_buf);
         free(http_buf);
@@ -331,7 +331,7 @@ void service_http(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
     webport = mysslport;
 
   /* normalise the webtarget for ipv6/port number */
-  webtarget = malloc(strlen(hostname) + 1 /* null */ + 6 /* :65535  */
+  webtarget = (char *)malloc(strlen(hostname) + 1 /* null */ + 6 /* :65535  */
 #ifdef AF_INET6
                      + 2 /* [] */
 #endif
