@@ -32,7 +32,7 @@ uint32_t checksum(struct rmessage *msg) {
   blen += (4 - (blen % 4));
 
   // Allocate a worksapce.
-  stream = calloc(blen, sizeof(uint8_t));
+  stream = (uint8_t *)calloc(blen, sizeof(uint8_t));
   memcpy(stream, &msg->type, sizeof(uint8_t));
   memcpy(stream + 1, msg->data, blen - 1);
 
@@ -121,7 +121,7 @@ char *message2buffer(struct rmessage *msg) {
 
 struct rmessage *buffer2message(char *buffer) {
   struct rmessage *msg;
-  msg = calloc(1, sizeof(struct rmessage));
+  msg = (rmessage *)calloc(1, sizeof(struct rmessage));
   if (msg == NULL) {
     fpassword_report(stderr, "calloc failure\n");
     fpassword_child_exit(0);
