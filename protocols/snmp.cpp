@@ -26,7 +26,7 @@ unsigned char snmpv3_nouser[] = {0x04, 0x00, 0x04, 0x00, 0x04, 0x00};
 struct SNMPV1_A {
   char ID;
   char len;
-  char ver[3];
+  char ver[4];
   char comid;
   char comlen;
 };
@@ -38,13 +38,13 @@ struct SNMPV1_A snmpv1_a = {.ID = '\x30',
                             .comlen = '\x00'};
 
 struct SNMPV1_R {
-  unsigned char type[2];
-  unsigned char identid[2];
-  unsigned char ident[4];
-  unsigned char errstat[3];
-  unsigned char errind[3];
-  unsigned char objectid[2];
-  unsigned char object[11];
+  unsigned char type[3];
+  unsigned char identid[3];
+  unsigned char ident[5];
+  unsigned char errstat[4];
+  unsigned char errind[4];
+  unsigned char objectid[3];
+  unsigned char object[12];
   unsigned char value[3];
 } snmpv1_r = {
     .type = "\xa0\x1b", /* GET */
@@ -58,14 +58,14 @@ struct SNMPV1_R {
 };
 
 struct SNMPV1_W {
-  unsigned char type[2];
-  unsigned char identid[2];
-  unsigned char ident[4];
-  unsigned char errstat[3];
-  unsigned char errind[3];
-  unsigned char objectid[2];
-  unsigned char object[12];
-  unsigned char value[8];
+  unsigned char type[3];
+  unsigned char identid[3];
+  unsigned char ident[5];
+  unsigned char errstat[4];
+  unsigned char errind[4];
+  unsigned char objectid[3];
+  unsigned char object[13];
+  unsigned char value[11];
 } snmpv1_w = {
     .type = "\xa3\x21", /* SET */
     .identid = "\x02\x04",
@@ -412,7 +412,7 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
       if (debug)
         printf("[DEBUG] buf[%d + 15] %d\n", off, buf[off + 15]);
       k = 3 + off + buf[2 + off];
-      if ((j = fpassword_memsearch(buf + k, buf[k + 3], snmpv3_nouser, sizeof(snmpv3_nouser))) < 0)
+      if ((j = fpassword_memsearch(buf + k, buf[k + 3], (char *)snmpv3_nouser, sizeof(snmpv3_nouser))) < 0)
         if ((j = fpassword_memsearch(buf + k, buf[k + 3], login, strlen(login))) >= 0) {
           if (snmpv3info[j - 2] == 0x04)
             j -= 2;
@@ -426,7 +426,7 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
         memcpy(snmpv3info, buf + k, i);
         snmpv3infolen = j;
         if (debug)
-          fpassword_dump_asciihex(snmpv3info, snmpv3infolen);
+          fpassword_dump_asciihex((unsigned char *)snmpv3info, snmpv3infolen);
       }
 
       if ((buf[off + 15] & 1) == 1) {
@@ -438,7 +438,7 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
         if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
           return 3;
         return 1;
-      } else if ((buf[off + 15] & 5) == 4 && fpassword_memsearch(buf, i, snmpv3_nouser,
+      } else if ((buf[off + 15] & 5) == 4 && fpassword_memsearch(buf, i, (char *)snmpv3_nouser,
                                                              sizeof(snmpv3_nouser)) >= 0) { // user does not exist
         if (verbose)
           printf("[INFO] user %s does not exist, skipping\n", login);
@@ -512,7 +512,7 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   if (snmpversion == 3) {
     next_run = 0;
     while (snmpv3info == NULL && next_run < 3) {
-      fpassword_send(sock, snmpv3_init, sizeof(snmpv3_init), 0);
+      fpassword_send(sock, (char *)snmpv3_init, sizeof(snmpv3_init), 0);
       if (fpassword_data_ready_timed(sock, 5, 0) > 0) {
         if ((i = fpassword_recv(sock, (char *)snmpv3buf, sizeof(snmpv3buf))) > 30) {
           if (snmpv3buf[4] == 3 && snmpv3buf[5] == 0x30) {
@@ -522,7 +522,7 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
               while (snmpv3info[snmpv3infolen - 2] == 4 && snmpv3info[snmpv3infolen - 1] == 0 && snmpv3infolen > 1)
                 snmpv3infolen -= 2;
               if (debug)
-                fpassword_dump_asciihex(snmpv3info, snmpv3infolen);
+                fpassword_dump_asciihex((unsigned char *)snmpv3info, snmpv3infolen);
               if (snmpv3info[10] == 3 && child_head_no == 0)
                 printf("[INFO] Remote device MAC address is "
                        "%02x:%02x:%02x:%02x:%02x:%02x\n",
