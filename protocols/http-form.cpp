@@ -1291,7 +1291,7 @@ ptr_header_node initialize(char *ip, unsigned char options, char *miscptr) {
     webport = PORT_HTTP_SSL;
 
   /* normalise the webtarget for ipv6/port number */
-  ptr = malloc(strlen(webtarget) + 1 /* null */ + 6 /* :65535  */
+  ptr = (char *)malloc(strlen(webtarget) + 1 /* null */ + 6 /* :65535  */
 #ifdef AF_INET6
                + 2 /* [] */
 #endif
@@ -1342,19 +1342,19 @@ ptr_header_node initialize(char *ip, unsigned char options, char *miscptr) {
     optional1 = NULL;
 
   if (strstr(url, "\\:") != NULL) {
-    if ((ptr = malloc(strlen(url) + 1)) != NULL) {
+    if ((ptr = (char *)malloc(strlen(url) + 1)) != NULL) {
       strcpy(ptr, fpassword_strrep(url, "\\:", ":"));
       url = ptr;
     }
   }
   if (strstr(variables, "\\:") != NULL) {
-    if ((ptr = malloc(strlen(variables) + 1)) != NULL) {
+    if ((ptr = (char *)malloc(strlen(variables) + 1)) != NULL) {
       strcpy(ptr, fpassword_strrep(variables, "\\:", ":"));
       variables = ptr;
     }
   }
   if (strstr(cond, "\\:") != NULL) {
-    if ((ptr = malloc(strlen(cond) + 1)) != NULL) {
+    if ((ptr = (char *)malloc(strlen(cond) + 1)) != NULL) {
       strcpy(ptr, fpassword_strrep(cond, "\\:", ":"));
       cond = ptr;
     }
