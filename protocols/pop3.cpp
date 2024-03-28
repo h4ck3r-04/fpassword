@@ -23,7 +23,7 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
 pool *list_create(pool data) {
   pool *p;
 
-  if (!(p = malloc(sizeof(pool))))
+  if (!(p = (pool *)malloc(sizeof(pool))))
     return NULL;
 
   memcpy(p->ip, data.ip, 36);
