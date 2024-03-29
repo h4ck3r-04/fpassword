@@ -81,6 +81,10 @@
     "utility": "cpp",
     "stop_token": "cpp",
     "thread": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "__std_stream": "cpp",
+    "codecvt": "cpp",
+    "fstream": "cpp",
+    "stack": "cpp"
   }
 }
