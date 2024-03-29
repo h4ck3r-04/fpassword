@@ -12,7 +12,7 @@ void dummy_afp() { printf("\n"); }
 
 #include <afpfs-ng/afp.h>
 #include <afpfs-ng/libafpclient.h>
-#include <stdio.h>
+#include <iostream>
 
 extern char *FPASSWORD_EXIT;
 

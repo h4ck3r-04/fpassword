@@ -36,7 +36,7 @@
 
    */
 
-#include <stdio.h>
+#include <iostream>
 #ifdef WIN32
 #else
 #include <unistd.h>

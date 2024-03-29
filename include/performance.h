@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdio.h>
+#include <iostream>
 
 /* handles select errors */
 int32_t my_select(int32_t fd, fd_set *fdread, fd_set *fdwrite, fd_set *fdex, long sec, long usec) {

@@ -7,7 +7,7 @@
 #include "include/fpassword-mod.h"
 
 #ifndef HAVE_MATH_H
-#include <stdio.h>
+#include <iostream>
 void dummy_mysql() { printf("\n"); }
 
 void service_mysql(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) { printf("\n"); }

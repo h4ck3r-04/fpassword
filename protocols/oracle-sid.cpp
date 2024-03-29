@@ -10,7 +10,7 @@ find a big list on the Internet
 
 #include "include/fpassword-mod.h"
 #ifndef LIBOPENSSL
-#include <stdio.h>
+#include <iostream>
 void dummy_oracle_sid() { printf("\n"); }
 #else
 #include <openssl/des.h>

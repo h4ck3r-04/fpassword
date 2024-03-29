@@ -17,7 +17,7 @@ void dummy_ncp() { printf("\n"); }
 #else
 
 #include <ncp/nwcalls.h>
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 

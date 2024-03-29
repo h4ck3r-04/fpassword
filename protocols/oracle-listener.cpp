@@ -12,7 +12,7 @@ at http://marcellmajor.com/frame_listenerhash.html
 
 #include "include/fpassword-mod.h"
 #ifndef LIBOPENSSL
-#include <stdio.h>
+#include <iostream>
 void dummy_oracle_listener() { printf("\n"); }
 #else
 #include "include/sasl.h"
