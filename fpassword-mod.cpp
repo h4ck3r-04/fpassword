@@ -70,7 +70,8 @@ void alarming() {
   // fprintf(stderr, "Process %d: Can not connect [timeout], process exiting\n",
   // (int32_t) getpid());
   if (debug)
-    printf("DEBUG_CONNECT_TIMEOUT\n");
+    std::cout << "DEBUG_CONNECT_TIMEOUT" << std::endl;
+    // printf("DEBUG_CONNECT_TIMEOUT\n");
   fpassword_child_exit(1);
 
   /*
@@ -84,7 +85,8 @@ void alarming() {
 
 void interrupt() {
   if (debug)
-    printf("DEBUG_INTERRUPTED\n");
+    std::cout << "DEBUG_INTERRUPTED" << std::endl;
+    // printf("DEBUG_INTERRUPTED\n");
 }
 
 /* ----------------- internal functions ----------------- */
@@ -237,7 +239,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
     } while (ret < 0 && fail <= MAX_CONNECT_RETRY && do_retry);
     if (ret < 0 && fail > MAX_CONNECT_RETRY) {
       if (debug)
-        printf("DEBUG_CONNECT_UNREACHABLE\n");
+        std::cout << "DEBUG_CONNECT_UNREACHABLE" << std::endl;
+        // printf("DEBUG_CONNECT_UNREACHABLE\n");
 
       /* we wont quit here, thats up to the module to decide what to do
        *              fprintf(stderr, "Process %d: Can not connect
@@ -254,7 +257,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
     ret = s;
     extern_socket = s;
     if (debug)
-      printf("DEBUG_CONNECT_OK\n");
+      std::cout << "DEBUG_CONNECT_OK" << std::endl;
+      // printf("DEBUG_CONNECT_OK\n");
 
     err = 0;
     if (use_proxy == 2) {
@@ -299,15 +303,18 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
           char *ptr = strchr(buf, '\r');
           if (ptr != NULL)
             *ptr = 0;
-          printf("DEBUG_CONNECT_PROXY_SENT: %s\n", buf);
+          // printf("DEBUG_CONNECT_PROXY_SENT: %s\n", buf);
+          std::cout << "DEBUG_CONNECT_PROXY_SENT: " << buf << std::endl;
         }
         recv(s, buf, 4096, 0);
         if (strncmp("HTTP/", buf, 5) == 0 && (tmpptr = strchr(buf, ' ')) != NULL && *++tmpptr == '2') {
           if (debug)
-            printf("DEBUG_CONNECT_PROXY_OK\n");
+            // printf("DEBUG_CONNECT_PROXY_OK\n");
+            std::cout << "DEBUG_CONNECT_PROXY_OK" << std::endl;
         } else {
           if (debug && tmpptr)
-            printf("DEBUG_CONNECT_PROXY_FAILED (Code: %c%c%c)\n", *tmpptr, *(tmpptr + 1), *(tmpptr + 2));
+            // printf("DEBUG_CONNECT_PROXY_FAILED (Code: %c%c%c)\n", *tmpptr, *(tmpptr + 1), *(tmpptr + 2));
+            std::cout << "DEBUG_CONNECT_PROXY_FAILED (Code: " << *tmpptr << *(tmpptr + 1) << *(tmpptr + 2) << ")" << std::endl ;
           if (verbose && tmpptr)
             fprintf(stderr, "[ERROR] CONNECT call to proxy failed with code %c%c%c\n", *tmpptr, *(tmpptr + 1), *(tmpptr + 2));
           err = 1;
@@ -631,7 +638,8 @@ void fpassword_child_exit(int32_t code) {
   char buf[2];
 
   if (debug)
-    printf("[DEBUG] pid %d called child_exit with code %d\n", getpid(), code);
+    // printf("[DEBUG] pid %d called child_exit with code %d\n", getpid(), code);
+    std::cout << "[DEBUG] pid " << getpid() << "called child_exit with code " << code << std::endl ;
   if (code == 0) /* normal quitting */
     __fck = write(intern_socket, "Q", 1);
   else if (code == 1) /* no connect possible */
@@ -893,7 +901,8 @@ int32_t fpassword_disconnect(int32_t socket) {
 #endif
   close(socket);
   if (debug)
-    printf("DEBUG_DISCONNECT\n");
+    // printf("DEBUG_DISCONNECT\n");
+    std::cout << "DEBUG_DISCONNECT" << std::endl;
   return -1;
 }
 
@@ -966,9 +975,10 @@ char *fpassword_receive_line(int32_t socket) {
   memset(buff, 0, sizeof(buf));
 
   if (debug)
-    printf("[DEBUG] fpassword_receive_line: waittime: %d, conwait: %d, socket: %d, "
-           "pid: %d\n",
-           waittime, conwait, socket, getpid());
+    // printf("[DEBUG] fpassword_receive_line: waittime: %d, conwait: %d, socket: %d, "
+    //        "pid: %d\n",
+    //        waittime, conwait, socket, getpid());
+    std::cout << "[DEBUG] fpassword_receive_line: waittime: "  << waittime << ", conwait: " << conwait << ", socket: " << socket << ",pid: " << getpid() << std::endl;
 
   if ((i = fpassword_data_ready_timed(socket, (long)waittime, 0)) > 0) {
     do {
@@ -1023,9 +1033,10 @@ char *fpassword_receive_line(int32_t socket) {
     usleepn(100);
   } else {
     if (debug)
-      printf("[DEBUG] fpassword_data_ready_timed: %d, waittime: %d, conwait: %d, "
-             "socket: %d\n",
-             i, waittime, conwait, socket);
+      // printf("[DEBUG] fpassword_data_ready_timed: %d, waittime: %d, conwait: %d, "
+      //        "socket: %d\n",
+      //        i, waittime, conwait, socket);
+      std::cout << "[DEBUG] fpassword_data_ready_timed: " << i << ", waittime: " << waittime << ", conwait: " << conwait << ", socket: " << socket << std::endl;
   }
 
   return buff;
