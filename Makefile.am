@@ -39,7 +39,7 @@ OBJ = protocols/vnc.o protocols/pcnfs.o protocols/rexec.o protocols/nntp.o proto
       protocols/svn.o protocols/pcanywhere.o protocols/sip.o protocols/oracle-sid.o protocols/oracle.o \
       protocols/vmauthd.o protocols/asterisk.o protocols/firebird.o protocols/afp.o \
       protocols/ncp.o protocols/http-proxy.o protocols/http-form.o protocols/irc.o \
-      protocols/redis.o protocols/rdp.o protocols/s7-300.c protocols/adam6500.o protocols/rtsp.o \
+      protocols/redis.o protocols/rdp.o protocols/s7-300.o protocols/adam6500.o protocols/rtsp.o \
       protocols/rpcap.o protocols/radmin2.o \
       crc32.o d3des.o bfg.o ntlm.o sasl.o hmacmd5.o fpassword-mod.o fpassword-time.o \
       protocols/smb2.o
@@ -54,7 +54,7 @@ OBJ1 = vnc.o pcnfs.o rexec.o nntp.o socks5.o \
       svn.o pcanywhere.o sip.o oracle-sid.o oracle.o \
       vmauthd.o asterisk.o firebird.o afp.o \
       ncp.o http-proxy.o http-form.o irc.o \
-      redis.o rdp.o s7-300.c adam6500.o rtsp.o \
+      redis.o rdp.o s7-300.o adam6500.o rtsp.o \
       rpcap.o radmin2.o \
       crc32.o d3des.o bfg.o ntlm.o sasl.o hmacmd5.o fpassword-mod.o fpassword-time.o \
       smb2.o
