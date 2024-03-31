@@ -29,20 +29,20 @@ SRC = protocols/vnc.c protocols/pcnfs.c protocols/rexec.c protocols/nntp.c proto
       protocols/rpcap.c protocols/radmin2.c protocols/cobaltstrike.c \
       fpassword-time.c crc32.c d3des.c bfg.c ntlm.c sasl.c hmacmd5.c fpassword-mod.c \
       smb2.c
-OBJ = vnc.o pcnfs.o rexec.o nntp.o socks5.o \
-      telnet.o cisco.o http.o ftp.o imap.o \
-      pop3.o smb.o icq.o cisco-enable.o ldap.o \
-      memcached.o mongodb.o mysql.o mssql.o cobaltstrike.o xmpp.o \
-      http-proxy-urlenum.o snmp.o cvs.o smtp.o \
-      smtp-enum.o sapr3.o ssh.o sshkey.o teamspeak.o \
-      postgres.o rsh.o rlogin.o oracle-listener.o \
-      svn.o pcanywhere.o sip.o oracle-sid.o oracle.o \
-      vmauthd.o asterisk.o firebird.o afp.o \
-      ncp.o http-proxy.o http-form.o irc.o \
-      redis.o rdp.o s7-300.c adam6500.o rtsp.o \
-      rpcap.o radmin2.o \
+OBJ = protocols/vnc.o protocols/pcnfs.o protocols/rexec.o protocols/nntp.o protocols/socks5.o \
+      protocols/telnet.o protocols/cisco.o protocols/http.o protocols/ftp.o protocols/imap.o \
+      protocols/pop3.o protocols/smb.o protocols/icq.o protocols/cisco-enable.o protocols/ldap.o \
+      protocols/memcached.o protocols/mongodb.o protocols/mysql.o protocols/mssql.o protocols/cobaltstrike.o protocols/xmpp.o \
+      protocols/http-proxy-urlenum.o protocols/snmp.o protocols/cvs.o protocols/smtp.o \
+      protocols/smtp-enum.o protocols/sapr3.o protocols/ssh.o protocols/sshkey.o protocols/teamspeak.o \
+      protocols/postgres.o protocols/rsh.o protocols/rlogin.o protocols/oracle-listener.o \
+      protocols/svn.o protocols/pcanywhere.o protocols/sip.o protocols/oracle-sid.o protocols/oracle.o \
+      protocols/vmauthd.o protocols/asterisk.o protocols/firebird.o protocols/afp.o \
+      protocols/ncp.o protocols/http-proxy.o protocols/http-form.o protocols/irc.o \
+      protocols/redis.o protocols/rdp.o protocols/s7-300.c protocols/adam6500.o protocols/rtsp.o \
+      protocols/rpcap.o protocols/radmin2.o \
       crc32.o d3des.o bfg.o ntlm.o sasl.o hmacmd5.o fpassword-mod.o fpassword-time.o \
-      smb2.o
+      protocols/smb2.o
 BINS = fpassword
 
 EXTRA_DIST = README README.arm README.palm CHANGES TODO INSTALL LICENSE \
