@@ -33,3 +33,8 @@
 
 .DS_Store
 fpassword
+Makefile
+Makefile.in
+fpassword.exe
+fpassword.restore
+*~
