@@ -5,7 +5,7 @@
  *
  */
 
-#include "d3des.h"
+#include "include/d3des.h"
 #include "include/fpassword-mod.h"
 
 #define CHALLENGESIZE 16
