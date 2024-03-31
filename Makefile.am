@@ -43,6 +43,21 @@ OBJ = protocols/vnc.o protocols/pcnfs.o protocols/rexec.o protocols/nntp.o proto
       protocols/rpcap.o protocols/radmin2.o \
       crc32.o d3des.o bfg.o ntlm.o sasl.o hmacmd5.o fpassword-mod.o fpassword-time.o \
       protocols/smb2.o
+
+OBJ1 = vnc.o pcnfs.o rexec.o nntp.o socks5.o \
+      telnet.o cisco.o http.o ftp.o imap.o \
+      pop3.o smb.o icq.o cisco-enable.o ldap.o \
+      memcached.o mongodb.o mysql.o mssql.o cobaltstrike.o xmpp.o \
+      http-proxy-urlenum.o snmp.o cvs.o smtp.o \
+      smtp-enum.o sapr3.o ssh.o sshkey.o teamspeak.o \
+      postgres.o rsh.o rlogin.o oracle-listener.o \
+      svn.o pcanywhere.o sip.o oracle-sid.o oracle.o \
+      vmauthd.o asterisk.o firebird.o afp.o \
+      ncp.o http-proxy.o http-form.o irc.o \
+      redis.o rdp.o s7-300.c adam6500.o rtsp.o \
+      rpcap.o radmin2.o \
+      crc32.o d3des.o bfg.o ntlm.o sasl.o hmacmd5.o fpassword-mod.o fpassword-time.o \
+      smb2.o
 BINS = fpassword
 
 EXTRA_DIST = README README.arm README.palm CHANGES TODO INSTALL LICENSE \
@@ -52,8 +67,8 @@ all:	fpassword
 	@echo
 	@echo Now type "make install"
 
-fpassword:	fpassword.c protocols/$(OBJ)
-	$(CC) $(OPTS) $(SEC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o fpassword fpassword.c $(OBJ) $(LIBS) $(XLIBS) $(XLIBPATHS) $(XIPATHS) $(XDEFINES)
+fpassword:	fpassword.c $(OBJ)
+	$(CC) $(OPTS) $(SEC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o fpassword fpassword.c $(OBJ1) $(LIBS) $(XLIBS) $(XLIBPATHS) $(XIPATHS) $(XDEFINES)
 	@echo
 
 .c.o:
