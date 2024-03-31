@@ -3,7 +3,7 @@
 #ifdef HAVE_ZLIB
 #include <zlib.h>
 #else
-#include "crc32.h"
+#include "include/crc32.h"
 #endif
 
 /*
