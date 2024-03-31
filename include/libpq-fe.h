@@ -26,7 +26,7 @@ extern "C" {
  * postgres_ext.h defines the backend's externally visible types,
  * such as Oid.
  */
-#include "postgres_ext.h"
+#include "include/postgres_ext.h"
 
 /* SSL type is needed here only to declare PQgetssl() */
 #ifdef USE_SSL

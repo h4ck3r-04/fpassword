@@ -34,7 +34,7 @@
  */
 #ifdef LIBOPENSSL
 
-#include "hmacmd5.h"
+#include "include/hmacmd5.h"
 #include <string.h>
 
 #define ZERO_STRUCT(x) memset((char *)&(x), 0, sizeof(x))

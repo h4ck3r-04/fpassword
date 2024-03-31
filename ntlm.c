@@ -41,7 +41,7 @@
 #else
 #include <unistd.h>
 #endif
-#include "ntlm.h"
+#include "include/ntlm.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>

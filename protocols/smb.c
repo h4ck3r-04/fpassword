@@ -2,7 +2,7 @@
 #ifndef LIBOPENSSL
 void dummy_smb() { printf("\n"); }
 #else
-#include "hmacmd5.h"
+#include "include/hmacmd5.h"
 #include "include/sasl.h"
 #include <openssl/des.h>
 #include <openssl/md4.h>

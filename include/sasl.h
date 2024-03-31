@@ -1,6 +1,6 @@
 
-#include "fpassword-mod.h"
-#include "ntlm.h"
+#include "include/fpassword-mod.h"
+#include "include/ntlm.h"
 #include <stdio.h>
 #include <string.h>
 

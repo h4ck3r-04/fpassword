@@ -11,7 +11,7 @@
 void dummy_postgres() { printf("\n"); }
 #else
 
-#include "libpq-fe.h" // Postgres connection functions
+#include "include/libpq-fe.h" // Postgres connection functions
 #include <stdio.h>
 
 #define DEFAULT_DB "template1"
