@@ -29,7 +29,7 @@ SRC = protocols/vnc.c protocols/pcnfs.c protocols/rexec.c protocols/nntp.c proto
       protocols/rpcap.c protocols/radmin2.c protocols/cobaltstrike.c \
       fpassword-time.c crc32.c d3des.c bfg.c ntlm.c sasl.c hmacmd5.c fpassword-mod.c \
       smb2.c
-OBJ = protocols/vnc.o protocols/pcnfs.o protocols/rexec.o protocols/nntp.o protocols/socks5.o \
+OBJ = ./vnc.o protocols/pcnfs.o protocols/rexec.o protocols/nntp.o protocols/socks5.o \
       protocols/telnet.o protocols/cisco.o protocols/http.o protocols/ftp.o protocols/imap.o \
       protocols/pop3.o protocols/smb.o protocols/icq.o protocols/cisco-enable.o protocols/ldap.o \
       protocols/memcached.o protocols/mongodb.o protocols/mysql.o protocols/mssql.o protocols/cobaltstrike.o protocols/xmpp.o \
