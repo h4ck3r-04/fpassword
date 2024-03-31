@@ -13,7 +13,7 @@
 #else
 #include <stdint.h>
 #endif
-#include "bfg.h"
+#include "include/bfg.h"
 
 bf_option bf_options;
 
