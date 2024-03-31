@@ -121,7 +121,7 @@ char *message2buffer(struct rmessage *msg) {
 
 struct rmessage *buffer2message(char *buffer) {
   struct rmessage *msg;
-  msg = (rmessage *)calloc(1, sizeof(struct rmessage));
+  msg = calloc(1, sizeof(struct rmessage));
   if (msg == NULL) {
     fpassword_report(stderr, "calloc failure\n");
     fpassword_child_exit(0);
