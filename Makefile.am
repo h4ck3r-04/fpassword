@@ -52,7 +52,7 @@ all:	fpassword
 	@echo
 	@echo Now type "make install"
 
-fpassword:	fpassword.c ./$(OBJ)
+fpassword:	fpassword.c protocols/$(OBJ)
 	$(CC) $(OPTS) $(SEC) $(LIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o fpassword fpassword.c $(OBJ) $(LIBS) $(XLIBS) $(XLIBPATHS) $(XIPATHS) $(XDEFINES)
 	@echo
 
