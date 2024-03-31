@@ -85,6 +85,7 @@
     "__std_stream": "cpp",
     "codecvt": "cpp",
     "fstream": "cpp",
-    "stack": "cpp"
+    "stack": "cpp",
+    "performance.h": "c"
   }
 }
