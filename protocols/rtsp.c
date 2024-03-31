@@ -12,7 +12,7 @@
 
 #include "include/fpassword-mod.h"
 #include "include/sasl.h"
-#include <iostream>
+#include <stdio.h>
 #include <string.h>
 
 extern char *FPASSWORD_EXIT;

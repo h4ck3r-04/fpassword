@@ -1,7 +1,7 @@
 
 #include "fpassword-mod.h"
 #include "ntlm.h"
-#include <iostream>
+#include <stdio.h>
 #include <string.h>
 
 #define AUTH_ERROR -1

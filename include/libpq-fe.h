@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include <iostream>
+#include <stdio.h>
 
 /*
  * postgres_ext.h defines the backend's externally visible types,

@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <libsmbclient.h>
 #include <stdbool.h>
-#include <iostream>
+#include <stdio.h>
 #include <string.h>
 
 extern fpassword_option fpassword_options;

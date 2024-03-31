@@ -9,7 +9,7 @@
 #include "include/fpassword-mod.h"
 
 #ifndef LIBOPENSSL
-#include <iostream>
+#include <stdio.h>
 void dummy_sip() { printf("\n"); }
 #else
 

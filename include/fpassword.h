@@ -1,6 +1,6 @@
 #ifndef _FPASSWORD_H
 
-#include <iostream>
+#include <stdio.h>
 #ifdef __sun
 #include <sys/int_types.h>
 #elif defined(__FreeBSD__) || defined(__IBMCPP__) || defined(_AIX) || defined(__APPLE__)

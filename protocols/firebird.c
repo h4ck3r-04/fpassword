@@ -18,7 +18,7 @@ void dummy_firebird() { printf("\n"); }
 #else
 
 #include <ibase.h>
-#include <iostream>
+#include <stdio.h>
 
 #define DEFAULT_DB "C:\\Program Files\\Firebird\\Firebird_1_5\\security.fdb"
 
