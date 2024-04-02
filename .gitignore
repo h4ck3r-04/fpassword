@@ -37,4 +37,5 @@ Makefile
 Makefile.in
 fpassword.exe
 fpassword.restore
+fpassword.dSYM/
 *~
