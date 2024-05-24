@@ -14,7 +14,7 @@ RUN set -x \
   #libgcrypt20-dev \
   #libgtk2.0-dev \
   libpcre3-dev \
-  #firebird-dev \
+  firebird-dev \
   libidn11-dev \
   libssh-dev \
   #libsvn-dev \
