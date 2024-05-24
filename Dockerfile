@@ -8,7 +8,7 @@ RUN set -x \
   #libmysqlclient-dev \
   default-libmysqlclient-dev \
   libgpg-error-dev \
-  #libmemcached-dev \
+  libmemcached-dev \
   #libgcrypt11-dev \
   libgcrypt-dev \
   #libgcrypt20-dev \
