@@ -18,8 +18,8 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{secrets.DOCKER_USERNAME}}/fpassword:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fpassword:latest
 
       - name: Inspect
         run: |
-          docker image inspect ${{secrets.DOCKER_USERNAME}}/fpassword:latest
+          docker image inspect ${{ secrets.DOCKERHUB_USERNAME }}/fpassword:latest
