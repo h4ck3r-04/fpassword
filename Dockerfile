@@ -17,7 +17,7 @@ RUN set -x \
   firebird-dev \
   libidn11-dev \
   libssh-dev \
-  #libsvn-dev \
+  libsvn-dev \
   libssl-dev \
   #libpq-dev \
   make \
