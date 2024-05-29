@@ -85,7 +85,7 @@ http://technet.microsoft.com/en-us/library/cc960646.aspx
 #endif
 
 #ifndef TIME_T_MIN
-#define TIME_T_MIN ((time_t)0 < (time_t)-1 ? (time_t)0 : ~(time_t)0 << (sizeof(time_t) * CHAR_BIT - 1))
+#define TIME_T_MIN ((time_t)0 < (time_t) - 1 ? (time_t)0 : ~(time_t)0 << (sizeof(time_t) * CHAR_BIT - 1))
 #endif
 #ifndef TIME_T_MAX
 #define TIME_T_MAX (~(time_t)0 - TIME_T_MIN)
@@ -106,29 +106,39 @@ int32_t hashFlag, accntFlag, protoFlag;
 int32_t smb_auth_mechanism = AUTH_NTLM;
 int32_t security_mode = ENCRYPTED;
 
-static size_t UTF8_UTF16LE(unsigned char *in, int32_t insize, unsigned char *out, int32_t outsize) {
+static size_t UTF8_UTF16LE(unsigned char *in, int32_t insize, unsigned char *out, int32_t outsize)
+{
   int32_t i = 0, j = 0;
   uint64_t ch;
-  if (debug) {
+  if (debug)
+  {
     fpassword_report(stderr, "[DEBUG] UTF8_UTF16LE in:\n");
     fpassword_dump_asciihex(in, insize);
   }
-  for (i = 0; i < insize; i++) {
-    if (in[i] < 128) { // one byte
+  for (i = 0; i < insize; i++)
+  {
+    if (in[i] < 128)
+    { // one byte
       out[j] = in[i];
       out[j + 1] = 0;
       j = j + 2;
-    } else if ((in[i] >= 0xc0) && (in[i] <= 0xdf)) { // Two bytes
+    }
+    else if ((in[i] >= 0xc0) && (in[i] <= 0xdf))
+    { // Two bytes
       out[j + 1] = 0x07 & (in[i] >> 2);
       out[j] = (0xc0 & (in[i] << 6)) | (0x3f & in[i + 1]);
       j = j + 2;
       i = i + 1;
-    } else if ((in[i] >= 0xe0) && (in[i] <= 0xef)) { // Three bytes
+    }
+    else if ((in[i] >= 0xe0) && (in[i] <= 0xef))
+    { // Three bytes
       out[j] = (0xc0 & (in[i + 1] << 6)) | (0x3f & in[i + 2]);
       out[j + 1] = (0xf0 & (in[i] << 4)) | (0x0f & (in[i + 1] >> 2));
       j = j + 2;
       i = i + 2;
-    } else if ((in[i] >= 0xf0) && (in[i] <= 0xf7)) { // Four bytes
+    }
+    else if ((in[i] >= 0xf0) && (in[i] <= 0xf7))
+    { // Four bytes
       ch = ((in[i] & 0x07) << 18) + ((0x3f & in[i + 1]) << 12) + ((0x3f & in[i + 2]) << 6) + (0x3f & in[i + 3]) - 0x10000;
       out[j] = (ch >> 10) & 0xff;
       out[j + 1] = 0xd8 | ((ch >> 18) & 0xff);
@@ -140,14 +150,16 @@ static size_t UTF8_UTF16LE(unsigned char *in, int32_t insize, unsigned char *out
     if (j - 2 > outsize)
       break;
   }
-  if (debug) {
+  if (debug)
+  {
     fpassword_report(stderr, "[DEBUG] UTF8_UTF16LE out:\n");
     fpassword_dump_asciihex(out, j);
   }
   return j;
 }
 
-static unsigned char Get7Bits(unsigned char *input, int32_t startBit) {
+static unsigned char Get7Bits(unsigned char *input, int32_t startBit)
+{
   register uint32_t word;
 
   word = (unsigned)input[startBit / 8] << 8;
@@ -159,7 +171,8 @@ static unsigned char Get7Bits(unsigned char *input, int32_t startBit) {
 }
 
 /* Make the key */
-static void MakeKey(unsigned char *key, unsigned char *DES_key) {
+static void MakeKey(unsigned char *key, unsigned char *DES_key)
+{
   DES_key[0] = Get7Bits(key, 0);
   DES_key[1] = Get7Bits(key, 7);
   DES_key[2] = Get7Bits(key, 14);
@@ -173,7 +186,8 @@ static void MakeKey(unsigned char *key, unsigned char *DES_key) {
 }
 
 /* Do the DesEncryption */
-void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher) {
+void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
+{
   DES_cblock DES_key;
   DES_key_schedule key_schedule;
 
@@ -190,7 +204,8 @@ void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher)
         pass      = users password
         challenge = the challenge recieved from the server
 */
-int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *challenge) {
+int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *challenge)
+{
   static unsigned char magic[] = {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
   unsigned char password[14 + 1];
   unsigned char lm_hash[21];
@@ -206,37 +221,47 @@ int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *chall
 
   /* Use LM Hash instead of password */
   /* D42E35E1A1E4C22BD32E2170E4857C20:5E20780DD45857A68402938C7629D3B2::: */
-  if (hashFlag == 1) {
+  if (hashFlag == 1)
+  {
     p = pass;
-    while ((*p != '\0') && (i < 1)) {
+    while ((*p != '\0') && (i < 1))
+    {
       if (*p == ':')
         i++;
       p++;
     }
 
-    if (*p == '\0') {
+    if (*p == '\0')
+    {
       fpassword_report(stderr, "[ERROR] Reading PwDump file.\n");
       return -1;
-    } else if (*p == 'N') {
+    }
+    else if (*p == 'N')
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Found \"NO PASSWORD\" for LM Hash.\n");
 
       /* Generate 16-byte LM hash */
       DesEncrypt(magic, &password[0], &lm_hash[0]);
       DesEncrypt(magic, &password[7], &lm_hash[8]);
-    } else {
+    }
+    else
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Convert ASCII PwDump LM Hash (%s).\n", p);
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 16; i++)
+      {
         HexValue = 0x0;
-        for (j = 0; j < 2; j++) {
+        for (j = 0; j < 2; j++)
+        {
           HexChar = (char)p[2 * i + j];
 
           if (HexChar > 0x39)
             HexChar = HexChar | 0x20; /* convert upper case to lower */
 
-          if (!(((HexChar >= 0x30) && (HexChar <= 0x39)) ||  /* 0 - 9 */
-                ((HexChar >= 0x61) && (HexChar <= 0x66)))) { /* a - f */
+          if (!(((HexChar >= 0x30) && (HexChar <= 0x39)) || /* 0 - 9 */
+                ((HexChar >= 0x61) && (HexChar <= 0x66))))
+          { /* a - f */
 
             fpassword_report(stderr, "[ERROR] Invalid char (%c) for hash.\n", HexChar);
             HexChar = 0x30;
@@ -251,10 +276,14 @@ int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *chall
         lm_hash[i] = (unsigned char)HexValue;
       }
     }
-  } else {
+  }
+  else
+  {
     /* Password == Machine Name */
-    if (hashFlag == 2) {
-      for (i = 0; i < 16; i++) {
+    if (hashFlag == 2)
+    {
+      for (i = 0; i < 16; i++)
+      {
         if (machine_name[i] > 0x39)
           machine_name[i] = machine_name[i] | 0x20; /* convert upper case to lower */
         pass = machine_name;
@@ -263,7 +292,8 @@ int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *chall
 
     /* convert lower case characters to upper case */
     strncpy((char *)password, (char *)pass, 14);
-    for (i = 0; i < 14; i++) {
+    for (i = 0; i < 14; i++)
+    {
       if ((password[i] >= 0x61) && (password[i] <= 0x7a)) /* a - z */
         password[i] -= 0x20;
     }
@@ -292,7 +322,8 @@ int32_t HashLM(unsigned char **lmhash, unsigned char *pass, unsigned char *chall
   MakeNTLM
   Function: Create a NTLM hash from the password
 */
-int32_t MakeNTLM(unsigned char *ntlmhash, unsigned char *pass) {
+int32_t MakeNTLM(unsigned char *ntlmhash, unsigned char *pass)
+{
   MD4_CTX md4Context;
   unsigned char hash[16];                 /* MD4_SIGNATURE_SIZE = 16 */
   unsigned char unicodePassword[256 * 2]; /* MAX_NT_PASSWORD = 256 */
@@ -303,31 +334,37 @@ int32_t MakeNTLM(unsigned char *ntlmhash, unsigned char *pass) {
   int32_t HexValue;
 
   /* Use NTLM Hash instead of password */
-  if (hashFlag == 1) {
+  if (hashFlag == 1)
+  {
     /* 1000:D42E35E1A1E4C22BD32E2170E4857C20:5E20780DD45857A68402938C7629D3B2:::
      */
     p = pass;
-    while ((*p != '\0') && (i < 1)) {
+    while ((*p != '\0') && (i < 1))
+    {
       if (*p == ':')
         i++;
       p++;
     }
 
-    if (*p == '\0') {
+    if (*p == '\0')
+    {
       fpassword_report(stderr, "[ERROR] reading PWDUMP file.\n");
       return -1;
     }
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++)
+    {
       HexValue = 0x0;
-      for (j = 0; j < 2; j++) {
+      for (j = 0; j < 2; j++)
+      {
         HexChar = (char)p[2 * i + j];
 
         if (HexChar > 0x39)
           HexChar = HexChar | 0x20; /* convert upper case to lower */
 
-        if (!(((HexChar >= 0x30) && (HexChar <= 0x39)) ||  /* 0 - 9 */
-              ((HexChar >= 0x61) && (HexChar <= 0x66)))) { /* a - f */
+        if (!(((HexChar >= 0x30) && (HexChar <= 0x39)) || /* 0 - 9 */
+              ((HexChar >= 0x61) && (HexChar <= 0x66))))
+        { /* a - f */
           /*
            *  fprintf(stderr, "Error invalid char (%c) for hash.\n", HexChar);
            *  fpassword_child_exit(0);
@@ -343,10 +380,14 @@ int32_t MakeNTLM(unsigned char *ntlmhash, unsigned char *pass) {
       }
       hash[i] = (unsigned char)HexValue;
     }
-  } else {
+  }
+  else
+  {
     /* Password == Machine Name */
-    if (hashFlag == 2) {
-      for (i = 0; i < 16; i++) {
+    if (hashFlag == 2)
+    {
+      for (i = 0; i < 16; i++)
+      {
         if (machine_name[i] > 0x39)
           machine_name[i] = machine_name[i] | 0x20; /* convert upper case to lower */
         pass = machine_name;
@@ -382,7 +423,8 @@ int32_t MakeNTLM(unsigned char *ntlmhash, unsigned char *pass) {
     samba-3.0.28a - libsmb/smbencrypt.c
     jcifs - packet capture of LMv2-only connection
 */
-int32_t HashLMv2(unsigned char **LMv2hash, unsigned char *szLogin, unsigned char *szPassword) {
+int32_t HashLMv2(unsigned char **LMv2hash, unsigned char *szLogin, unsigned char *szPassword)
+{
   unsigned char ntlm_hash[16];
   unsigned char lmv2_response[24];
   unsigned char unicodeUsername[20 * 2];
@@ -421,7 +463,8 @@ int32_t HashLMv2(unsigned char **LMv2hash, unsigned char *szLogin, unsigned char
   /* This implicitly supports 8-bit ISO8859/1 characters. */
   /* convert lower case characters to upper case */
   bzero(unicodeUsername, sizeof(unicodeUsername));
-  for (i = 0; i < strlen((char *)szLogin); i++) {
+  for (i = 0; i < strlen((char *)szLogin); i++)
+  {
     if ((szLogin[i] >= 0x61) && (szLogin[i] <= 0x7a)) /* a - z */
       unicodeUsername[i * 2] = (unsigned char)szLogin[i] - 0x20;
     else
@@ -482,7 +525,8 @@ int32_t HashLMv2(unsigned char **LMv2hash, unsigned char *szLogin, unsigned char
   GPO:     "Network Security: LAN Manager authentication level"
   Setting: "Send NTLMv2 response only\refuse LM & NTLM"
 */
-int32_t HashNTLMv2(unsigned char **NTLMv2hash, int32_t *iByteCount, unsigned char *szLogin, unsigned char *szPassword) {
+int32_t HashNTLMv2(unsigned char **NTLMv2hash, int32_t *iByteCount, unsigned char *szLogin, unsigned char *szPassword)
+{
   unsigned char ntlm_hash[16];
   unsigned char ntlmv2_response[56 + 20 * 2 + 256 * 2];
   unsigned char unicodeUsername[20 * 2];
@@ -539,7 +583,8 @@ int32_t HashNTLMv2(unsigned char **NTLMv2hash, int32_t *iByteCount, unsigned cha
   /* This implicitly supports 8-bit ISO8859/1 characters. */
   /* convert lower case characters to upper case */
   bzero(unicodeUsername, sizeof(unicodeUsername));
-  for (i = 0; i < strlen((char *)szLogin); i++) {
+  for (i = 0; i < strlen((char *)szLogin); i++)
+  {
     if ((szLogin[i] >= 0x61) && (szLogin[i] <= 0x7a)) /* a - z */
       unicodeUsername[i * 2] = (unsigned char)szLogin[i] - 0x20;
     else
@@ -577,7 +622,8 @@ int32_t HashNTLMv2(unsigned char **NTLMv2hash, int32_t *iByteCount, unsigned cha
     nt = 0x7fffffffffffffffLL;
   else if (ts.tv_sec == (time_t)-1)
     nt = (unsigned long)-1;
-  else {
+  else
+  {
     nt = ts.tv_sec;
     nt += TIME_FIXUP_CONSTANT_INT;
     nt *= 1000 * 1000 * 10; /* nt is now in the 100ns units */
@@ -644,7 +690,8 @@ int32_t HashNTLMv2(unsigned char **NTLMv2hash, int32_t *iByteCount, unsigned cha
         pass      = users password
         challenge = the challenge recieved from the server
 */
-int32_t HashNTLM(unsigned char **ntlmhash, unsigned char *pass, unsigned char *challenge, char *miscptr) {
+int32_t HashNTLM(unsigned char **ntlmhash, unsigned char *pass, unsigned char *challenge, char *miscptr)
+{
   int32_t ret;
   unsigned char hash[16]; /* MD4_SIGNATURE_SIZE = 16 */
   unsigned char p21[21];
@@ -671,7 +718,8 @@ int32_t HashNTLM(unsigned char **ntlmhash, unsigned char *pass, unsigned char *c
    Function: Request a new session from the server
    Returns: TRUE on success else FALSE.
 */
-int32_t NBSSessionRequest(int32_t s) {
+int32_t NBSSessionRequest(int32_t s)
+{
   char nb_name[32];  /* netbiosname */
   char nb_local[32]; /* netbios localredirector */
   unsigned char rqbuf[7] = {0x81, 0x00, 0x00, 0x44, 0x20, 0x00, 0x20};
@@ -719,7 +767,8 @@ int32_t NBSSessionRequest(int32_t s) {
     The challenge is retrieved from the answer
     No error checking is performed i.e cross your fingers....
 */
-int32_t SMBNegProt(int32_t s) {
+int32_t SMBNegProt(int32_t s)
+{
   unsigned char buf[] = {
       0x00, 0x00, 0x00, 0xbe, 0xff, 0x53, 0x4d, 0x42, 0x72, 0x00, 0x00, 0x00, 0x00, 0x08, 0x01, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3c, 0x7d, 0x00, 0x00, 0x01, 0x00, 0x00, 0x9b, 0x00, 0x02, 0x50, 0x43, 0x20, 0x4e, 0x45, 0x54, 0x57, 0x4f, 0x52, 0x4b, 0x20, 0x50, 0x52, 0x4f, 0x47, 0x52, 0x41, 0x4d, 0x20, 0x31, 0x2e, 0x30, 0x00, 0x02, 0x4d,
       0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x4e, 0x45, 0x54, 0x57, 0x4f, 0x52, 0x4b, 0x53, 0x20, 0x31, 0x2e, 0x30, 0x33, 0x00, 0x02, 0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x4e, 0x45, 0x54, 0x57, 0x4f, 0x52, 0x4b, 0x53, 0x20, 0x33, 0x2e, 0x30, 0x00, 0x02, 0x4c, 0x41, 0x4e, 0x4d, 0x41, 0x4e, 0x31, 0x2e, 0x30, 0x00, 0x02, 0x4c, 0x4d, 0x31, 0x2e, 0x32, 0x58,
@@ -761,7 +810,8 @@ int32_t SMBNegProt(int32_t s) {
   memcpy(buf + 30, sess_key, 2);
   memcpy(buf + 32, userid, 2);
 
-  if (smb_auth_mechanism == AUTH_LM) {
+  if (smb_auth_mechanism == AUTH_LM)
+  {
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Setting Negotiate Protocol Response for LM.\n");
     buf[3] = 0xA3;  // Set message length
@@ -787,30 +837,33 @@ int32_t SMBNegProt(int32_t s) {
      WinXP: 0x0F (default)
      WinXP: 0x07 (Windows 2003 / DC)
    */
-  switch (rbuf[39]) {
+  switch (rbuf[39])
+  {
   case 0x01:
     // real plaintext should be used with LM auth
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Server requested PLAINTEXT password.\n");
     security_mode = PLAINTEXT;
 
-    if (hashFlag == 1) {
+    if (hashFlag == 1)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Server requested PLAINTEXT password. HASH "
-                             "password mode not supported for this configuration.\n");
+                                 "password mode not supported for this configuration.\n");
       return 3;
     }
-    if (hashFlag == 2) {
+    if (hashFlag == 2)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Server requested PLAINTEXT password. MACHINE "
-                             "password mode not supported for this configuration.\n");
+                                 "password mode not supported for this configuration.\n");
       return 3;
     }
     break;
   case 0x03:
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Server requested ENCRYPTED password "
-                           "without security signatures.\n");
+                               "without security signatures.\n");
     security_mode = ENCRYPTED;
     break;
   case 0x07:
@@ -822,9 +875,9 @@ int32_t SMBNegProt(int32_t s) {
   default:
     if (verbose)
       fpassword_report(stderr,
-                   "[VERBOSE] Unknown security mode request: %2.2X. Proceeding "
-                   "using ENCRYPTED password mode.\n",
-                   rbuf[39]);
+                       "[VERBOSE] Unknown security mode request: %2.2X. Proceeding "
+                       "using ENCRYPTED password mode.\n",
+                       rbuf[39]);
     security_mode = ENCRYPTED;
     break;
   }
@@ -838,24 +891,31 @@ int32_t SMBNegProt(int32_t s) {
 
   // seems using LM only the domain is returned not the server
   // and the domain is not padded with null chars
-  if (smb_auth_mechanism == AUTH_LM) {
-    while ((rbuf[iResponseOffset + 8 + i] != 0) && (i < 16)) {
+  if (smb_auth_mechanism == AUTH_LM)
+  {
+    while ((rbuf[iResponseOffset + 8 + i] != 0) && (i < 16))
+    {
       workgroup[i] = rbuf[iResponseOffset + 8 + i];
       i++;
     }
-  } else {
-    while ((rbuf[iResponseOffset + 8 + i * 2] != 0) && (i < 16)) {
+  }
+  else
+  {
+    while ((rbuf[iResponseOffset + 8 + i * 2] != 0) && (i < 16))
+    {
       workgroup[i] = rbuf[iResponseOffset + 8 + i * 2];
       i++;
     }
 
-    while ((rbuf[iResponseOffset + 8 + (i + j + 1) * 2] != 0) && (j < 16)) {
+    while ((rbuf[iResponseOffset + 8 + (i + j + 1) * 2] != 0) && (j < 16))
+    {
       machine_name[j] = rbuf[iResponseOffset + 8 + (i + j + 1) * 2];
       j++;
     }
   }
 
-  if (verbose) {
+  if (verbose)
+  {
     fpassword_report(stderr, "[VERBOSE] Server machine name: %s\n", machine_name);
     fpassword_report(stderr, "[VERBOSE] Server primary domain: %s\n", workgroup);
   }
@@ -869,7 +929,8 @@ int32_t SMBNegProt(int32_t s) {
             the server.
   Returns: TRUE on success else FALSE.
 */
-unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *miscptr) {
+unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *miscptr)
+{
   unsigned char buf[512];
   unsigned char *LMv2hash = NULL;
   unsigned char *NTLMv2hash = NULL;
@@ -882,15 +943,18 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
   int32_t ret;
   int32_t iByteCount = 0, iOffset = 0;
 
-  if (accntFlag == 0) {
+  if (accntFlag == 0)
+  {
     strcpy((char *)workgroup, "localhost");
-
-  } else if (accntFlag == 2) {
+  }
+  else if (accntFlag == 2)
+  {
     memset(workgroup, 0, 16);
   }
   // domain flag is not needed here, it will be auto set,
   // below it's domain specified on cmd line
-  else if (accntFlag == 4) {
+  else if (accntFlag == 4)
+  {
     strncpy((char *)workgroup, (char *)domain, 16);
   }
 
@@ -941,9 +1005,11 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
   memcpy(buf, szNBSS, 4);
   memcpy(buf + 4, szSMB, 32);
 
-  if (security_mode == ENCRYPTED) {
+  if (security_mode == ENCRYPTED)
+  {
     /* Session Setup AndX Request */
-    if (smb_auth_mechanism == AUTH_LM) {
+    if (smb_auth_mechanism == AUTH_LM)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Attempting LM password authentication.\n");
 
@@ -973,15 +1039,17 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
       memset(LMhash, 0, 24);
 
       ret = HashLM(&LMhash, (unsigned char *)szPassword, (unsigned char *)challenge);
-      if (ret == -1) {
+      if (ret == -1)
+      {
         free(LMhash);
         return -1;
       }
 
       memcpy(buf + iOffset, LMhash, 24);
       free(LMhash);
-
-    } else if (smb_auth_mechanism == AUTH_NTLM) {
+    }
+    else if (smb_auth_mechanism == AUTH_NTLM)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Attempting NTLM password authentication.\n");
 
@@ -1037,7 +1105,9 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
 
       memcpy(buf + iOffset + 24, NTLMhash, 24); /* Skip space for LM hash */
       free(NTLMhash);
-    } else if (smb_auth_mechanism == AUTH_LMv2) {
+    }
+    else if (smb_auth_mechanism == AUTH_LMv2)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Attempting LMv2 password authentication.\n");
 
@@ -1069,14 +1139,17 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
       memset(LMv2hash, 0, 24);
 
       ret = HashLMv2(&LMv2hash, (unsigned char *)szLogin, (unsigned char *)szPassword);
-      if (ret == -1) {
+      if (ret == -1)
+      {
         free(LMv2hash);
         return -1;
       }
 
       memcpy(buf + iOffset, LMv2hash, 24);
       free(LMv2hash);
-    } else if (smb_auth_mechanism == AUTH_NTLMv2) {
+    }
+    else if (smb_auth_mechanism == AUTH_NTLMv2)
+    {
       if (verbose)
         fpassword_report(stderr, "[VERBOSE] Attempting LMv2/NTLMv2 password authentication.\n");
 
@@ -1124,7 +1197,9 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
 
       iByteCount += 24; /* Reflects length of both LMv2 and NTLMv2 responses */
     }
-  } else if (security_mode == PLAINTEXT) {
+  }
+  else if (security_mode == PLAINTEXT)
+  {
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Attempting PLAINTEXT password authentication.\n");
 
@@ -1170,9 +1245,11 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
        all-lower case.
      */
     strncpy((char *)(buf + iOffset), szPassword, 256);
-  } else {
+  }
+  else
+  {
     fpassword_report(stderr, "[ERROR] Security_mode was not properly set. This "
-                         "should not happen.\n");
+                             "should not happen.\n");
     return -1;
   }
 
@@ -1215,7 +1292,8 @@ unsigned long SMBSessionSetup(int32_t s, char *szLogin, char *szPassword, char *
   return (((bufReceive[41] & 0x01) << 24) | ((bufReceive[11] & 0xFF) << 16) | ((bufReceive[10] & 0xFF) << 8) | (bufReceive[9] & 0xFF));
 }
 
-int32_t start_smb(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_smb(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass;
   int32_t SMBerr, SMBaction;
@@ -1246,88 +1324,120 @@ int32_t start_smb(int32_t s, char *ip, int32_t port, unsigned char options, char
      http://msdn.microsoft.com/en-us/library/ee441884(v=prot.13).aspx
    */
 
-  if (SMBerr == 0x000000) {  /* success */
-    if (SMBaction == 0x01) { /* invalid account - anonymous connection */
+  if (SMBerr == 0x000000)
+  { /* success */
+    if (SMBaction == 0x01)
+    { /* invalid account - anonymous connection */
       fprintf(stderr,
               "[%d][smb] Host: %s Account: %s Error: Invalid account "
               "(Anonymous success)\n",
               port, ipaddr_str, login);
       fpassword_completed_pair_skip();
-    } else { /* valid account */
+    }
+    else
+    { /* valid account */
       fpassword_report_found_host(port, ip, "smb", fp);
       fpassword_completed_pair_found();
     }
-  } else if ((SMBerr == 0x00000D) && (SMBaction == 0x00)) {
+  }
+  else if ((SMBerr == 0x00000D) && (SMBaction == 0x00))
+  {
     fpassword_report(stderr, "[ERROR] Invalid parameter status received, either "
-                         "the account or the method used are not valid\n");
+                             "the account or the method used are not valid\n");
     fpassword_completed_pair_skip();
-  } else if (SMBerr == 0x00006E) { /* Valid password, GPO Disabling Remote
-                                      Connections Using NULL Passwords */
+  }
+  else if (SMBerr == 0x00006E)
+  { /* Valid password, GPO Disabling Remote
+       Connections Using NULL Passwords */
     fpassword_report(stdout,
-                 "[%d][smb] Host: %s Account: %s Valid password, GPO Disabling "
-                 "Remote Connections Using NULL Passwords\n",
-                 port, ipaddr_str, login);
+                     "[%d][smb] Host: %s Account: %s Valid password, GPO Disabling "
+                     "Remote Connections Using NULL Passwords\n",
+                     port, ipaddr_str, login);
     fpassword_report_found_host(port, ip, "smb", fp);
     fpassword_completed_pair_found();
-  } else if (SMBerr == 0x00015B) { /* Valid password, GPO "Deny access to this
-                                      computer from the network" */
+  }
+  else if (SMBerr == 0x00015B)
+  { /* Valid password, GPO "Deny access to this
+       computer from the network" */
     fpassword_report(stdout,
-                 "[%d][smb] Host: %s Account: %s Valid password, GPO Deny "
-                 "access to this computer from the network\n",
-                 port, ipaddr_str, login);
+                     "[%d][smb] Host: %s Account: %s Valid password, GPO Deny "
+                     "access to this computer from the network\n",
+                     port, ipaddr_str, login);
     fpassword_report_found_host(port, ip, "smb", fp);
     fpassword_completed_pair_found();
-  } else if (SMBerr == 0x000193) { /* Valid password, account expired  */
+  }
+  else if (SMBerr == 0x000193)
+  { /* Valid password, account expired  */
     fpassword_report(stdout, "[%d][smb] Host: %s Account: %s Valid password, account expired\n", port, ipaddr_str, login);
     fpassword_report_found_host(port, ip, "smb", fp);
     fpassword_completed_pair_found();
-  } else if ((SMBerr == 0x000224) || (SMBerr == 0xC20002)) { /* Valid password, account expired  */
+  }
+  else if ((SMBerr == 0x000224) || (SMBerr == 0xC20002))
+  { /* Valid password, account expired  */
     fpassword_report(stdout,
-                 "[%d][smb] Host: %s Account: %s Valid password, password "
-                 "expired and must be changed on next logon\n",
-                 port, ipaddr_str, login);
+                     "[%d][smb] Host: %s Account: %s Valid password, password "
+                     "expired and must be changed on next logon\n",
+                     port, ipaddr_str, login);
     fpassword_report_found_host(port, ip, "smb", fp);
     fpassword_completed_pair_found();
-  } else if ((SMBerr == 0x00006F) || (SMBerr == 0xC10002)) { /* Invalid logon hours  */
+  }
+  else if ((SMBerr == 0x00006F) || (SMBerr == 0xC10002))
+  { /* Invalid logon hours  */
     fpassword_report(stdout,
-                 "[%d][smb] Host: %s Account: %s Valid password, but logon "
-                 "hours invalid\n",
-                 port, ipaddr_str, login);
+                     "[%d][smb] Host: %s Account: %s Valid password, but logon "
+                     "hours invalid\n",
+                     port, ipaddr_str, login);
     fpassword_report_found_host(port, ip, "smb", fp);
     fpassword_completed_pair_found();
-  } else if (SMBerr == 0x050001) { /* AS/400 -- Incorrect password */
+  }
+  else if (SMBerr == 0x050001)
+  { /* AS/400 -- Incorrect password */
     fpassword_report(stdout,
-                 "[%d][smb] Host: %s Account: %s Error: Incorrect password or "
-                 "account disabled\n",
-                 port, ipaddr_str, login);
+                     "[%d][smb] Host: %s Account: %s Error: Incorrect password or "
+                     "account disabled\n",
+                     port, ipaddr_str, login);
     if ((miscptr) && (strstr(miscptr, "LM")))
       fpassword_report(stderr, "[INFO] LM dialect may be disabled, try LMV2 instead\n");
     fpassword_completed_pair_skip();
-  } else if (SMBerr == 0x000024) { /* change password on next login [success] */
+  }
+  else if (SMBerr == 0x000024)
+  { /* change password on next login [success] */
     fpassword_report(stdout, "[%d][smb] Host: %s Account: %s Error: ACCOUNT_CHANGE_PASSWORD\n", port, ipaddr_str, login);
     fpassword_completed_pair_found();
-  } else if (SMBerr == 0x00006D) { /* STATUS_LOGON_FAILURE */
+  }
+  else if (SMBerr == 0x00006D)
+  { /* STATUS_LOGON_FAILURE */
     fpassword_completed_pair();
-  } else if (SMBerr == 0x000071) { /* password expired */
+  }
+  else if (SMBerr == 0x000071)
+  { /* password expired */
     if (verbose)
       fprintf(stderr, "[%d][smb] Host: %s Account: %s Error: PASSWORD EXPIRED\n", port, ipaddr_str, login);
     fpassword_completed_pair_skip();
-  } else if ((SMBerr == 0x000072) || (SMBerr == 0xBF0002)) { /* account disabled */ /* BF0002 on w2k */
+  }
+  else if ((SMBerr == 0x000072) || (SMBerr == 0xBF0002))
+  { /* account disabled */ /* BF0002 on w2k */
     if (verbose)
       fprintf(stderr, "[%d][smb] Host: %s Account: %s Error: ACCOUNT_DISABLED\n", port, ipaddr_str, login);
     fpassword_completed_pair_skip();
-  } else if (SMBerr == 0x000034 || SMBerr == 0x000234) { /* account locked out */
+  }
+  else if (SMBerr == 0x000034 || SMBerr == 0x000234)
+  { /* account locked out */
     if (verbose)
       fprintf(stderr, "[%d][smb] Host: %s Account: %s Error: ACCOUNT_LOCKED\n", port, ipaddr_str, login);
     fpassword_completed_pair_skip();
-  } else if (SMBerr == 0x00008D) { /* ummm... broken client-domain membership  */
+  }
+  else if (SMBerr == 0x00008D)
+  { /* ummm... broken client-domain membership  */
     if (verbose)
       fprintf(stderr,
               "[%d][smb] Host: %s Account: %s Error: "
               "NT_STATUS_TRUSTED_RELATIONSHIP_FAILURE\n",
               port, ipaddr_str, login);
     fpassword_completed_pair();
-  } else { /* failed */
+  }
+  else
+  { /* failed */
     if (verbose)
       fprintf(stderr, "[%d][smb] Host: %s Account: %s Unknown Error: %6.6X\n", port, ipaddr_str, login, SMBerr);
     fpassword_completed_pair();
@@ -1339,7 +1449,8 @@ int32_t start_smb(int32_t s, char *ip, int32_t port, unsigned char options, char
   return 1;
 }
 
-void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
 
   // default is both (local and domain) checks and normal passwd
@@ -1347,10 +1458,12 @@ void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   hashFlag = 0;  // PASS
   smb_auth_mechanism = AUTH_NTLM;
 
-  if (miscptr) {
+  if (miscptr)
+  {
     // check group
     strupper(miscptr);
-    if (strstr(miscptr, "OTHER_DOMAIN:") != NULL) {
+    if (strstr(miscptr, "OTHER_DOMAIN:") != NULL)
+    {
       char *tmpdom;
       int32_t err = 0;
 
@@ -1358,47 +1471,69 @@ void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
       tmpdom = strstr(miscptr, "OTHER_DOMAIN:");
       tmpdom = tmpdom + strlen("OTHER_DOMAIN:");
 
-      if (tmpdom) {
+      if (tmpdom)
+      {
         // split the string after the domain if there are other values
         strtok(tmpdom, " ");
-        if (tmpdom) {
+        if (tmpdom)
+        {
           strncpy((char *)domain, (char *)tmpdom, sizeof(domain) - 1);
           domain[sizeof(domain) - 1] = 0;
-        } else {
+        }
+        else
+        {
           err = 1;
         }
-      } else {
+      }
+      else
+      {
         err = 1;
       }
 
-      if (err) {
+      if (err)
+      {
         if (verbose)
           fpassword_report(stdout, "[VERBOSE] requested line mode\n");
         accntFlag = 2;
       }
-    } else if (strstr(miscptr, "LOCAL") != NULL) {
+    }
+    else if (strstr(miscptr, "LOCAL") != NULL)
+    {
       accntFlag = 0; // LOCAL
-    } else if (strstr(miscptr, "DOMAIN") != NULL) {
+    }
+    else if (strstr(miscptr, "DOMAIN") != NULL)
+    {
       accntFlag = 1; // DOMAIN
     }
     // check pass
-    if (strstr(miscptr, "HASH") != NULL) {
+    if (strstr(miscptr, "HASH") != NULL)
+    {
       hashFlag = 1;
-    } else if (strstr(miscptr, "MACHINE") != NULL) {
+    }
+    else if (strstr(miscptr, "MACHINE") != NULL)
+    {
       hashFlag = 2;
     }
     // check auth
-    if (strstr(miscptr, "NTLMV2") != NULL) {
+    if (strstr(miscptr, "NTLMV2") != NULL)
+    {
       smb_auth_mechanism = AUTH_NTLMv2;
-    } else if (strstr(miscptr, "NTLM") != NULL) {
+    }
+    else if (strstr(miscptr, "NTLM") != NULL)
+    {
       smb_auth_mechanism = AUTH_NTLM;
-    } else if (strstr(miscptr, "LMV2") != NULL) {
+    }
+    else if (strstr(miscptr, "LMV2") != NULL)
+    {
       smb_auth_mechanism = AUTH_LMv2;
-    } else if (strstr(miscptr, "LM") != NULL) {
+    }
+    else if (strstr(miscptr, "LM") != NULL)
+    {
       smb_auth_mechanism = AUTH_LM;
     }
   }
-  if (verbose) {
+  if (verbose)
+  {
     fpassword_report(stdout, "[VERBOSE] accntFlag is %d\n", accntFlag);
     fpassword_report(stdout, "[VERBOSE] hashFlag is %d\n", accntFlag);
   }
@@ -1406,43 +1541,56 @@ void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  for (;;) {
-    switch (run) {
+  for (;;)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(300);
 
-      if (port != 0) {
+      if (port != 0)
+      {
         sock = fpassword_connect_tcp(ip, port);
-        if (port == PORT_SMB) {
+        if (port == PORT_SMB)
+        {
           protoFlag = WIN_NETBIOSMODE;
           if (verbose)
             fpassword_report(stderr, "[VERBOSE] Attempting NETBIOS mode.\n");
-        } else {
+        }
+        else
+        {
           protoFlag = WIN2000_NATIVEMODE;
           if (verbose)
             fpassword_report(stderr, "[VERBOSE] Attempting WIN2K Native mode.\n");
         }
-      } else {
+      }
+      else
+      {
         sock = fpassword_connect_tcp(ip, PORT_SMBNT);
-        if (sock > 0) {
+        if (sock > 0)
+        {
           port = PORT_SMBNT;
           protoFlag = WIN2000_NATIVEMODE;
-        } else {
+        }
+        else
+        {
           fpassword_report(stderr, "Failed to establish WIN2000_NATIVE mode. "
-                               "Attempting WIN_NETBIOS mode.\n");
+                                   "Attempting WIN_NETBIOS mode.\n");
           port = PORT_SMB;
           protoFlag = WIN_NETBIOSMODE;
           sock = fpassword_connect_tcp(ip, PORT_SMB);
         }
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (quiet != 1)
           fprintf(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
-      if (NBSSessionRequest(sock) < 0) {
+      if (NBSSessionRequest(sock) < 0)
+      {
         fprintf(stderr, "[ERROR] Session Setup Failed (is the server service running?)\n");
         fpassword_child_exit(2);
       }
@@ -1465,7 +1613,8 @@ void service_smb(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
 }
 #endif
 
-int32_t service_smb_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_smb_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -1481,39 +1630,46 @@ int32_t service_smb_init(char *ip, int32_t sp, unsigned char options, char *misc
                          0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x4e, 0x45, 0x54, 0x57, 0x4f, 0x52, 0x4b, 0x53, 0x20, 0x31, 0x2e, 0x30, 0x33, 0x00, 0x02, 0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x4e, 0x45, 0x54, 0x57, 0x4f, 0x52, 0x4b, 0x53, 0x20, 0x33, 0x2e, 0x30, 0x00, 0x02, 0x4c, 0x41, 0x4e, 0x4d, 0x41, 0x4e, 0x31, 0x2e, 0x30, 0x00, 0x02, 0x4c, 0x4d, 0x31, 0x2e, 0x32, 0x58,
                          0x30, 0x30, 0x32, 0x00, 0x02, 0x44, 0x4f, 0x53, 0x20, 0x4c, 0x41, 0x4e, 0x4d, 0x41, 0x4e, 0x32, 0x2e, 0x31, 0x00, 0x02, 0x4c, 0x41, 0x4e, 0x4d, 0x41, 0x4e, 0x32, 0x2e, 0x31, 0x00, 0x02, 0x53, 0x61, 0x6d, 0x62, 0x61, 0x00, 0x02, 0x4e, 0x54, 0x20, 0x4c, 0x41, 0x4e, 0x4d, 0x41, 0x4e, 0x20, 0x31, 0x2e, 0x30, 0x00, 0x02, 0x4e, 0x54, 0x20, 0x4c, 0x4d, 0x20, 0x30, 0x2e, 0x31, 0x32, 0x00};
 
-  if (sock < 0) {
+  if (sock < 0)
+  {
     fprintf(stderr, "[ERROR] could not connect to target smb://%s:%d/\n", hostname, port);
     return -1;
   }
 
-  if (send(sock, buf, sizeof(buf), 0) < 0) {
+  if (send(sock, buf, sizeof(buf), 0) < 0)
+  {
     fprintf(stderr, "[ERROR] unable to send to target smb://%s:%d/\n", hostname, port);
     return -1;
   }
 
   ctime = time(NULL);
-  do {
+  do
+  {
     usleepn(300);
   } while ((ready = fpassword_data_ready(sock)) <= 0 && ctime + 5 >= time(NULL));
 
-  if (ready <= 0) {
+  if (ready <= 0)
+  {
     fprintf(stderr, "[ERROR] no reply from target smb://%s:%d/\n", hostname, port);
     return -1;
   }
 
-  if ((ready = recv(sock, buf, sizeof(buf), 0)) < 40) {
+  if ((ready = recv(sock, buf, sizeof(buf), 0)) < 40)
+  {
     fprintf(stderr, "[ERROR] invalid reply from target smb://%s:%d/\n", hostname, port);
     return -1;
   }
 
   close(sock);
 
-  if (buf[37] == buf[38] && buf[38] == 0xff) {
+  if (buf[37] == buf[38] && buf[38] == 0xff)
+  {
     fprintf(stderr, "[ERROR] target smb://%s:%d/ does not support SMBv1\n", hostname, port);
     return -1;
   }
 
-  if ((buf[15] & 16) == 16) {
+  if ((buf[15] & 16) == 16)
+  {
     fprintf(stderr,
             "[ERROR] target smb://%s:%d/ requires signing which we do not "
             "support\n",
@@ -1524,7 +1680,8 @@ int32_t service_smb_init(char *ip, int32_t sp, unsigned char options, char *misc
   return 0;
 }
 
-void usage_smb(const char *service) {
+void usage_smb(const char *service)
+{
   printf("Module smb default value is set to test both local and domain account, "
          "using a simple password with NTLM dialect.\n"
          "Note: you can set the group type using LOCAL or DOMAIN keyword\n"

@@ -20,7 +20,8 @@ extern fpassword_option fpassword_options;
 extern char *FPASSWORD_EXIT;
 extern int32_t new_session;
 
-int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *key, keep_login[300];
   int32_t auth_state = 0, rc = 0;
@@ -31,11 +32,15 @@ int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, c
   if (strlen(key = fpassword_get_next_password()) == 0)
     key = empty;
 
-  if (new_session) {
-    if (session) {
+  if (new_session)
+  {
+    if (session)
+    {
       ssh_disconnect(session);
       ssh_free(session);
-    } else {
+    }
+    else
+    {
       ssh_init();
     }
 
@@ -45,16 +50,20 @@ int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, c
     ssh_options_set(session, SSH_OPTIONS_USER, login);
     ssh_options_set(session, SSH_OPTIONS_COMPRESSION_C_S, "none");
     ssh_options_set(session, SSH_OPTIONS_COMPRESSION_S_C, "none");
-    if (ssh_connect(session) != 0) {
+    if (ssh_connect(session) != 0)
+    {
       // if the connection was drop, exit and let fpassword main handle it
       if (verbose)
         fpassword_report(stderr, "[ERROR] could not connect to target port %d\n", port);
       return 3;
     }
 
-    if ((rc = ssh_userauth_none(session, NULL)) == SSH_AUTH_ERROR) {
+    if ((rc = ssh_userauth_none(session, NULL)) == SSH_AUTH_ERROR)
+    {
       return 3;
-    } else if (rc == SSH_AUTH_SUCCESS) {
+    }
+    else if (rc == SSH_AUTH_SUCCESS)
+    {
       fpassword_report_found_host(port, ip, "sshkey", fp);
       fpassword_completed_pair_found();
       if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
@@ -62,13 +71,16 @@ int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, c
       else
         return 1;
     }
-  } else
+  }
+  else
     new_session = 1;
 
   auth_state = ssh_auth_list(session);
-  if ((auth_state & SSH_AUTH_METHOD_PUBLICKEY) > 0) {
+  if ((auth_state & SSH_AUTH_METHOD_PUBLICKEY) > 0)
+  {
     privkey = privatekey_from_file(session, key, 0, NULL);
-    if (!privkey) {
+    if (!privkey)
+    {
       fpassword_report(stderr, "[ERROR] skipping invalid private key: \"%s\"\n", key);
       fpassword_completed_pair();
       if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
@@ -77,22 +89,28 @@ int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, c
       return 1;
     }
     auth_state = ssh_userauth_pubkey(session, NULL, NULL, privkey);
-  } else {
+  }
+  else
+  {
     return 4;
   }
 
-  if (auth_state == SSH_AUTH_ERROR) {
+  if (auth_state == SSH_AUTH_ERROR)
+  {
     new_session = 1;
     return 1;
   }
 
-  if (auth_state == SSH_AUTH_SUCCESS || auth_state == SSH_AUTH_PARTIAL) {
+  if (auth_state == SSH_AUTH_SUCCESS || auth_state == SSH_AUTH_PARTIAL)
+  {
     fpassword_report_found_host(port, ip, "sshkey", fp);
     fpassword_completed_pair_found();
     if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
       return 2;
     return 1;
-  } else {
+  }
+  else
+  {
     strncpy(keep_login, login, sizeof(keep_login) - 1);
     keep_login[sizeof(keep_login) - 1] = '\0';
     fpassword_completed_pair();
@@ -108,14 +126,17 @@ int32_t start_sshkey(int32_t s, char *ip, int32_t port, unsigned char options, c
   return 1;
 }
 
-void service_sshkey(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_sshkey(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       next_run = start_sshkey(sock, ip, port, options, miscptr, fp);
       if (next_run == 1 && fpassword_options.conwait)
@@ -156,7 +177,8 @@ void service_sshkey(char *ip, int32_t sp, unsigned char options, char *miscptr, 
 #endif
 #endif
 
-int32_t service_sshkey_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_sshkey_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -170,7 +192,8 @@ int32_t service_sshkey_init(char *ip, int32_t sp, unsigned char options, char *m
   return 0;
 }
 
-void usage_sshkey(const char *service) {
+void usage_sshkey(const char *service)
+{
   printf("Module sshkey does not provide additional options, although the "
          "semantic for\n"
          "options -p and -P is changed:\n"

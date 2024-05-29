@@ -24,7 +24,8 @@ int32_t tosent = 0;
 
 int32_t smtp_enum_cmd = VRFY;
 
-int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[500];
 
@@ -33,22 +34,28 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  while (fpassword_data_ready(s) > 0) {
+  while (fpassword_data_ready(s) > 0)
+  {
     if ((buf = fpassword_receive_line(s)) == NULL)
       return (1);
     free(buf);
   }
 
-  if (smtp_enum_cmd == RCPT) {
+  if (smtp_enum_cmd == RCPT)
+  {
     tosent = 0;
-    if (pass != empty) {
+    if (pass != empty)
+    {
       snprintf(buffer, sizeof(buffer), "MAIL FROM: root@%s\r\n", pass);
-    } else {
+    }
+    else
+    {
       snprintf(buffer, sizeof(buffer), "MAIL FROM: root\r\n");
     }
     if (debug)
       fpassword_report(stderr, "DEBUG C: %s", buffer);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
@@ -57,20 +64,29 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
       fpassword_report(stderr, "DEBUG S: %s", buf);
       /* good return values are something like 25x */
 #ifdef HAVE_PCRE
-    if (fpassword_string_match(buf, "^25\\d\\s")) {
+    if (fpassword_string_match(buf, "^25\\d\\s"))
+    {
 #else
-    if (strstr(buf, "25") != NULL) {
+    if (strstr(buf, "25") != NULL)
+    {
 #endif
-      if (pass != empty) {
+      if (pass != empty)
+      {
         snprintf(buffer, sizeof(buffer), "RCPT TO: %s@%s\r\n", login, pass);
-      } else {
+      }
+      else
+      {
         snprintf(buffer, sizeof(buffer), "RCPT TO: %s\r\n", login);
       }
       tosent = 1;
-    } else {
+    }
+    else
+    {
       err = strstr(buf, "Error");
-      if (err) {
-        if (debug) {
+      if (err)
+      {
+        if (debug)
+        {
           fpassword_report(stderr, "Server %s", err);
         }
         free(buf);
@@ -80,7 +96,9 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
         return 2;
       }
     }
-  } else {
+  }
+  else
+  {
     char cmd[5] = "";
 
     memset(cmd, 0, sizeof(cmd));
@@ -88,15 +106,19 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
       strcpy(cmd, "EXPN");
     else
       strcpy(cmd, "VRFY");
-    if (pass != empty) {
+    if (pass != empty)
+    {
       snprintf(buffer, sizeof(buffer), "%s %s@%s\r\n", cmd, login, pass);
-    } else {
+    }
+    else
+    {
       snprintf(buffer, sizeof(buffer), "%s %s\r\n", cmd, login);
     }
   }
   if (debug)
     fpassword_report(stderr, "DEBUG C: %s", buffer);
-  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+  {
     return 1;
   }
   if ((buf = fpassword_receive_line(s)) == NULL)
@@ -105,9 +127,11 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
     fpassword_report(stderr, "DEBUG S: %s", buf);
     /* good return values are something like 25x */
 #ifdef HAVE_PCRE
-  if (fpassword_string_match(buf, "^25\\d\\s")) {
+  if (fpassword_string_match(buf, "^25\\d\\s"))
+  {
 #else
-  if (strstr(buf, "25") != NULL) {
+  if (strstr(buf, "25") != NULL)
+  {
 #endif
     fpassword_report_found_host(port, ip, "smtp-enum", fp);
     fpassword_completed_pair_found();
@@ -117,22 +141,24 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
     return 1;
   }
   err = strstr(buf, "Error");
-  if (err || tosent || strncmp(buf, "50", 2) == 0) {
+  if (err || tosent || strncmp(buf, "50", 2) == 0)
+  {
     // we should report command not identified by the server
     // 502 5.5.2 Error: command not recognized
-    //#ifdef HAVE_PCRE
+    // #ifdef HAVE_PCRE
     //    if ((debug || fpassword_string_match(buf,
     //    "\\scommand\\snot\\srecognized")) && err) {
-    //#else
+    // #else
     //    if ((debug || strstr(buf, "command") != NULL) && err) {
-    //#endif
+    // #endif
     //      fpassword_report(stderr, "Server %s", err);
     //    }
-    if (strncmp(buf, "500 ", 4) == 0 || strncmp(buf, "502 ", 4) == 0) {
+    if (strncmp(buf, "500 ", 4) == 0 || strncmp(buf, "502 ", 4) == 0)
+    {
       fpassword_report(stderr,
-                   "[ERROR] command is disabled on the server (choose "
-                   "different method): %s",
-                   buf);
+                       "[ERROR] command is disabled on the server (choose "
+                       "different method): %s",
+                       buf);
       free(buf);
       return 4;
     }
@@ -154,7 +180,8 @@ int32_t start_smtp_enum(int32_t s, char *ip, int32_t port, unsigned char options
   return 2;
 }
 
-void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1, i = 0;
   int32_t myport = PORT_SMTP, mysslport = PORT_SMTP_SSL;
   char *buffer = "HELO fpassword\r\n";
@@ -162,30 +189,37 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
       /* receive initial header */
       if ((buf = fpassword_receive_line(sock)) == NULL)
         fpassword_child_exit(2);
-      if (strstr(buf, "220") == NULL) {
+      if (strstr(buf, "220") == NULL)
+      {
         fpassword_report(stderr, "Warning: SMTP does not allow connecting: %s\n", buf);
         fpassword_child_exit(2);
       }
@@ -195,7 +229,8 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
       //      }
 
       //      if (buf[0] != '2') {
-      if (fpassword_send(sock, buffer, strlen(buffer), 0) < 0) {
+      if (fpassword_send(sock, buffer, strlen(buffer), 0) < 0)
+      {
         free(buf);
         fpassword_child_exit(2);
       }
@@ -204,12 +239,14 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
       free(buf);
       if ((buf = fpassword_receive_line(sock)) == NULL)
         fpassword_child_exit(2);
-      if (buf[0] != '2') {
+      if (buf[0] != '2')
+      {
         fpassword_report(stderr, "Warning: SMTP does not respond correctly to HELO: %s\n", buf);
         fpassword_child_exit(2);
       }
 
-      if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+      if ((miscptr != NULL) && (strlen(miscptr) > 0))
+      {
         for (i = 0; i < strlen(miscptr); i++)
           miscptr[i] = (char)toupper((int32_t)miscptr[i]);
 
@@ -219,9 +256,11 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
         if (strncmp(miscptr, "RCPT", 4) == 0)
           smtp_enum_cmd = RCPT;
       }
-      if (debug) {
+      if (debug)
+      {
         fpassword_report(stdout, "[VERBOSE] ");
-        switch (smtp_enum_cmd) {
+        switch (smtp_enum_cmd)
+        {
         case VRFY:
           fpassword_report(stdout, "using SMTP VRFY command\n");
           break;
@@ -240,13 +279,15 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
       next_run = start_smtp_enum(sock, ip, port, options, miscptr, fp);
       break;
     case 3: /* clean exit */
-      if (sock >= 0) {
+      if (sock >= 0)
+      {
         sock = fpassword_disconnect(sock);
       }
       fpassword_child_exit(0);
       return;
     case 4: /* unsupported exit */
-      if (sock >= 0) {
+      if (sock >= 0)
+      {
         sock = fpassword_disconnect(sock);
       }
       fpassword_child_exit(3);
@@ -259,7 +300,8 @@ void service_smtp_enum(char *ip, int32_t sp, unsigned char options, char *miscpt
   }
 }
 
-int32_t service_smtp_enum_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_smtp_enum_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -273,7 +315,8 @@ int32_t service_smtp_enum_init(char *ip, int32_t sp, unsigned char options, char
   return 0;
 }
 
-void usage_smtp_enum(const char *service) {
+void usage_smtp_enum(const char *service)
+{
   printf("Module smtp-enum is optionally taking one SMTP command of:\n\n"
          "VRFY (default), EXPN, RCPT (which will connect using \"root\" account)\n"
          "login parameter is used as username and password parameter as the "

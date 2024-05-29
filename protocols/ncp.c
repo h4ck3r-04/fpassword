@@ -24,16 +24,18 @@ void dummy_ncp() { printf("\n"); }
 extern char *FPASSWORD_EXIT;
 extern int32_t child_head_no;
 
-typedef struct __NCP_DATA {
+typedef struct __NCP_DATA
+{
   struct ncp_conn_spec spec;
   struct ncp_conn *conn;
   char *context;
 } _NCP_DATA;
 
 // uncomment line below to see more trace stack
-//#define NCP_DEBUG
+// #define NCP_DEBUG
 
-int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *login;
   char *pass;
   char context[256];
@@ -48,11 +50,16 @@ int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char
   login = empty;
   pass = empty;
 
-  if (strlen(login = fpassword_get_next_login()) == 0) {
+  if (strlen(login = fpassword_get_next_login()) == 0)
+  {
     login = empty;
-  } else {
-    if (miscptr) {
-      if (strlen(miscptr) + strlen(login) > sizeof(context)) {
+  }
+  else
+  {
+    if (miscptr)
+    {
+      if (strlen(miscptr) + strlen(login) > sizeof(context))
+      {
         free(session);
         return 4;
       }
@@ -72,13 +79,15 @@ int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char
     pass = empty;
 
   ncp_lib_error_code = ncp_find_conn_spec3(fpassword_address2string(ip), login, "", 1, getuid(), 0, &session->spec);
-  if (ncp_lib_error_code) {
+  if (ncp_lib_error_code)
+  {
     free(session);
     return 1;
   }
 
   ncp_lib_error_code = NWCCOpenConnByName(NULL, session->spec.server, NWCC_NAME_FORMAT_BIND, NWCC_OPEN_NEW_CONN, NWCC_RESERVED, &session->conn);
-  if (ncp_lib_error_code) {
+  if (ncp_lib_error_code)
+  {
     free(session);
     return 1;
   }
@@ -88,7 +97,8 @@ int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char
   // str_upper(session->spec.password);
 
   ncp_lib_error_code = ncp_login_conn(session->conn, session->spec.user, object_type, session->spec.password);
-  switch (ncp_lib_error_code & 0x0000FFFF) {
+  switch (ncp_lib_error_code & 0x0000FFFF)
+  {
   case 0x0000: /* Success */
 #ifdef NCP_DEBUG
     printf("Connection success (%s / %s). Error code: %X\n", login, pass, ncp_lib_error_code);
@@ -111,7 +121,8 @@ int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char
 #endif
     ncp_close(session->conn);
     fpassword_completed_pair();
-    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+    {
       free(session);
       return 2; // next
     }
@@ -128,7 +139,8 @@ int32_t start_ncp(int32_t s, char *ip, int32_t port, unsigned char options, char
   return 1; // reconnect
 }
 
-void service_ncp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_ncp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_NCP;
 
@@ -136,8 +148,10 @@ void service_ncp(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
@@ -145,7 +159,8 @@ void service_ncp(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
         myport = port;
       sock = fpassword_connect_tcp(ip, myport);
       port = myport;
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (quiet != 1)
           fprintf(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -178,7 +193,8 @@ void service_ncp(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
 
 #endif
 
-int32_t service_ncp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_ncp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -192,7 +208,8 @@ int32_t service_ncp_init(char *ip, int32_t sp, unsigned char options, char *misc
   return 0;
 }
 
-void usage_ncp(const char *service) {
+void usage_ncp(const char *service)
+{
   printf("Module ncp is optionally taking the full context, for example "
          "\".O=cx\"\n\n");
 }

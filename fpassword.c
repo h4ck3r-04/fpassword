@@ -240,12 +240,24 @@ extern int32_t old_ssl;
 void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail);
 
 // some enum definitions
-typedef enum { HEAD_DISABLED = -1, HEAD_UNUSED = 0, HEAD_ACTIVE = 1 } head_state_t;
+typedef enum
+{
+  HEAD_DISABLED = -1,
+  HEAD_UNUSED = 0,
+  HEAD_ACTIVE = 1
+} head_state_t;
 
-typedef enum { TARGET_ACTIVE = 0, TARGET_FINISHED = 1, TARGET_ERROR = 2, TARGET_UNRESOLVED = 3 } target_state_t;
+typedef enum
+{
+  TARGET_ACTIVE = 0,
+  TARGET_FINISHED = 1,
+  TARGET_ERROR = 2,
+  TARGET_UNRESOLVED = 3
+} target_state_t;
 
 // some structure definitions
-typedef struct {
+typedef struct
+{
   pid_t pid;
   int32_t sp[2];
   int32_t target_no;
@@ -257,7 +269,8 @@ typedef struct {
   time_t last_seen;
 } fpassword_head;
 
-typedef struct {
+typedef struct
+{
   char *target;
   char ip[36];
   char *login_ptr;
@@ -281,7 +294,8 @@ typedef struct {
   //  char *bfg_ptr[MAXTASKS];
 } fpassword_target;
 
-typedef struct {
+typedef struct
+{
   int32_t active; // active tasks of fpassword_options.max_use
   int32_t targets;
   int32_t finished;
@@ -297,7 +311,8 @@ typedef struct {
   FILE *ofp;
 } fpassword_brain;
 
-typedef struct {
+typedef struct
+{
   char *name;
   int32_t port;
   int32_t port_ssl;
@@ -351,14 +366,21 @@ typedef void (*service_t)(char *ip, int32_t sp, unsigned char options, char *mis
 typedef int32_t (*service_init_t)(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 typedef void (*service_usage_t)(const char *service);
 
-#define SERVICE2(name, func)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-  { name, service_##func##_init, service_##func, NULL }
-#define SERVICE(name)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-  { #name, service_##name##_init, service_##name, NULL }
-#define SERVICE3(name, func)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-  { name, service_##func##_init, service_##func, usage_##func }
+#define SERVICE2(name, func)                          \
+  {                                                   \
+    name, service_##func##_init, service_##func, NULL \
+  }
+#define SERVICE(name)                                  \
+  {                                                    \
+    #name, service_##name##_init, service_##name, NULL \
+  }
+#define SERVICE3(name, func)                                  \
+  {                                                           \
+    name, service_##func##_init, service_##func, usage_##func \
+  }
 
-static const struct {
+static const struct
+{
   const char *name;
   service_init_t init;
   service_t exec;
@@ -462,18 +484,21 @@ static const struct {
                 {"xmpp", service_xmpp_init, NULL, usage_xmpp}};
 
 #define PRINT_NORMAL(ext, text, ...) printf(text, ##__VA_ARGS__)
-#define PRINT_EXTEND(ext, text, ...)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-  do {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-    if (ext)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      printf(text, ##__VA_ARGS__);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
+#define PRINT_EXTEND(ext, text, ...) \
+  do                                 \
+  {                                  \
+    if (ext)                         \
+      printf(text, ##__VA_ARGS__);   \
   } while (0)
 
-int32_t                                   /*inline*/
-check_flag(int32_t value, int32_t flag) { // inline does not compile with debug
+int32_t /*inline*/
+check_flag(int32_t value, int32_t flag)
+{ // inline does not compile with debug
   return (value & flag) == flag;
 }
 
-void help(int32_t ext) {
+void help(int32_t ext)
+{
   PRINT_NORMAL(ext, "Syntax: fpassword [[[-l LOGIN|-L FILE] [-p PASS|-P FILE]] | "
                     "[-C FILE]] [-e nsr]"
                     " [-o FILE] [-t TASKS] [-M FILE [-T TASKS]] [-w TIME] [-W "
@@ -555,7 +580,8 @@ void help(int32_t ext) {
                "laws and ethics anyway - and tell themselves they are one of the good ones.)\n",
                SERVICES, PROGRAM, RESOURCE);
 
-  if (ext && strlen(unsupported) > 0) {
+  if (ext && strlen(unsupported) > 0)
+  {
     if (unsupported[strlen(unsupported) - 1] == ' ')
       unsupported[strlen(unsupported) - 1] = 0;
     printf("These services were not compiled in: %s.\n", unsupported);
@@ -576,7 +602,8 @@ void help(int32_t ext) {
   exit(-1);
 }
 
-void help_bfg() {
+void help_bfg()
+{
   printf("Fpassword bruteforce password generation option usage:\n\n"
          "  -x MIN:MAX:CHARSET\n\n"
          "     MIN     is the minimum number of characters in the password\n"
@@ -604,7 +631,8 @@ void help_bfg() {
   exit(-1);
 }
 
-void module_usage() {
+void module_usage()
+{
   int32_t i;
 
   printf("\nHelp for module "
@@ -613,9 +641,12 @@ void module_usage() {
          fpassword_options.service);
   if (strncmp(fpassword_options.service, "https-", 6) == 0)
     memmove(fpassword_options.service + 4, fpassword_options.service + 5, strlen(fpassword_options.service) - 4);
-  for (i = 0; i < sizeof(services) / sizeof(services[0]); i++) {
-    if (strcmp(fpassword_options.service, services[i].name) == 0) {
-      if (services[i].usage) {
+  for (i = 0; i < sizeof(services) / sizeof(services[0]); i++)
+  {
+    if (strcmp(fpassword_options.service, services[i].name) == 0)
+    {
+      if (services[i].usage)
+      {
         services[i].usage(fpassword_options.service);
         exit(0);
       }
@@ -628,7 +659,8 @@ void module_usage() {
 
 #define STR_NULL(s) ((s) == NULL ? "(null)" : (s))
 
-void fpassword_debug(int32_t force, char *string) {
+void fpassword_debug(int32_t force, char *string)
+{
   int32_t active = 0, inactive = 0, i;
 
   if (!debug && !force)
@@ -643,7 +675,8 @@ void fpassword_debug(int32_t force, char *string) {
   printf("[DEBUG] Brains: active %d  targets %d  finished %d  todo_all %" hPRIu64 "  todo %" hPRIu64 "  sent %" hPRIu64 "  found %" hPRIu64 "  countlogin %" hPRIu64 "  sizelogin %" hPRIu64 "  countpass %" hPRIu64 "  sizepass %" hPRIu64 "\n", fpassword_brains.active, fpassword_brains.targets, fpassword_brains.finished, fpassword_brains.todo_all + total_redo_count, fpassword_brains.todo, fpassword_brains.sent, fpassword_brains.found, (uint64_t)fpassword_brains.countlogin, (uint64_t)fpassword_brains.sizelogin, (uint64_t)fpassword_brains.countpass,
          (uint64_t)fpassword_brains.sizepass);
 
-  for (i = 0; i < fpassword_brains.targets; i++) {
+  for (i = 0; i < fpassword_brains.targets; i++)
+  {
     fpassword_target *target = fpassword_targets[i];
     printf("[DEBUG] Target %d - target %s  ip %s  login_no %" hPRIu64 "  pass_no %" hPRIu64 "  sent %" hPRIu64 "  pass_state %d  redo_state %d (%d redos)  use_count %d  failed %d "
            " done %d  fail_count %d  login_ptr %s  pass_ptr %s\n",
@@ -653,8 +686,10 @@ void fpassword_debug(int32_t force, char *string) {
   if (fpassword_heads == NULL)
     return;
 
-  for (i = 0; i < fpassword_options.max_use; i++) {
-    if (fpassword_heads[i]->active >= HEAD_UNUSED) {
+  for (i = 0; i < fpassword_options.max_use; i++)
+  {
+    if (fpassword_heads[i]->active >= HEAD_UNUSED)
+    {
       printf("[DEBUG] Task %d - pid %d  active %d  redo %d  current_login_ptr "
              "%s  current_pass_ptr %s\n",
              i, (int32_t)fpassword_heads[i]->pid, fpassword_heads[i]->active, fpassword_heads[i]->redo, STR_NULL(fpassword_heads[i]->current_login_ptr), STR_NULL(fpassword_heads[i]->current_pass_ptr));
@@ -667,12 +702,14 @@ void fpassword_debug(int32_t force, char *string) {
   printf("[DEBUG] Tasks %d inactive  %d active\n", inactive, active);
 }
 
-void bail(char *text) {
+void bail(char *text)
+{
   fprintf(stderr, "[ERROR] %s\n", text);
   exit(-1);
 }
 
-void fpassword_restore_write(int32_t print_msg) {
+void fpassword_restore_write(int32_t print_msg)
+{
   FILE *f;
   fpassword_brain brain;
   char mynull[4] = {0, 0, 0, 0}, buf[4];
@@ -685,17 +722,20 @@ void fpassword_restore_write(int32_t print_msg) {
   for (i = 0; i < fpassword_brains.targets; i++)
     if (fpassword_targets[j]->done != TARGET_FINISHED && fpassword_targets[j]->done != TARGET_UNRESOLVED)
       j++;
-  if (j == 0) {
+  if (j == 0)
+  {
     process_restore = 0;
     return;
   }
 
-  if ((f = fopen(RESTOREFILE, "w")) == NULL) {
+  if ((f = fopen(RESTOREFILE, "w")) == NULL)
+  {
     fprintf(stderr, "[ERROR] Can not create restore file (%s) - ", RESTOREFILE);
     perror("");
     process_restore = 0;
     return;
-  } else if (debug)
+  }
+  else if (debug)
     printf("[DEBUG] Writing restore file... ");
 
   fprintf(f, "%s\n", PROGRAM);
@@ -725,7 +765,8 @@ void fpassword_restore_write(int32_t print_msg) {
   if (fpassword_options.colonfile == NULL || fpassword_options.colonfile == empty_login)
     fck = fwrite(pass_ptr, fpassword_brains.sizepass + fpassword_brains.countpass + 8, 1, f);
   for (j = 0; j < fpassword_brains.targets; j++)
-    if (fpassword_targets[j]->done != TARGET_FINISHED) {
+    if (fpassword_targets[j]->done != TARGET_FINISHED)
+    {
       fck = fwrite(fpassword_targets[j], sizeof(fpassword_target), 1, f);
       fprintf(f, "%s\n%d\n%d\n", fpassword_targets[j]->target == NULL ? "" : fpassword_targets[j]->target, (int32_t)(fpassword_targets[j]->login_ptr - login_ptr), (int32_t)(fpassword_targets[j]->pass_ptr - pass_ptr));
       fprintf(f, "%s\n%s\n", fpassword_targets[j]->login_ptr, fpassword_targets[j]->pass_ptr);
@@ -736,14 +777,17 @@ void fpassword_restore_write(int32_t print_msg) {
         for (i = 0; i < fpassword_targets[j]->skipcnt; i++)
           fprintf(f, "%s\n", fpassword_targets[j]->skiplogin[i]);
     }
-  for (j = 0; j < fpassword_options.max_use; j++) {
+  for (j = 0; j < fpassword_options.max_use; j++)
+  {
     memcpy((char *)&hh, fpassword_heads[j], sizeof(fpassword_head));
-    if (j == 0 && debug) {
+    if (j == 0 && debug)
+    {
       printf("[DEBUG] sizeof fpassword_head: %lu\n", sizeof(fpassword_head));
       printf("[DEBUG] memcmp: %d\n", memcmp(fpassword_heads[j], &hh, sizeof(fpassword_head)));
     }
     hh.active = 0; // re-enable disabled heads
-    if ((hh.current_login_ptr != NULL && hh.current_login_ptr != empty_login) || (hh.current_pass_ptr != NULL && hh.current_pass_ptr != empty_login)) {
+    if ((hh.current_login_ptr != NULL && hh.current_login_ptr != empty_login) || (hh.current_pass_ptr != NULL && hh.current_pass_ptr != empty_login))
+    {
       hh.redo = 1;
       if (print_msg && debug)
         printf("[DEBUG] we will redo the following combination: target %s  "
@@ -767,14 +811,16 @@ void fpassword_restore_write(int32_t print_msg) {
   fpassword_debug(0, "fpassword_restore_write()");
 }
 
-void fpassword_restore_read() {
+void fpassword_restore_read()
+{
   FILE *f;
   char mynull[4], buf[4];
   int32_t i, j, orig_debug = debug;
   char out[1024];
 
   printf("[INFORMATION] reading restore file %s\n", RESTOREFILE);
-  if ((f = fopen(RESTOREFILE, "r")) == NULL) {
+  if ((f = fopen(RESTOREFILE, "r")) == NULL)
+  {
     fprintf(stderr, "[ERROR] restore file (%s) not found - ", RESTOREFILE);
     perror("");
     exit(-1);
@@ -783,16 +829,19 @@ void fpassword_restore_read() {
   sck = fgets(out, sizeof(out), f);
   if (out[0] != 0 && out[strlen(out) - 1] == '\n')
     out[strlen(out) - 1] = 0;
-  if (strcmp(out, PROGRAM) != 0) {
+  if (strcmp(out, PROGRAM) != 0)
+  {
     fprintf(stderr, "[ERROR] invalid restore file (begin)\n");
     exit(-1);
   }
 
-  if ((fck = (int32_t)fread(buf, 1, 4, f)) != 4) {
+  if ((fck = (int32_t)fread(buf, 1, 4, f)) != 4)
+  {
     fprintf(stderr, "[ERROR] invalid restore file (platform)\n");
     exit(-1);
   }
-  if (buf[0] == 0 || buf[1] == 0) {
+  if (buf[0] == 0 || buf[1] == 0)
+  {
     fprintf(stderr, "[ERROR] restore file is prior fpassword version v8.5!\n");
     exit(-1);
   }
@@ -801,7 +850,8 @@ void fpassword_restore_read() {
             "[WARNING] restore file was created by version %c.%c, this is "
             "version %s\n",
             buf[0], buf[1], VERSION);
-  if (buf[2] != sizeof(int32_t) % 256 || buf[3] != sizeof(fpassword_head *) % 256) {
+  if (buf[2] != sizeof(int32_t) % 256 || buf[3] != sizeof(fpassword_head *) % 256)
+  {
     fprintf(stderr, "[ERROR] restore file was created on a different, "
                     "incompatible processor platform!\n");
     exit(-1);
@@ -811,9 +861,12 @@ void fpassword_restore_read() {
   fck = (int32_t)fread(mynull, sizeof(mynull), 1, f);
   if (debug)
     printf("[DEBUG] reading restore file: Step 1 complete\n");
-  if (mynull[0] + mynull[1] + mynull[2] + mynull[3] == 0) {
+  if (mynull[0] + mynull[1] + mynull[2] + mynull[3] == 0)
+  {
     bf_options.crs = NULL;
-  } else {
+  }
+  else
+  {
     bf_options.crs = malloc(BF_CHARSMAX);
     memcpy(bf_options.crs, mynull, sizeof(mynull));
     fck = fread(bf_options.crs + sizeof(mynull), BF_CHARSMAX - sizeof(mynull), 1, f);
@@ -829,7 +882,8 @@ void fpassword_restore_read() {
   debug = fpassword_options.debug;
   if (debug || orig_debug)
     printf("[DEBUG] run_debug %d, orig_debug %d\n", debug, orig_debug);
-  if (orig_debug) {
+  if (orig_debug)
+  {
     debug = 1;
     fpassword_options.debug = 1;
   }
@@ -845,10 +899,12 @@ void fpassword_restore_read() {
     out[strlen(out) - 1] = 0;
   if (debug)
     printf("[DEBUG] reading restore file: Step 3 complete\n");
-  if (strlen(out) > 0) {
+  if (strlen(out) > 0)
+  {
     fpassword_options.outfile_ptr = malloc(strlen(out) + 1);
     strcpy(fpassword_options.outfile_ptr, out);
-  } else
+  }
+  else
     fpassword_options.outfile_ptr = NULL;
   if (debug)
     printf("[DEBUG] reading restore file: Step 4 complete\n");
@@ -859,7 +915,8 @@ void fpassword_restore_read() {
     printf("[DEBUG] reading restore file: Step 5 complete\n");
   if (strlen(out) == 0)
     fpassword_options.miscptr = NULL;
-  else {
+  else
+  {
     fpassword_options.miscptr = malloc(strlen(out) + 1);
     strcpy(fpassword_options.miscptr, out);
   }
@@ -876,21 +933,26 @@ void fpassword_restore_read() {
     printf("[DEBUG] reading restore file: Step 8 complete\n");
 
   login_ptr = malloc(fpassword_brains.sizelogin + fpassword_brains.countlogin + 8);
-  if (!login_ptr) {
+  if (!login_ptr)
+  {
     fprintf(stderr, "Error: malloc(%lu) failed\n", fpassword_brains.sizelogin + fpassword_brains.countlogin + 8);
     exit(-1);
   }
   fck = (int32_t)fread(login_ptr, fpassword_brains.sizelogin + fpassword_brains.countlogin + 8, 1, f);
   if (debug)
     printf("[DEBUG] reading restore file: Step 9 complete\n");
-  if (!check_flag(fpassword_options.mode, MODE_COLON_FILE)) { // NOT colonfile mode
+  if (!check_flag(fpassword_options.mode, MODE_COLON_FILE))
+  { // NOT colonfile mode
     pass_ptr = malloc(fpassword_brains.sizepass + fpassword_brains.countpass + 8);
-    if (!pass_ptr) {
+    if (!pass_ptr)
+    {
       fprintf(stderr, "Error: malloc(%lu) failed\n", fpassword_brains.sizepass + fpassword_brains.countpass + 8);
       exit(-1);
     }
     fck = (int32_t)fread(pass_ptr, fpassword_brains.sizepass + fpassword_brains.countpass + 8, 1, f);
-  } else {                                 // colonfile mode
+  }
+  else
+  {                                            // colonfile mode
     fpassword_options.colonfile = empty_login; // dummy
     pass_ptr = csv_ptr = login_ptr;
   }
@@ -898,13 +960,16 @@ void fpassword_restore_read() {
     printf("[DEBUG] reading restore file: Step 10 complete\n");
 
   fpassword_targets = (fpassword_target **)malloc((fpassword_brains.targets + 3) * sizeof(fpassword_target *));
-  if (!fpassword_targets) {
+  if (!fpassword_targets)
+  {
     fprintf(stderr, "Error: malloc(%lu) failed\n", (fpassword_brains.targets + 3) * sizeof(fpassword_target *));
     exit(-1);
   }
-  for (j = 0; j < fpassword_brains.targets; j++) {
+  for (j = 0; j < fpassword_brains.targets; j++)
+  {
     fpassword_targets[j] = malloc(sizeof(fpassword_target));
-    if (!fpassword_targets[j]) {
+    if (!fpassword_targets[j])
+    {
       fprintf(stderr, "Error: malloc(%lu) failed\n", sizeof(fpassword_target));
       exit(-1);
     }
@@ -920,16 +985,19 @@ void fpassword_restore_read() {
     fpassword_targets[j]->pass_ptr = pass_ptr + atoi(out);
     sck = fgets(out, sizeof(out), f); // target login_ptr, ignord
     sck = fgets(out, sizeof(out), f);
-    if (fpassword_options.bfg) {
+    if (fpassword_options.bfg)
+    {
       if (out[0] != 0 && out[strlen(out) - 1] == '\n')
         out[strlen(out) - 1] = 0;
       fpassword_targets[j]->pass_ptr = malloc(strlen(out) + 1);
       strcpy(fpassword_targets[j]->pass_ptr, out);
     }
-    if (fpassword_targets[j]->redo > 0) {
+    if (fpassword_targets[j]->redo > 0)
+    {
       if (debug)
         printf("[DEBUG] target %d redo %d\n", j, fpassword_targets[j]->redo);
-      for (i = 0; i < fpassword_targets[j]->redo; i++) {
+      for (i = 0; i < fpassword_targets[j]->redo; i++)
+      {
         sck = fgets(out, sizeof(out), f);
         if (out[0] != 0 && out[strlen(out) - 1] == '\n')
           out[strlen(out) - 1] = 0;
@@ -945,7 +1013,8 @@ void fpassword_restore_read() {
     if (fpassword_targets[j]->skipcnt >= fpassword_brains.countlogin)
       fpassword_targets[j]->skipcnt = 0;
     if (fpassword_targets[j]->skipcnt > 0)
-      for (i = 0; i < fpassword_targets[j]->skipcnt; i++) {
+      for (i = 0; i < fpassword_targets[j]->skipcnt; i++)
+      {
         sck = fgets(out, sizeof(out), f);
         if (out[0] != 0 && out[strlen(out) - 1] == '\n')
           out[strlen(out) - 1] = 0;
@@ -959,13 +1028,16 @@ void fpassword_restore_read() {
   if (debug)
     printf("[DEBUG] reading restore file: Step 11 complete\n");
   fpassword_heads = malloc(sizeof(fpassword_head *) * fpassword_options.max_use);
-  if (!fpassword_heads) {
+  if (!fpassword_heads)
+  {
     fprintf(stderr, "Error: malloc(%lu) failed\n", sizeof(fpassword_head *) * fpassword_options.max_use);
     exit(-1);
   }
-  for (j = 0; j < fpassword_options.max_use; j++) {
+  for (j = 0; j < fpassword_options.max_use; j++)
+  {
     fpassword_heads[j] = malloc(sizeof(fpassword_head));
-    if (!fpassword_heads[j]) {
+    if (!fpassword_heads[j])
+    {
       fprintf(stderr, "Error: malloc(%lu) failed\n", sizeof(fpassword_head));
       exit(-1);
     }
@@ -973,7 +1045,8 @@ void fpassword_restore_read() {
     fpassword_heads[j]->sp[0] = -1;
     fpassword_heads[j]->sp[1] = -1;
     sck = fgets(out, sizeof(out), f);
-    if (fpassword_heads[j]->redo) {
+    if (fpassword_heads[j]->redo)
+    {
       if (debug)
         printf("[DEBUG] head %d redo\n", j);
       if (out[0] != 0 && out[strlen(out) - 1] == '\n')
@@ -982,22 +1055,28 @@ void fpassword_restore_read() {
       strcpy(fpassword_heads[j]->current_login_ptr, out);
     }
     sck = fgets(out, sizeof(out), f);
-    if (fpassword_heads[j]->redo) {
+    if (fpassword_heads[j]->redo)
+    {
       if (out[0] != 0 && out[strlen(out) - 1] == '\n')
         out[strlen(out) - 1] = 0;
       if (debug)
         printf("[DEBUG] TEMP head %d: pass == %s, login == %s\n", j, out, fpassword_heads[j]->current_login_ptr);
-      if (out[0] != 0 || fpassword_heads[j]->current_login_ptr[0] != 0) {
+      if (out[0] != 0 || fpassword_heads[j]->current_login_ptr[0] != 0)
+      {
         fpassword_heads[j]->current_pass_ptr = malloc(strlen(out) + 1);
         strcpy(fpassword_heads[j]->current_pass_ptr, out);
         if (debug)
           printf("[DEBUG] redo: %d %s/%s\n", j, fpassword_heads[j]->current_login_ptr, fpassword_heads[j]->current_pass_ptr);
-      } else {
+      }
+      else
+      {
         fpassword_heads[j]->redo = 0;
         free(fpassword_heads[j]->current_login_ptr);
         fpassword_heads[j]->current_login_ptr = fpassword_heads[j]->current_pass_ptr = empty_login;
       }
-    } else {
+    }
+    else
+    {
       fpassword_heads[j]->current_login_ptr = fpassword_heads[j]->current_pass_ptr = empty_login;
     }
   }
@@ -1006,7 +1085,8 @@ void fpassword_restore_read() {
   sck = fgets(out, sizeof(out), f);
   if (out[0] != 0 && out[strlen(out) - 1] == '\n')
     out[strlen(out) - 1] = 0;
-  if (strcmp(out, PROGRAM) != 0) {
+  if (strcmp(out, PROGRAM) != 0)
+  {
     fprintf(stderr, "[ERROR] invalid restore file (end)\n");
     exit(-1);
   }
@@ -1014,13 +1094,16 @@ void fpassword_restore_read() {
   fpassword_debug(0, "fpassword_restore_read");
 }
 
-void killed_childs(int32_t signo) {
+void killed_childs(int32_t signo)
+{
   int32_t pid, i;
 
   killed++;
   pid = waitpid(-1, NULL, WNOHANG);
-  for (i = 0; i < fpassword_options.max_use; i++) {
-    if (pid == fpassword_heads[i]->pid) {
+  for (i = 0; i < fpassword_options.max_use; i++)
+  {
+    if (pid == fpassword_heads[i]->pid)
+    {
       fpassword_heads[i]->pid = -1;
       fpassword_kill_head(i, 1, 0);
       return;
@@ -1028,21 +1111,24 @@ void killed_childs(int32_t signo) {
   }
 }
 
-void killed_childs_report(int32_t signo) {
+void killed_childs_report(int32_t signo)
+{
   // if (debug)
   printf("[ERROR] children crashed! (%d)\n", child_head_no);
   fck = write(child_socket, "E", 1);
   _exit(-1);
 }
 
-void kill_children(int32_t signo) {
+void kill_children(int32_t signo)
+{
   int32_t i;
 
   if (verbose)
     fprintf(stderr, "[ERROR] Received signal %d, going down ...\n", signo);
   if (process_restore == 1)
     fpassword_restore_write(1);
-  if (fpassword_heads != NULL) {
+  if (fpassword_heads != NULL)
+  {
     for (i = 0; i < fpassword_options.max_use; i++)
       if (fpassword_heads[i] != NULL && fpassword_heads[i]->pid > 0)
         kill(fpassword_heads[i]->pid, SIGTERM);
@@ -1053,7 +1139,8 @@ void kill_children(int32_t signo) {
   exit(0);
 }
 
-uint64_t countlines(FILE *fd, int32_t colonmode) {
+uint64_t countlines(FILE *fd, int32_t colonmode)
+{
   size_t clines = 0;
   char *buf = malloc(MAXLINESIZE);
   int32_t only_one_empty_line = 0;
@@ -1067,20 +1154,29 @@ uint64_t countlines(FILE *fd, int32_t colonmode) {
   size_of_data = 0;
 
 #ifdef HAVE_ZLIB
-  while (!gzeof(fp)) {
-    if (gzgets(fp, buf, MAXLINESIZE) != NULL) {
+  while (!gzeof(fp))
+  {
+    if (gzgets(fp, buf, MAXLINESIZE) != NULL)
+    {
 #else
-  while (!feof(fp)) {
-    if (fgets(buf, MAXLINESIZE, fp) != NULL) {
+  while (!feof(fp))
+  {
+    if (fgets(buf, MAXLINESIZE, fp) != NULL)
+    {
 #endif
       size_of_data += strlen(buf);
-      if (buf[0] != 0) {
-        if (buf[0] == '\r' || buf[0] == '\n') {
-          if (only_one_empty_line == 0) {
+      if (buf[0] != 0)
+      {
+        if (buf[0] == '\r' || buf[0] == '\n')
+        {
+          if (only_one_empty_line == 0)
+          {
             only_one_empty_line = 1;
             clines++;
           }
-        } else {
+        }
+        else
+        {
           clines++;
         }
       }
@@ -1095,7 +1191,8 @@ uint64_t countlines(FILE *fd, int32_t colonmode) {
   return clines;
 }
 
-void fill_mem(char *ptr, FILE *fd, int32_t colonmode) {
+void fill_mem(char *ptr, FILE *fd, int32_t colonmode)
+{
   char tmp[MAXBUF + 4] = "", *ptr2;
   uint32_t len;
   int32_t only_one_empty_line = 0;
@@ -1104,33 +1201,44 @@ void fill_mem(char *ptr, FILE *fd, int32_t colonmode) {
 #ifdef HAVE_ZLIB
   gzFile fp = gzdopen(fileno(fd), "r");
 
-  while (!gzeof(fp) && !read_flag) {
-    if (gzgets(fp, tmp, MAXLINESIZE) != NULL) {
+  while (!gzeof(fp) && !read_flag)
+  {
+    if (gzgets(fp, tmp, MAXLINESIZE) != NULL)
+    {
 #else
   FILE *fp = fd;
 
-  while (!feof(fp) && !read_flag) {
-    if (fgets(tmp, MAXLINESIZE, fp) != NULL) {
+  while (!feof(fp) && !read_flag)
+  {
+    if (fgets(tmp, MAXLINESIZE, fp) != NULL)
+    {
 #endif
-      if (tmp[0] != 0) {
+      if (tmp[0] != 0)
+      {
         if (tmp[strlen(tmp) - 1] == '\n')
           tmp[strlen(tmp) - 1] = '\0';
         if (tmp[0] != 0 && tmp[strlen(tmp) - 1] == '\r')
           tmp[strlen(tmp) - 1] = '\0';
-        if ((len = strlen(tmp)) > 0 || (only_one_empty_line == 0 && colonmode == 0)) {
-          if (len == 0 && colonmode == 0) {
+        if ((len = strlen(tmp)) > 0 || (only_one_empty_line == 0 && colonmode == 0))
+        {
+          if (len == 0 && colonmode == 0)
+          {
             only_one_empty_line = 1;
             len = 1;
             tmp[len] = 0;
           }
-          if (colonmode) {
-            if ((ptr2 = strchr(tmp, ':')) == NULL) {
+          if (colonmode)
+          {
+            if ((ptr2 = strchr(tmp, ':')) == NULL)
+            {
               fprintf(stderr,
                       "[ERROR] invalid line in colon file (-C), missing colon "
                       "in line: %s\n",
                       tmp);
               exit(-1);
-            } else {
+            }
+            else
+            {
               *ptr2 = 0;
             }
           }
@@ -1140,7 +1248,9 @@ void fill_mem(char *ptr, FILE *fd, int32_t colonmode) {
           ptr++;
         }
       }
-    } else {
+    }
+    else
+    {
       read_flag = 1;
     }
   }
@@ -1151,7 +1261,8 @@ void fill_mem(char *ptr, FILE *fd, int32_t colonmode) {
 #endif
 }
 
-char *fpassword_build_time() {
+char *fpassword_build_time()
+{
   static char datetime[24];
   struct tm *the_time;
   time_t epoch;
@@ -1162,16 +1273,20 @@ char *fpassword_build_time() {
   return (char *)&datetime;
 }
 
-void fpassword_service_init(int32_t target_no) {
+void fpassword_service_init(int32_t target_no)
+{
   int32_t x = 99;
   int32_t i;
   fpassword_target *t = fpassword_targets[target_no];
   char *miscptr = fpassword_options.miscptr;
   FILE *ofp = fpassword_brains.ofp;
 
-  for (i = 0; x == 99 && i < sizeof(services) / sizeof(services[0]); i++) {
-    if (strcmp(fpassword_options.service, services[i].name) == 0) {
-      if (services[i].init) {
+  for (i = 0; x == 99 && i < sizeof(services) / sizeof(services[0]); i++)
+  {
+    if (strcmp(fpassword_options.service, services[i].name) == 0)
+    {
+      if (services[i].init)
+      {
         x = services[i].init(t->ip, -1, options, miscptr, ofp, t->port, t->target);
         break;
       }
@@ -1184,15 +1299,19 @@ void fpassword_service_init(int32_t target_no) {
     x = service_ssh_init(t->ip, -1, options, login_ptr, ofp, t->port, t->target);
 #endif
 
-  if (x != 0 && x != 99) {
+  if (x != 0 && x != 99)
+  {
     if (x > 0 && x < 4)
       fpassword_targets[target_no]->done = x;
     else
       fpassword_targets[target_no]->done = TARGET_ERROR;
     fpassword_brains.finished++;
-    if (fpassword_brains.targets == 1) {
-      if (fpassword_brains.ofp != NULL && fpassword_brains.ofp != stdout) {
-        if (fpassword_options.outfile_format == FORMAT_JSONV1) {
+    if (fpassword_brains.targets == 1)
+    {
+      if (fpassword_brains.ofp != NULL && fpassword_brains.ofp != stdout)
+      {
+        if (fpassword_options.outfile_format == FORMAT_JSONV1)
+        {
           char json_error[120];
           snprintf(json_error, sizeof(json_error), "[ERROR] unexpected result connecting to target %s port %d", fpassword_address2string_beautiful(t->ip), t->port);
           fprintf(fpassword_brains.ofp,
@@ -1207,23 +1326,28 @@ void fpassword_service_init(int32_t target_no) {
   }
 }
 
-int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no) {
+int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no)
+{
   int32_t i;
 
-  if (head_no < 0 || head_no >= fpassword_options.max_use || target_no < 0 || target_no >= fpassword_brains.targets) {
+  if (head_no < 0 || head_no >= fpassword_options.max_use || target_no < 0 || target_no >= fpassword_brains.targets)
+  {
     if (verbose > 1 || debug)
       printf("[DEBUG-ERROR] spawn_head: head_no %d, target_no %d\n", head_no, target_no);
     return -1;
   }
 
-  if (fpassword_heads[head_no]->active == HEAD_DISABLED) {
+  if (fpassword_heads[head_no]->active == HEAD_DISABLED)
+  {
     printf("[DEBUG-ERROR] child %d should not be respawned!\n", head_no);
     return -1;
   }
 
-  if (socketpair(PF_UNIX, SOCK_STREAM, 0, fpassword_heads[head_no]->sp) == 0) {
+  if (socketpair(PF_UNIX, SOCK_STREAM, 0, fpassword_heads[head_no]->sp) == 0)
+  {
     child_head_no = head_no;
-    if ((fpassword_heads[head_no]->pid = fork()) == 0) { // THIS IS THE CHILD
+    if ((fpassword_heads[head_no]->pid = fork()) == 0)
+    { // THIS IS THE CHILD
       // set new signals for child
       process_restore = 0;
       child_socket = fpassword_heads[head_no]->sp[1];
@@ -1259,9 +1383,12 @@ int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no) {
       char *miscptr = fpassword_options.miscptr;
       FILE *ofp = fpassword_brains.ofp;
       fpassword_target *head_target = fpassword_targets[fpassword_heads[head_no]->target_no];
-      for (i = 0; i < sizeof(services) / sizeof(services[0]); i++) {
-        if (strcmp(fpassword_options.service, services[i].name) == 0) {
-          if (services[i].exec) {
+      for (i = 0; i < sizeof(services) / sizeof(services[0]); i++)
+      {
+        if (strcmp(fpassword_options.service, services[i].name) == 0)
+        {
+          if (services[i].exec)
+          {
             services[i].exec(t->ip, sp, options, miscptr, ofp, t->port, head_target->target);
             // just in case a module returns (which it shouldnt) we let it exit
             // here
@@ -1271,15 +1398,19 @@ int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no) {
       }
 
       // FIXME: dirty workaround here
-      if (strcmp(fpassword_options.service, "xmpp") == 0) {
+      if (strcmp(fpassword_options.service, "xmpp") == 0)
+      {
         service_xmpp(fpassword_targets[target_no]->target, fpassword_targets[target_no]->ip, fpassword_heads[head_no]->sp[1], options, fpassword_options.miscptr, fpassword_brains.ofp, fpassword_targets[target_no]->port, fpassword_targets[fpassword_heads[head_no]->target_no]->target);
       }
 
       // just in case a module returns (which it shouldnt) we let it exit here
       exit(-1);
-    } else {
+    }
+    else
+    {
       child_head_no = -1;
-      if (fpassword_heads[head_no]->pid > 0) {
+      if (fpassword_heads[head_no]->pid > 0)
+      {
         fck = write(fpassword_heads[head_no]->sp[1], "n",
                     1); // yes, a small "n" - this way we can distinguish later
                         // if the client successfully tested a pair and is
@@ -1293,14 +1424,18 @@ int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no) {
         fpassword_heads[head_no]->last_seen = time(NULL);
         if (debug)
           printf("[DEBUG] child %d spawned for target %d with pid %d\n", head_no, fpassword_heads[head_no]->target_no, fpassword_heads[head_no]->pid);
-      } else {
+      }
+      else
+      {
         perror("[ERROR] Fork for children failed");
         fpassword_heads[head_no]->sp[0] = -1;
         fpassword_heads[head_no]->active = HEAD_UNUSED;
         return -1;
       }
     }
-  } else {
+  }
+  else
+  {
     perror("[ERROR] socketpair creation failed");
     fpassword_heads[head_no]->sp[0] = -1;
     fpassword_heads[head_no]->active = HEAD_UNUSED;
@@ -1309,81 +1444,84 @@ int32_t fpassword_spawn_head(int32_t head_no, int32_t target_no) {
   return 0;
 }
 
-int32_t fpassword_lookup_port(char *service) {
+int32_t fpassword_lookup_port(char *service)
+{
   int32_t i = 0, port = -2;
 
   fpassword_portlist fpassword_portlists[] = {{"ftp", PORT_FTP, PORT_FTP_SSL},
-                                      {"ftps", PORT_FTP, PORT_FTP_SSL},
-                                      {"http-head", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"http-post", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"http-get", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"http-get-form", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"http-post-form", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"https-get-form", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"https-post-form", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"https-head", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"https-get", PORT_HTTP, PORT_HTTP_SSL},
-                                      {"http-proxy", PORT_HTTP_PROXY, PORT_HTTP_PROXY_SSL},
-                                      {"http-proxy-urlenum", PORT_HTTP_PROXY, PORT_HTTP_PROXY_SSL},
-                                      {"icq", PORT_ICQ, PORT_ICQ_SSL},
-                                      {"imap", PORT_IMAP, PORT_IMAP_SSL},
-                                      {"ldap2", PORT_LDAP, PORT_LDAP_SSL},
-                                      {"ldap3", PORT_LDAP, PORT_LDAP_SSL},
-                                      {"ldap3-crammd5", PORT_LDAP, PORT_LDAP_SSL},
-                                      {"ldap3-digestmd5", PORT_LDAP, PORT_LDAP_SSL},
-                                      {"oracle-listener", PORT_ORACLE, PORT_ORACLE_SSL},
-                                      {"oracle-sid", PORT_ORACLE, PORT_ORACLE_SSL},
-                                      {"oracle", PORT_ORACLE, PORT_ORACLE_SSL},
-                                      {"memcached", PORT_MCACHED, PORT_MCACHED_SSL},
-                                      {"mongodb", PORT_MONGODB, PORT_MONGODB},
-                                      {"mssql", PORT_MSSQL, PORT_MSSQL_SSL},
-                                      {"cobaltstrike", PORT_COBALTSTRIKE, PORT_COBALTSTRIKE_SSL},
-                                      {"mysql", PORT_MYSQL, PORT_MYSQL_SSL},
-                                      {"postgres", PORT_POSTGRES, PORT_POSTGRES_SSL},
-                                      {"pcanywhere", PORT_PCANYWHERE, PORT_PCANYWHERE_SSL},
-                                      {"nntp", PORT_NNTP, PORT_NNTP_SSL},
-                                      {"pcnfs", PORT_PCNFS, PORT_PCNFS_SSL},
-                                      {"pop3", PORT_POP3, PORT_POP3_SSL},
-                                      {"redis", PORT_REDIS, PORT_REDIS_SSL},
-                                      {"rexec", PORT_REXEC, PORT_REXEC_SSL},
-                                      {"rlogin", PORT_RLOGIN, PORT_RLOGIN_SSL},
-                                      {"rsh", PORT_RSH, PORT_RSH_SSL},
-                                      {"sapr3", PORT_SAPR3, PORT_SAPR3_SSL},
-                                      {"smb", PORT_SMBNT, PORT_SMBNT_SSL},
-                                      {"smb2", PORT_SMBNT, PORT_SMBNT_SSL},
-                                      {"smbnt", PORT_SMBNT, PORT_SMBNT_SSL},
-                                      {"socks5", PORT_SOCKS5, PORT_SOCKS5_SSL},
-                                      {"ssh", PORT_SSH, PORT_SSH_SSL},
-                                      {"sshkey", PORT_SSH, PORT_SSH_SSL},
-                                      {"telnet", PORT_TELNET, PORT_TELNET_SSL},
-                                      {"adam6500", PORT_ADAM6500, PORT_ADAM6500_SSL},
-                                      {"cisco", PORT_TELNET, PORT_TELNET_SSL},
-                                      {"cisco-enable", PORT_TELNET, PORT_TELNET_SSL},
-                                      {"vnc", PORT_VNC, PORT_VNC_SSL},
-                                      {"snmp", PORT_SNMP, PORT_SNMP_SSL},
-                                      {"cvs", PORT_CVS, PORT_CVS_SSL},
-                                      {"svn", PORT_SVN, PORT_SVN_SSL},
-                                      {"firebird", PORT_FIREBIRD, PORT_FIREBIRD_SSL},
-                                      {"afp", PORT_AFP, PORT_AFP_SSL},
-                                      {"ncp", PORT_NCP, PORT_NCP_SSL},
-                                      {"smtp", PORT_SMTP, PORT_SMTP_SSL},
-                                      {"smtp-enum", PORT_SMTP, PORT_SMTP_SSL},
-                                      {"teamspeak", PORT_TEAMSPEAK, PORT_TEAMSPEAK_SSL},
-                                      {"sip", PORT_SIP, PORT_SIP_SSL},
-                                      {"vmauthd", PORT_VMAUTHD, PORT_VMAUTHD_SSL},
-                                      {"xmpp", PORT_XMPP, PORT_XMPP_SSL},
-                                      {"irc", PORT_IRC, PORT_IRC_SSL},
-                                      {"rdp", PORT_RDP, PORT_RDP_SSL},
-                                      {"asterisk", PORT_ASTERISK, PORT_ASTERISK_SSL},
-                                      {"s7-300", PORT_S7_300, PORT_S7_300_SSL},
-                                      {"rtsp", PORT_RTSP, PORT_RTSP_SSL},
-                                      {"rpcap", PORT_RPCAP, PORT_RPCAP_SSL},
-                                      {"radmin2", PORT_RADMIN2, PORT_RADMIN2},
-                                      // ADD NEW SERVICES HERE - add new port numbers to fpassword.h
-                                      {"", PORT_NOPORT, PORT_NOPORT}};
+                                              {"ftps", PORT_FTP, PORT_FTP_SSL},
+                                              {"http-head", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"http-post", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"http-get", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"http-get-form", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"http-post-form", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"https-get-form", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"https-post-form", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"https-head", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"https-get", PORT_HTTP, PORT_HTTP_SSL},
+                                              {"http-proxy", PORT_HTTP_PROXY, PORT_HTTP_PROXY_SSL},
+                                              {"http-proxy-urlenum", PORT_HTTP_PROXY, PORT_HTTP_PROXY_SSL},
+                                              {"icq", PORT_ICQ, PORT_ICQ_SSL},
+                                              {"imap", PORT_IMAP, PORT_IMAP_SSL},
+                                              {"ldap2", PORT_LDAP, PORT_LDAP_SSL},
+                                              {"ldap3", PORT_LDAP, PORT_LDAP_SSL},
+                                              {"ldap3-crammd5", PORT_LDAP, PORT_LDAP_SSL},
+                                              {"ldap3-digestmd5", PORT_LDAP, PORT_LDAP_SSL},
+                                              {"oracle-listener", PORT_ORACLE, PORT_ORACLE_SSL},
+                                              {"oracle-sid", PORT_ORACLE, PORT_ORACLE_SSL},
+                                              {"oracle", PORT_ORACLE, PORT_ORACLE_SSL},
+                                              {"memcached", PORT_MCACHED, PORT_MCACHED_SSL},
+                                              {"mongodb", PORT_MONGODB, PORT_MONGODB},
+                                              {"mssql", PORT_MSSQL, PORT_MSSQL_SSL},
+                                              {"cobaltstrike", PORT_COBALTSTRIKE, PORT_COBALTSTRIKE_SSL},
+                                              {"mysql", PORT_MYSQL, PORT_MYSQL_SSL},
+                                              {"postgres", PORT_POSTGRES, PORT_POSTGRES_SSL},
+                                              {"pcanywhere", PORT_PCANYWHERE, PORT_PCANYWHERE_SSL},
+                                              {"nntp", PORT_NNTP, PORT_NNTP_SSL},
+                                              {"pcnfs", PORT_PCNFS, PORT_PCNFS_SSL},
+                                              {"pop3", PORT_POP3, PORT_POP3_SSL},
+                                              {"redis", PORT_REDIS, PORT_REDIS_SSL},
+                                              {"rexec", PORT_REXEC, PORT_REXEC_SSL},
+                                              {"rlogin", PORT_RLOGIN, PORT_RLOGIN_SSL},
+                                              {"rsh", PORT_RSH, PORT_RSH_SSL},
+                                              {"sapr3", PORT_SAPR3, PORT_SAPR3_SSL},
+                                              {"smb", PORT_SMBNT, PORT_SMBNT_SSL},
+                                              {"smb2", PORT_SMBNT, PORT_SMBNT_SSL},
+                                              {"smbnt", PORT_SMBNT, PORT_SMBNT_SSL},
+                                              {"socks5", PORT_SOCKS5, PORT_SOCKS5_SSL},
+                                              {"ssh", PORT_SSH, PORT_SSH_SSL},
+                                              {"sshkey", PORT_SSH, PORT_SSH_SSL},
+                                              {"telnet", PORT_TELNET, PORT_TELNET_SSL},
+                                              {"adam6500", PORT_ADAM6500, PORT_ADAM6500_SSL},
+                                              {"cisco", PORT_TELNET, PORT_TELNET_SSL},
+                                              {"cisco-enable", PORT_TELNET, PORT_TELNET_SSL},
+                                              {"vnc", PORT_VNC, PORT_VNC_SSL},
+                                              {"snmp", PORT_SNMP, PORT_SNMP_SSL},
+                                              {"cvs", PORT_CVS, PORT_CVS_SSL},
+                                              {"svn", PORT_SVN, PORT_SVN_SSL},
+                                              {"firebird", PORT_FIREBIRD, PORT_FIREBIRD_SSL},
+                                              {"afp", PORT_AFP, PORT_AFP_SSL},
+                                              {"ncp", PORT_NCP, PORT_NCP_SSL},
+                                              {"smtp", PORT_SMTP, PORT_SMTP_SSL},
+                                              {"smtp-enum", PORT_SMTP, PORT_SMTP_SSL},
+                                              {"teamspeak", PORT_TEAMSPEAK, PORT_TEAMSPEAK_SSL},
+                                              {"sip", PORT_SIP, PORT_SIP_SSL},
+                                              {"vmauthd", PORT_VMAUTHD, PORT_VMAUTHD_SSL},
+                                              {"xmpp", PORT_XMPP, PORT_XMPP_SSL},
+                                              {"irc", PORT_IRC, PORT_IRC_SSL},
+                                              {"rdp", PORT_RDP, PORT_RDP_SSL},
+                                              {"asterisk", PORT_ASTERISK, PORT_ASTERISK_SSL},
+                                              {"s7-300", PORT_S7_300, PORT_S7_300_SSL},
+                                              {"rtsp", PORT_RTSP, PORT_RTSP_SSL},
+                                              {"rpcap", PORT_RPCAP, PORT_RPCAP_SSL},
+                                              {"radmin2", PORT_RADMIN2, PORT_RADMIN2},
+                                              // ADD NEW SERVICES HERE - add new port numbers to fpassword.h
+                                              {"", PORT_NOPORT, PORT_NOPORT}};
 
-  while (strlen(fpassword_portlists[i].name) > 0 && port == -2) {
-    if (strcmp(service, fpassword_portlists[i].name) == 0) {
+  while (strlen(fpassword_portlists[i].name) > 0 && port == -2)
+  {
+    if (strcmp(service, fpassword_portlists[i].name) == 0)
+    {
       if (fpassword_options.ssl)
         port = fpassword_portlists[i].port_ssl;
       else
@@ -1398,33 +1536,42 @@ int32_t fpassword_lookup_port(char *service) {
 }
 
 // killit = 1 : kill(pid); fail = 1 : redo, fail = 2/3 : disable
-void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail) {
+void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail)
+{
   if (debug)
     printf("[DEBUG] head_no %d, kill %d, fail %d\n", head_no, killit, fail);
   if (head_no < 0)
     return;
-  if (fpassword_heads[head_no]->active == HEAD_ACTIVE || (fpassword_heads[head_no]->sp[0] > 2 && fpassword_heads[head_no]->sp[1] > 2)) {
+  if (fpassword_heads[head_no]->active == HEAD_ACTIVE || (fpassword_heads[head_no]->sp[0] > 2 && fpassword_heads[head_no]->sp[1] > 2))
+  {
     close(fpassword_heads[head_no]->sp[0]);
     close(fpassword_heads[head_no]->sp[1]);
   }
-  if (killit) {
+  if (killit)
+  {
     if (fpassword_heads[head_no]->pid > 0)
       kill(fpassword_heads[head_no]->pid, SIGTERM);
     fpassword_brains.active--;
   }
-  if (fpassword_heads[head_no]->active == HEAD_ACTIVE) {
+  if (fpassword_heads[head_no]->active == HEAD_ACTIVE)
+  {
     fpassword_heads[head_no]->active = HEAD_UNUSED;
     fpassword_targets[fpassword_heads[head_no]->target_no]->use_count--;
   }
-  if (fail == 1) {
+  if (fail == 1)
+  {
     if (fpassword_options.cidr != 1)
       fpassword_heads[head_no]->redo = 1;
-  } else if (fail == 2) {
+  }
+  else if (fail == 2)
+  {
     if (fpassword_options.cidr != 1)
       fpassword_heads[head_no]->active = HEAD_DISABLED;
     if (fpassword_heads[head_no]->target_no >= 0)
       fpassword_targets[fpassword_heads[head_no]->target_no]->failed++;
-  } else if (fail == 3) {
+  }
+  else if (fail == 3)
+  {
     fpassword_heads[head_no]->active = HEAD_DISABLED;
     if (fpassword_heads[head_no]->target_no >= 0)
       fpassword_targets[fpassword_heads[head_no]->target_no]->failed++;
@@ -1432,7 +1579,8 @@ void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail) {
   if (fpassword_heads[head_no]->pid > 0 && killit)
     kill(fpassword_heads[head_no]->pid, SIGKILL);
   fpassword_heads[head_no]->pid = -1;
-  if (fail < 1 && fpassword_heads[head_no]->target_no >= 0 && fpassword_options.bfg && fpassword_targets[fpassword_heads[head_no]->target_no]->pass_state == 3 && strlen(fpassword_heads[head_no]->current_pass_ptr) > 0 && fpassword_heads[head_no]->current_pass_ptr != fpassword_heads[head_no]->current_login_ptr) {
+  if (fail < 1 && fpassword_heads[head_no]->target_no >= 0 && fpassword_options.bfg && fpassword_targets[fpassword_heads[head_no]->target_no]->pass_state == 3 && strlen(fpassword_heads[head_no]->current_pass_ptr) > 0 && fpassword_heads[head_no]->current_pass_ptr != fpassword_heads[head_no]->current_login_ptr)
+  {
     free(fpassword_heads[head_no]->current_pass_ptr);
     fpassword_heads[head_no]->current_pass_ptr = empty_login;
     //    fpassword_bfg_remove(head_no);
@@ -1442,13 +1590,15 @@ void fpassword_kill_head(int32_t head_no, int32_t killit, int32_t fail) {
   (void)waitpid(-1, NULL, WNOHANG);
 }
 
-void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
+void fpassword_increase_fail_count(int32_t target_no, int32_t head_no)
+{
   int32_t i, k, maxfail = 0;
 
   if (target_no < 0 || fpassword_options.skip_redo)
     return;
 
-  if (fpassword_targets[target_no]->ok) {
+  if (fpassword_targets[target_no]->ok)
+  {
     const int32_t tasks = fpassword_options.tasks;
     const int32_t success = tasks - fpassword_targets[target_no]->failed;
     const int32_t t = tasks < 5 ? 6 - tasks : 1;
@@ -1459,14 +1609,17 @@ void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
   fpassword_targets[target_no]->fail_count++;
   if (debug)
     printf("[DEBUG] fpassword_increase_fail_count: %d >= %d => disable\n", fpassword_targets[target_no]->fail_count, maxfail);
-  if (fpassword_targets[target_no]->fail_count >= maxfail) {
+  if (fpassword_targets[target_no]->fail_count >= maxfail)
+  {
     k = 0;
     for (i = 0; i < fpassword_options.max_use; i++)
       if (fpassword_heads[i]->active >= HEAD_UNUSED && fpassword_heads[i]->target_no == target_no)
         k++;
-    if (k <= 1) {
+    if (k <= 1)
+    {
       // we need to put this in a list, otherwise we fail one login+pw test
-      if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.skip_redo == 0 && fpassword_targets[target_no]->redo <= fpassword_options.max_use * 2 && ((fpassword_heads[head_no]->current_login_ptr != empty_login && fpassword_heads[head_no]->current_pass_ptr != empty_login) || (fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL))) {
+      if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.skip_redo == 0 && fpassword_targets[target_no]->redo <= fpassword_options.max_use * 2 && ((fpassword_heads[head_no]->current_login_ptr != empty_login && fpassword_heads[head_no]->current_pass_ptr != empty_login) || (fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL)))
+      {
         fpassword_targets[target_no]->redo_login[fpassword_targets[target_no]->redo] = fpassword_heads[head_no]->current_login_ptr;
         fpassword_targets[target_no]->redo_pass[fpassword_targets[target_no]->redo] = fpassword_heads[head_no]->current_pass_ptr;
         fpassword_targets[target_no]->redo++;
@@ -1478,8 +1631,10 @@ void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
         fpassword_heads[head_no]->current_login_ptr = empty_login;
         fpassword_heads[head_no]->current_pass_ptr = empty_login;
       }
-      if (fpassword_targets[target_no]->fail_count >= MAXFAIL + fpassword_options.tasks * fpassword_targets[target_no]->ok) {
-        if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.max_use <= fpassword_targets[target_no]->failed) {
+      if (fpassword_targets[target_no]->fail_count >= MAXFAIL + fpassword_options.tasks * fpassword_targets[target_no]->ok)
+      {
+        if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.max_use <= fpassword_targets[target_no]->failed)
+        {
           if (fpassword_targets[target_no]->ok == 1)
             fpassword_targets[target_no]->done = TARGET_ERROR; // mark target as done by errors
           else
@@ -1489,7 +1644,9 @@ void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
                   "[ERROR] Too many connect errors to target, disabling "
                   "%s://%s%s%s:%d\n",
                   fpassword_options.service, fpassword_targets[target_no]->ip[0] == 16 && strchr(fpassword_targets[target_no]->target, ':') != NULL ? "[" : "", fpassword_targets[target_no]->target, fpassword_targets[target_no]->ip[0] == 16 && strchr(fpassword_targets[target_no]->target, ':') != NULL ? "]" : "", fpassword_targets[target_no]->port);
-        } else {
+        }
+        else
+        {
           fpassword_targets[target_no]->failed++;
         }
         if (fpassword_brains.targets <= fpassword_brains.finished)
@@ -1498,9 +1655,12 @@ void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
           fpassword_kill_head(head_no, 1, 2);
       }
       // we keep the last one alive as long as it make sense
-    } else {
+    }
+    else
+    {
       // we need to put this in a list, otherwise we fail one login+pw test
-      if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.skip_redo == 0 && fpassword_targets[target_no]->redo <= fpassword_options.max_use * 2 && ((fpassword_heads[head_no]->current_login_ptr != empty_login && fpassword_heads[head_no]->current_pass_ptr != empty_login) || (fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL))) {
+      if (fpassword_targets[target_no]->done == TARGET_ACTIVE && fpassword_options.skip_redo == 0 && fpassword_targets[target_no]->redo <= fpassword_options.max_use * 2 && ((fpassword_heads[head_no]->current_login_ptr != empty_login && fpassword_heads[head_no]->current_pass_ptr != empty_login) || (fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL)))
+      {
         fpassword_targets[target_no]->redo_login[fpassword_targets[target_no]->redo] = fpassword_heads[head_no]->current_login_ptr;
         fpassword_targets[target_no]->redo_pass[fpassword_targets[target_no]->redo] = fpassword_heads[head_no]->current_pass_ptr;
         fpassword_targets[target_no]->redo++;
@@ -1521,20 +1681,24 @@ void fpassword_increase_fail_count(int32_t target_no, int32_t head_no) {
       */
       if (fpassword_brains.targets <= fpassword_brains.finished)
         fpassword_kill_head(head_no, 1, 0);
-      else {
+      else
+      {
         fpassword_kill_head(head_no, 1, 2);
         if (verbose)
           printf("[VERBOSE] Disabled child %d because of too many errors\n", head_no);
       }
     }
-  } else {
+  }
+  else
+  {
     fpassword_kill_head(head_no, 1, 1);
     if (verbose)
       printf("[VERBOSE] Retrying connection for child %d\n", head_no);
   }
 }
 
-char *fpassword_reverse_login(int32_t head_no, char *login) {
+char *fpassword_reverse_login(int32_t head_no, char *login)
+{
   int32_t i, j;
   char *start, *pos;
   unsigned char keep;
@@ -1553,8 +1717,10 @@ char *fpassword_reverse_login(int32_t head_no, char *login) {
   start = fpassword_heads[head_no]->reverse;
   pos = start + j;
 
-  while (start < --pos) {
-    switch ((*pos & 0xF0) >> 4) {
+  while (start < --pos)
+  {
+    switch ((*pos & 0xF0) >> 4)
+    {
     case 0xF: /* U+010000-U+10FFFF: four bytes. */
       keep = *pos;
       *pos = *(pos - 3);
@@ -1583,19 +1749,25 @@ char *fpassword_reverse_login(int32_t head_no, char *login) {
   return fpassword_heads[head_no]->reverse;
 }
 
-int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
+int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no)
+{
   // variables moved to save stack
   snpdone = 0;
   snp_is_redo = 0;
   snpdont = 0;
   loop_cnt++;
-  if (fpassword_heads[head_no]->redo == 1 && fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL) {
+  if (fpassword_heads[head_no]->redo == 1 && fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL)
+  {
     fpassword_heads[head_no]->redo = 0;
     snp_is_redo = 1;
     snpdone = 1;
-  } else {
-    if (fpassword_targets[target_no]->sent >= fpassword_brains.todo + fpassword_targets[target_no]->redo) {
-      if (fpassword_targets[target_no]->done == TARGET_ACTIVE) {
+  }
+  else
+  {
+    if (fpassword_targets[target_no]->sent >= fpassword_brains.todo + fpassword_targets[target_no]->redo)
+    {
+      if (fpassword_targets[target_no]->done == TARGET_ACTIVE)
+      {
         fpassword_targets[target_no]->done = TARGET_FINISHED;
         fpassword_brains.finished++;
         if (verbose)
@@ -1613,7 +1785,8 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
            "%s, tlogin %s, tpass %s, logincnt %" hPRIu64 "/%" hPRIu64 ", passcnt %" hPRIu64 "/%" hPRIu64 ", loop_cnt %d\n",
            target_no, head_no, fpassword_targets[target_no]->redo, fpassword_targets[target_no]->redo_state, fpassword_targets[target_no]->pass_state, fpassword_options.loop_mode, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, fpassword_targets[target_no]->login_ptr, fpassword_targets[target_no]->pass_ptr, fpassword_targets[target_no]->login_no, fpassword_brains.countlogin, fpassword_targets[target_no]->pass_no, fpassword_brains.countpass, loop_cnt);
 
-  if (loop_cnt > (fpassword_brains.countlogin * 2) + 1 && loop_cnt > (fpassword_brains.countpass * 2) + 1) {
+  if (loop_cnt > (fpassword_brains.countlogin * 2) + 1 && loop_cnt > (fpassword_brains.countpass * 2) + 1)
+  {
     if (debug)
       printf("[DEBUG] too many loops in send_next_pair, returning -1 (loop_cnt "
              "%d, sent %" hPRIu64 ", todo %" hPRIu64 ")\n",
@@ -1621,25 +1794,33 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
     return -1;
   }
 
-  if (fpassword_heads[head_no]->redo == 1 && fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL) {
+  if (fpassword_heads[head_no]->redo == 1 && fpassword_heads[head_no]->current_login_ptr != NULL && fpassword_heads[head_no]->current_pass_ptr != NULL)
+  {
     fpassword_heads[head_no]->redo = 0;
     snp_is_redo = 1;
     snpdone = 1;
-  } else {
+  }
+  else
+  {
     if (debug && (fpassword_heads[head_no]->current_login_ptr != NULL || fpassword_heads[head_no]->current_pass_ptr != NULL))
       printf("[COMPLETED] target %s - login \"%s\" - pass \"%s\" - child %d - "
              "%" hPRIu64 " of %" hPRIu64 "\n",
              fpassword_targets[target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, head_no, fpassword_targets[target_no]->sent, fpassword_brains.todo + fpassword_targets[target_no]->redo);
     // fpassword_heads[head_no]->redo = 0;
-    if (fpassword_targets[target_no]->redo_state > 0) {
-      if (fpassword_targets[target_no]->redo_state <= fpassword_targets[target_no]->redo) {
+    if (fpassword_targets[target_no]->redo_state > 0)
+    {
+      if (fpassword_targets[target_no]->redo_state <= fpassword_targets[target_no]->redo)
+      {
         fpassword_heads[head_no]->current_pass_ptr = fpassword_targets[target_no]->redo_pass[fpassword_targets[target_no]->redo_state - 1];
         fpassword_heads[head_no]->current_login_ptr = fpassword_targets[target_no]->redo_login[fpassword_targets[target_no]->redo_state - 1];
         fpassword_targets[target_no]->redo_state++;
         snpdone = 1;
-      } else {
+      }
+      else
+      {
         // if a pair does not complete after this point it is lost
-        if (fpassword_targets[target_no]->done == TARGET_ACTIVE) {
+        if (fpassword_targets[target_no]->done == TARGET_ACTIVE)
+        {
           fpassword_targets[target_no]->done = TARGET_FINISHED;
           fpassword_brains.finished++;
           if (verbose)
@@ -1650,32 +1831,44 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
         loop_cnt = 0;
         return -1;
       }
-    } else { // normale state, no redo
-      if (fpassword_targets[target_no]->done != TARGET_ACTIVE) {
+    }
+    else
+    { // normale state, no redo
+      if (fpassword_targets[target_no]->done != TARGET_ACTIVE)
+      {
         loop_cnt = 0;
         return -1; // head will be disabled by main while()
       }
-      if (fpassword_options.loop_mode == 0) { // one user after another
-        if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin) {
+      if (fpassword_options.loop_mode == 0)
+      { // one user after another
+        if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin)
+        {
           // as we loop password in mode == 0 we set the current login first
           fpassword_heads[head_no]->current_login_ptr = fpassword_targets[target_no]->login_ptr;
           // then we do the extra options -e ns handling
-          if (fpassword_targets[target_no]->pass_state == 0 && snpdone == 0) {
-            if (fpassword_options.try_password_same_as_login) {
+          if (fpassword_targets[target_no]->pass_state == 0 && snpdone == 0)
+          {
+            if (fpassword_options.try_password_same_as_login)
+            {
               fpassword_heads[head_no]->current_pass_ptr = fpassword_targets[target_no]->login_ptr;
               snpdone = 1;
               fpassword_targets[target_no]->pass_no++;
             }
             fpassword_targets[target_no]->pass_state++;
           }
-          if (fpassword_targets[target_no]->pass_state == 1 && snpdone == 0) {
+          if (fpassword_targets[target_no]->pass_state == 1 && snpdone == 0)
+          {
             // small check that there is a login name (could also be emtpy) and
             // if we already tried empty password it would be a double
-            if (fpassword_options.try_null_password) {
-              if (fpassword_options.try_password_same_as_login == 0 || (fpassword_targets[target_no]->login_ptr != NULL && strlen(fpassword_targets[target_no]->login_ptr) > 0)) {
+            if (fpassword_options.try_null_password)
+            {
+              if (fpassword_options.try_password_same_as_login == 0 || (fpassword_targets[target_no]->login_ptr != NULL && strlen(fpassword_targets[target_no]->login_ptr) > 0))
+              {
                 fpassword_heads[head_no]->current_pass_ptr = empty_login;
                 snpdone = 1;
-              } else {
+              }
+              else
+              {
                 fpassword_brains.sent++;
                 fpassword_targets[target_no]->sent++;
               }
@@ -1683,14 +1876,19 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
             }
             fpassword_targets[target_no]->pass_state++;
           }
-          if (fpassword_targets[target_no]->pass_state == 2 && snpdone == 0) {
+          if (fpassword_targets[target_no]->pass_state == 2 && snpdone == 0)
+          {
             // small check that there is a login name (could also be emtpy) and
             // if we already tried empty password it would be a double
-            if (fpassword_options.try_password_reverse_login) {
-              if ((fpassword_options.try_password_same_as_login == 0 || strcmp(fpassword_targets[target_no]->login_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) != 0) && (fpassword_options.try_null_password == 0 || (fpassword_targets[target_no]->login_ptr != NULL && strlen(fpassword_targets[target_no]->login_ptr) > 0))) {
+            if (fpassword_options.try_password_reverse_login)
+            {
+              if ((fpassword_options.try_password_same_as_login == 0 || strcmp(fpassword_targets[target_no]->login_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) != 0) && (fpassword_options.try_null_password == 0 || (fpassword_targets[target_no]->login_ptr != NULL && strlen(fpassword_targets[target_no]->login_ptr) > 0)))
+              {
                 fpassword_heads[head_no]->current_pass_ptr = fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr);
                 snpdone = 1;
-              } else {
+              }
+              else
+              {
                 fpassword_brains.sent++;
                 fpassword_targets[target_no]->sent++;
               }
@@ -1699,8 +1897,10 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
             fpassword_targets[target_no]->pass_state++;
           }
           // now we handle the -C -l/-L -p/-P data
-          if (fpassword_targets[target_no]->pass_state == 3 && snpdone == 0) {
-            if (check_flag(fpassword_options.mode, MODE_COLON_FILE)) { // colon mode
+          if (fpassword_targets[target_no]->pass_state == 3 && snpdone == 0)
+          {
+            if (check_flag(fpassword_options.mode, MODE_COLON_FILE))
+            { // colon mode
               fpassword_heads[head_no]->current_login_ptr = fpassword_targets[target_no]->login_ptr;
               fpassword_heads[head_no]->current_pass_ptr = fpassword_targets[target_no]->pass_ptr;
               fpassword_targets[target_no]->login_no++;
@@ -1717,18 +1917,22 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
               fpassword_targets[target_no]->pass_ptr++;
               if (strcmp(fpassword_targets[target_no]->login_ptr, fpassword_heads[head_no]->current_login_ptr) != 0)
                 fpassword_targets[target_no]->pass_state = 0;
-              if ((fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) == 0)) {
+              if ((fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) == 0))
+              {
                 fpassword_brains.sent++;
                 fpassword_targets[target_no]->sent++;
                 if (debug)
                   printf("[DEBUG] double detected (-C)\n");
                 return fpassword_send_next_pair(target_no, head_no); // little trick to keep the code small
               }
-            } else { // standard -l -L -p -P mode
+            }
+            else
+            { // standard -l -L -p -P mode
               fpassword_heads[head_no]->current_pass_ptr = fpassword_targets[target_no]->pass_ptr;
               fpassword_targets[target_no]->pass_no++;
               // double check
-              if (fpassword_targets[target_no]->pass_no >= fpassword_brains.countpass) {
+              if (fpassword_targets[target_no]->pass_no >= fpassword_brains.countpass)
+              {
                 // all passwords done, next user for next password
                 fpassword_targets[target_no]->login_ptr++;
                 while (*fpassword_targets[target_no]->login_ptr != 0)
@@ -1740,13 +1944,16 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
                 fpassword_targets[target_no]->pass_state = 0;
                 if (fpassword_brains.countpass == fpassword_options.try_password_reverse_login + fpassword_options.try_null_password + fpassword_options.try_password_same_as_login)
                   return fpassword_send_next_pair(target_no, head_no);
-              } else {
+              }
+              else
+              {
                 fpassword_targets[target_no]->pass_ptr++;
                 while (*fpassword_targets[target_no]->pass_ptr != 0)
                   fpassword_targets[target_no]->pass_ptr++;
                 fpassword_targets[target_no]->pass_ptr++;
               }
-              if ((fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) == 0)) {
+              if ((fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr)) == 0))
+              {
                 fpassword_brains.sent++;
                 fpassword_targets[target_no]->sent++;
                 if (debug)
@@ -1757,25 +1964,35 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
             }
           }
         }
-      } else { // loop_mode == 1
-        if (fpassword_targets[target_no]->pass_no < fpassword_brains.countpass) {
+      }
+      else
+      { // loop_mode == 1
+        if (fpassword_targets[target_no]->pass_no < fpassword_brains.countpass)
+        {
           fpassword_heads[head_no]->current_login_ptr = fpassword_targets[target_no]->login_ptr;
-          if (fpassword_targets[target_no]->pass_state == 0) {
+          if (fpassword_targets[target_no]->pass_state == 0)
+          {
             if (check_flag(fpassword_options.mode, MODE_PASSWORD_BRUTE))
               fpassword_heads[head_no]->current_pass_ptr = strdup(fpassword_heads[head_no]->current_login_ptr);
             else
               fpassword_heads[head_no]->current_pass_ptr = fpassword_heads[head_no]->current_login_ptr;
-          } else if (fpassword_targets[target_no]->pass_state == 1) {
+          }
+          else if (fpassword_targets[target_no]->pass_state == 1)
+          {
             if (check_flag(fpassword_options.mode, MODE_PASSWORD_BRUTE))
               fpassword_heads[head_no]->current_pass_ptr = strdup(empty_login);
             else
               fpassword_heads[head_no]->current_pass_ptr = empty_login;
-          } else if (fpassword_targets[target_no]->pass_state == 2) {
+          }
+          else if (fpassword_targets[target_no]->pass_state == 2)
+          {
             if (check_flag(fpassword_options.mode, MODE_PASSWORD_BRUTE))
               fpassword_heads[head_no]->current_pass_ptr = strdup(fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr));
             else
               fpassword_heads[head_no]->current_pass_ptr = fpassword_reverse_login(head_no, fpassword_heads[head_no]->current_login_ptr);
-          } else {
+          }
+          else
+          {
             if (fpassword_options.bfg && fpassword_targets[target_no]->pass_state == 3 && fpassword_heads[head_no]->current_pass_ptr != NULL && strlen(fpassword_heads[head_no]->current_pass_ptr) > 0 && fpassword_heads[head_no]->current_pass_ptr != fpassword_heads[head_no]->current_login_ptr)
               free(fpassword_heads[head_no]->current_pass_ptr);
             fpassword_heads[head_no]->current_pass_ptr = strdup(fpassword_targets[target_no]->pass_ptr);
@@ -1783,8 +2000,10 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
           fpassword_targets[target_no]->login_no++;
           snpdone = 1;
 
-          if (fpassword_targets[target_no]->login_no >= fpassword_brains.countlogin) {
-            if (fpassword_targets[target_no]->pass_state < 3) {
+          if (fpassword_targets[target_no]->login_no >= fpassword_brains.countlogin)
+          {
+            if (fpassword_targets[target_no]->pass_state < 3)
+            {
               fpassword_targets[target_no]->pass_state++;
               if (fpassword_targets[target_no]->pass_state == 1 && fpassword_options.try_null_password == 0)
                 fpassword_targets[target_no]->pass_state++;
@@ -1795,11 +2014,16 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
               fpassword_targets[target_no]->pass_no++;
             }
 
-            if (fpassword_targets[target_no]->pass_state == 3) {
-              if (snpdont) {
+            if (fpassword_targets[target_no]->pass_state == 3)
+            {
+              if (snpdont)
+              {
                 fpassword_targets[target_no]->pass_ptr = pass_ptr;
-              } else {
-                if (check_flag(fpassword_options.mode, MODE_PASSWORD_BRUTE)) {
+              }
+              else
+              {
+                if (check_flag(fpassword_options.mode, MODE_PASSWORD_BRUTE))
+                {
 #ifndef HAVE_MATH_H
                   sleep(1);
 #else
@@ -1807,7 +2031,9 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
                   if (debug)
                     printf("[DEBUG] bfg new password for next child: %s\n", fpassword_targets[target_no]->pass_ptr);
 #endif
-                } else { // -p -P mode
+                }
+                else
+                { // -p -P mode
                   fpassword_targets[target_no]->pass_ptr++;
                   while (*fpassword_targets[target_no]->pass_ptr != 0)
                     fpassword_targets[target_no]->pass_ptr++;
@@ -1819,14 +2045,18 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
 
             fpassword_targets[target_no]->login_no = 0;
             fpassword_targets[target_no]->login_ptr = login_ptr;
-          } else {
+          }
+          else
+          {
             fpassword_targets[target_no]->login_ptr++;
             while (*fpassword_targets[target_no]->login_ptr != 0)
               fpassword_targets[target_no]->login_ptr++;
             fpassword_targets[target_no]->login_ptr++;
           }
-          if (fpassword_targets[target_no]->pass_state == 3 && snpdont == 0) {
-            if ((fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) < 1) || (fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr) == 0)) {
+          if (fpassword_targets[target_no]->pass_state == 3 && snpdont == 0)
+          {
+            if ((fpassword_options.try_null_password && strlen(fpassword_heads[head_no]->current_pass_ptr) < 1) || (fpassword_options.try_password_same_as_login && strcmp(fpassword_heads[head_no]->current_pass_ptr, fpassword_heads[head_no]->current_login_ptr) == 0) || (fpassword_options.try_password_reverse_login && strcmp(fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr) == 0))
+            {
               fpassword_brains.sent++;
               fpassword_targets[target_no]->sent++;
               if (debug)
@@ -1844,7 +2074,8 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
              snpdone, fpassword_targets[target_no]->pass_state, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, fpassword_targets[target_no]->login_ptr, fpassword_targets[target_no]->pass_ptr, fpassword_targets[target_no]->redo);
 
     // no pair? then we go for redo state
-    if (!snpdone && fpassword_targets[target_no]->redo_state == 0 && fpassword_targets[target_no]->redo > 0) {
+    if (!snpdone && fpassword_targets[target_no]->redo_state == 0 && fpassword_targets[target_no]->redo > 0)
+    {
       if (debug)
         printf("[DEBUG] Entering redo_state\n");
       fpassword_targets[target_no]->redo_state++;
@@ -1852,10 +2083,13 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
     }
   }
 
-  if (!snpdone || fpassword_targets[target_no]->skipcnt >= fpassword_brains.countlogin) {
+  if (!snpdone || fpassword_targets[target_no]->skipcnt >= fpassword_brains.countlogin)
+  {
     fck = write(fpassword_heads[head_no]->sp[0], FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT));
-    if (fpassword_targets[target_no]->use_count <= 1) {
-      if (fpassword_targets[target_no]->done == TARGET_ACTIVE) {
+    if (fpassword_targets[target_no]->use_count <= 1)
+    {
+      if (fpassword_targets[target_no]->done == TARGET_ACTIVE)
+      {
         fpassword_targets[target_no]->done = TARGET_FINISHED;
         fpassword_brains.finished++;
         if (verbose)
@@ -1866,24 +2100,31 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
     }
     if (fpassword_brains.targets > fpassword_brains.finished)
       fpassword_kill_head(head_no, 1, 0); // otherwise done in main while loop
-  } else {
-    if (fpassword_targets[target_no]->skipcnt > 0) {
+  }
+  else
+  {
+    if (fpassword_targets[target_no]->skipcnt > 0)
+    {
       snpj = 0;
       for (snpi = 0; snpi < fpassword_targets[target_no]->skipcnt && snpj == 0; snpi++)
         if (strcmp(fpassword_heads[head_no]->current_login_ptr, fpassword_targets[target_no]->skiplogin[snpi]) == 0)
           snpj = 1;
-      if (snpj) {
-        if (snp_is_redo == 0) {
+      if (snpj)
+      {
+        if (snp_is_redo == 0)
+        {
           fpassword_brains.sent++;
           fpassword_targets[target_no]->sent++;
         }
         if (debug)
           printf("[DEBUG] double found for %s == %s, skipping\n", fpassword_heads[head_no]->current_login_ptr, fpassword_targets[target_no]->skiplogin[snpi - 1]);
         // only if -l/L -p/P with -u and if loginptr was not justed increased
-        if (!check_flag(fpassword_options.mode, MODE_COLON_FILE) && fpassword_options.loop_mode == 0 && fpassword_targets[target_no]->pass_no > 0) { // -l -P (not! -u)
+        if (!check_flag(fpassword_options.mode, MODE_COLON_FILE) && fpassword_options.loop_mode == 0 && fpassword_targets[target_no]->pass_no > 0)
+        { // -l -P (not! -u)
           // increase login_ptr to next
           fpassword_targets[target_no]->login_no++;
-          if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin) {
+          if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin)
+          {
             fpassword_targets[target_no]->login_ptr++;
             while (*fpassword_targets[target_no]->login_ptr != 0)
               fpassword_targets[target_no]->login_ptr++;
@@ -1912,16 +2153,19 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
       snpbuflen += MAXLINESIZE - snpbuflen - 1;
     else
       snpbuflen += strlen(fpassword_heads[head_no]->current_pass_ptr) + 1;
-    if (snp_is_redo == 0) {
+    if (snp_is_redo == 0)
+    {
       fpassword_brains.sent++;
       fpassword_targets[target_no]->sent++;
-    } else if (debug)
+    }
+    else if (debug)
       printf("[DEBUG] send_next_pair_redo done %d, pass_state %d, clogin %s, "
              "cpass %s, tlogin %s, tpass %s, is_redo %d\n",
              snpdone, fpassword_targets[target_no]->pass_state, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, fpassword_targets[target_no]->login_ptr, fpassword_targets[target_no]->pass_ptr, snp_is_redo);
     // fpassword_dump_data(snpbuf, snpbuflen, "SENT");
     fck = write(fpassword_heads[head_no]->sp[0], snpbuf, snpbuflen);
-    if (fck < snpbuflen) {
+    if (fck < snpbuflen)
+    {
       if (verbose)
         fprintf(stderr, "[ERROR] can not write to child %d, restarting it ...\n", head_no);
       fpassword_increase_fail_count(target_no, head_no);
@@ -1929,11 +2173,12 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
       return 0; // not prevent disabling it, if its needed its already done in
                 // the above line
     }
-    if (debug || fpassword_options.showAttempt) {
+    if (debug || fpassword_options.showAttempt)
+    {
       printf("[%sATTEMPT] target %s - login \"%s\" - pass \"%s\" - %" hPRIu64 " of %" hPRIu64 " [child %d] (%d/%d)\n",
              fpassword_targets[target_no]->redo_state ? "REDO-"
-             : snp_is_redo                        ? "RE-"
-                                                  : "",
+             : snp_is_redo                            ? "RE-"
+                                                      : "",
              fpassword_targets[target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, fpassword_targets[target_no]->sent, fpassword_brains.todo + fpassword_targets[target_no]->redo, head_no, fpassword_targets[target_no]->redo_state ? fpassword_targets[target_no]->redo_state - 1 : 0, fpassword_targets[target_no]->redo);
     }
     loop_cnt = 0;
@@ -1943,7 +2188,8 @@ int32_t fpassword_send_next_pair(int32_t target_no, int32_t head_no) {
   return -1;
 }
 
-void fpassword_skip_user(int32_t target_no, char *username) {
+void fpassword_skip_user(int32_t target_no, char *username)
+{
   int32_t i;
 
   if (username == NULL || *username == 0)
@@ -1954,12 +2200,15 @@ void fpassword_skip_user(int32_t target_no, char *username) {
     if (strcmp(username, fpassword_targets[target_no]->skiplogin[i]) == 0)
       return;
 
-  if (fpassword_targets[target_no]->skipcnt < SKIPLOGIN && (fpassword_targets[target_no]->skiplogin[fpassword_targets[target_no]->skipcnt] = malloc(strlen(username) + 1)) != NULL) {
+  if (fpassword_targets[target_no]->skipcnt < SKIPLOGIN && (fpassword_targets[target_no]->skiplogin[fpassword_targets[target_no]->skipcnt] = malloc(strlen(username) + 1)) != NULL)
+  {
     strcpy(fpassword_targets[target_no]->skiplogin[fpassword_targets[target_no]->skipcnt], username);
     fpassword_targets[target_no]->skipcnt++;
   }
-  if (fpassword_options.loop_mode == 0 && !check_flag(fpassword_options.mode, MODE_COLON_FILE)) {
-    if (strcmp(username, fpassword_targets[target_no]->login_ptr) == 0) {
+  if (fpassword_options.loop_mode == 0 && !check_flag(fpassword_options.mode, MODE_COLON_FILE))
+  {
+    if (strcmp(username, fpassword_targets[target_no]->login_ptr) == 0)
+    {
       if (debug)
         printf("[DEBUG] skipping username %s\n", username);
       // increase count
@@ -1967,7 +2216,8 @@ void fpassword_skip_user(int32_t target_no, char *username) {
       fpassword_targets[target_no]->sent += fpassword_brains.countpass - fpassword_targets[target_no]->pass_no;
       // step to next login
       fpassword_targets[target_no]->login_no++;
-      if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin) {
+      if (fpassword_targets[target_no]->login_no < fpassword_brains.countlogin)
+      {
         fpassword_targets[target_no]->login_ptr++;
         while (*fpassword_targets[target_no]->login_ptr != 0)
           fpassword_targets[target_no]->login_ptr++;
@@ -1981,25 +2231,30 @@ void fpassword_skip_user(int32_t target_no, char *username) {
   }
 }
 
-int32_t fpassword_check_for_exit_condition() {
+int32_t fpassword_check_for_exit_condition()
+{
   int32_t i, k = 0;
 
-  if (fpassword_brains.exit) {
+  if (fpassword_brains.exit)
+  {
     if (debug)
       printf("[DEBUG] exit was forced\n");
     return -1;
   }
-  if (fpassword_brains.targets <= fpassword_brains.finished && fpassword_brains.active < 1) {
+  if (fpassword_brains.targets <= fpassword_brains.finished && fpassword_brains.active < 1)
+  {
     if (debug)
       printf("[DEBUG] all targets done and all heads finished\n");
     return 1;
   }
-  if (fpassword_brains.active < 1) {
+  if (fpassword_brains.active < 1)
+  {
     // no head active?! check if they are all disabled, if so, we are done
     for (i = 0; i < fpassword_options.max_use && k == 0; i++)
       if (fpassword_heads[i]->active >= HEAD_UNUSED)
         k = 1;
-    if (k == 0) {
+    if (k == 0)
+    {
       fprintf(stderr, "[ERROR] all children were disabled due too many "
                       "connection errors\n");
       return -1;
@@ -2008,19 +2263,22 @@ int32_t fpassword_check_for_exit_condition() {
   return 0;
 }
 
-int32_t fpassword_select_target() {
+int32_t fpassword_select_target()
+{
   int32_t target_no = -1, i, j = -1000;
 
   for (i = 0; i < fpassword_brains.targets; i++)
     if (fpassword_targets[i]->use_count < fpassword_options.tasks && fpassword_targets[i]->done == TARGET_ACTIVE)
-      if (j < fpassword_options.tasks - fpassword_targets[i]->failed - fpassword_targets[i]->use_count) {
+      if (j < fpassword_options.tasks - fpassword_targets[i]->failed - fpassword_targets[i]->use_count)
+      {
         target_no = i;
         j = fpassword_options.tasks - fpassword_targets[i]->failed - fpassword_targets[i]->use_count;
       }
   return target_no;
 }
 
-void process_proxy_line(int32_t type, char *string) {
+void process_proxy_line(int32_t type, char *string)
+{
   char *type_string = string, *target_string, *port_string, *auth_string = NULL, *device_string = NULL, *sep;
   int32_t port;
   struct addrinfo hints, *res, *p;
@@ -2037,23 +2295,27 @@ void process_proxy_line(int32_t type, char *string) {
     string[strlen(string) - 1] = 0;
   if (string[strlen(string) - 1] == '\r')
     string[strlen(string) - 1] = 0;
-  if (proxy_count >= MAX_PROXY_COUNT) {
+  if (proxy_count >= MAX_PROXY_COUNT)
+  {
     fprintf(stderr, "[WARNING] maximum amount of proxies loaded, ignoring this entry: %s\n", string);
     return;
   }
   if (debug)
     printf("[DEBUG] proxy line: %s\n", string);
-  if ((sep = strstr(string, "://")) == NULL) {
+  if ((sep = strstr(string, "://")) == NULL)
+  {
     fprintf(stderr, "[WARNING] invalid proxy definition: %s (ignored)\n", string);
     return;
   }
   *sep = 0;
   target_string = sep + 3;
-  if ((sep = strchr(target_string, '@')) != NULL) {
+  if ((sep = strchr(target_string, '@')) != NULL)
+  {
     auth_string = target_string;
     *sep = 0;
     target_string = sep + 1;
-    if (strchr(auth_string, ':') == NULL) {
+    if (strchr(auth_string, ':') == NULL)
+    {
       fprintf(stderr,
               "[WARNING] %s has an invalid authentication definition %s, must "
               "be in the format login:pass, entry ignored\n",
@@ -2061,21 +2323,26 @@ void process_proxy_line(int32_t type, char *string) {
       return;
     }
   }
-  if ((sep = strchr(target_string, ':')) != NULL) {
+  if ((sep = strchr(target_string, ':')) != NULL)
+  {
     *sep = 0;
     port_string = sep + 1;
-    if ((sep = strchr(port_string, '%')) != NULL) {
+    if ((sep = strchr(port_string, '%')) != NULL)
+    {
       *sep = 0;
       device_string = sep + 1;
     }
     if ((sep = strchr(port_string, '/')) != NULL)
       *sep = 0;
     port = atoi(port_string);
-    if (port < 1 || port > 65535) {
+    if (port < 1 || port > 65535)
+    {
       fprintf(stderr, "[WARNING] %s has an invalid port definition %d, entry ignored\n", target_string, port);
       return;
     }
-  } else {
+  }
+  else
+  {
     fprintf(stderr,
             "[WARNING] %s has not port definition which is required, entry "
             "ignored\n",
@@ -2083,14 +2350,16 @@ void process_proxy_line(int32_t type, char *string) {
     return;
   }
 
-  if (use_proxy == 1 && strcmp(type_string, "http") != 0) {
+  if (use_proxy == 1 && strcmp(type_string, "http") != 0)
+  {
     fprintf(stderr,
             "[WARNING] %s:// is an invalid type, must be http:// if you use "
             "FPASSWORD_PROXY_HTTP, entry ignored\n",
             type_string);
     return;
   }
-  if (use_proxy == 2 && strcmp(type_string, "connect") != 0 && strcmp(type_string, "socks4") != 0 && strcmp(type_string, "socks5") != 0) {
+  if (use_proxy == 2 && strcmp(type_string, "connect") != 0 && strcmp(type_string, "socks4") != 0 && strcmp(type_string, "socks5") != 0)
+  {
     fprintf(stderr,
             "[WARNING] %s:// is an invalid type, must be connect://, socks4:// "
             "or socks5:// if you use FPASSWORD_PROXY, entry ignored\n",
@@ -2099,19 +2368,24 @@ void process_proxy_line(int32_t type, char *string) {
   }
 
   memset(&hints, 0, sizeof hints);
-  if (getaddrinfo(target_string, NULL, &hints, &res) != 0) {
+  if (getaddrinfo(target_string, NULL, &hints, &res) != 0)
+  {
     fprintf(stderr, "[ERROR] could not resolve proxy target %s, entry ignored\n", target_string);
     return;
   }
 
-  for (p = res; p != NULL; p = p->ai_next) {
+  for (p = res; p != NULL; p = p->ai_next)
+  {
 #ifdef AF_INET6
-    if (p->ai_family == AF_INET6) {
+    if (p->ai_family == AF_INET6)
+    {
       if (ipv6 == NULL || memcmp((char *)&ipv6->sin6_addr, fe80, 2) == 0)
         ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-    } else
+    }
+    else
 #endif
-        if (p->ai_family == AF_INET) {
+        if (p->ai_family == AF_INET)
+    {
       if (ipv4 == NULL)
         ipv4 = (struct sockaddr_in *)p->ai_addr;
     }
@@ -2120,8 +2394,10 @@ void process_proxy_line(int32_t type, char *string) {
 
   // now fill the stuff
 #ifdef AF_INET6
-  if (ipv6 != NULL && (ipv4 == NULL || prefer_ipv6)) {
-    if (memcmp(proxy_string_ip[proxy_count] + 1, fe80, 2) == 0 && device_string == NULL) {
+  if (ipv6 != NULL && (ipv4 == NULL || prefer_ipv6))
+  {
+    if (memcmp(proxy_string_ip[proxy_count] + 1, fe80, 2) == 0 && device_string == NULL)
+    {
       fprintf(stderr,
               "[WARNING] The proxy address %s is a link local address, link "
               "local addresses require the interface being defined like this: "
@@ -2133,24 +2409,31 @@ void process_proxy_line(int32_t type, char *string) {
     memcpy(proxy_string_ip[proxy_count] + 1, (char *)&ipv6->sin6_addr, 16);
     if (device_string != NULL && strlen(device_string) <= 16)
       strcpy(proxy_string_ip[proxy_count] + 17, device_string);
-  } else
+  }
+  else
 #endif
-      if (ipv4 != NULL) {
+      if (ipv4 != NULL)
+  {
     proxy_string_ip[proxy_count][0] = 4;
     memcpy(proxy_string_ip[proxy_count] + 1, (char *)&ipv4->sin_addr, 4);
-  } else {
+  }
+  else
+  {
     fprintf(stderr, "[WARNING] Could not resolve proxy address: %s, entry ignored\n", target_string);
     return;
   }
-  if (auth_string != NULL) {
-    if ((proxy_authentication[proxy_count] = malloc(strlen(auth_string) * 2 + 8)) == NULL) {
+  if (auth_string != NULL)
+  {
+    if ((proxy_authentication[proxy_count] = malloc(strlen(auth_string) * 2 + 8)) == NULL)
+    {
       perror("malloc");
       return;
     }
     strcpy(proxy_authentication[proxy_count], auth_string);
     if (strncmp(type_string, "socks", 5) != 0) // so it is web
       fpassword_tobase64((unsigned char *)proxy_authentication[proxy_count], strlen(proxy_authentication[proxy_count]), strlen(auth_string) * 2 + 8);
-  } else
+  }
+  else
     proxy_authentication[proxy_count] = NULL;
   strcpy(proxy_string_type[proxy_count], type_string);
   proxy_string_port[proxy_count] = port;
@@ -2160,7 +2443,8 @@ void process_proxy_line(int32_t type, char *string) {
   proxy_count++;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   char *proxy_string = NULL, *device = NULL, *memcheck;
   char *outfile_format_tmp;
   FILE *lfp = NULL, *pfp = NULL, *cfp = NULL, *ifp = NULL, *rfp = NULL, *proxyfp;
@@ -2312,8 +2596,10 @@ int main(int argc, char *argv[]) {
     help(1);
   if (argc < 2)
     help(0);
-  while ((i = getopt(argc, argv, "hIq64Rrde:vVl:fFg:L:p:OP:o:b:M:C:t:T:m:w:W:s:SUux:yc:K")) >= 0) {
-    switch (i) {
+  while ((i = getopt(argc, argv, "hIq64Rrde:vVl:fFg:L:p:OP:o:b:M:C:t:T:m:w:W:s:SUux:yc:K")) >= 0)
+  {
+    switch (i)
+    {
     case 'h':
       help(1);
       break;
@@ -2351,8 +2637,10 @@ int main(int argc, char *argv[]) {
       break;
     case 'e':
       i = 0;
-      while (i < strlen(optarg)) {
-        switch (optarg[i]) {
+      while (i < strlen(optarg))
+      {
+        switch (optarg[i])
+        {
         case 'r':
           fpassword_options.try_password_reverse_login = 1;
           fpassword_options.mode = fpassword_options.mode | MODE_PASSWORD_REVERSE;
@@ -2413,7 +2701,8 @@ int main(int argc, char *argv[]) {
         fpassword_options.outfile_format = FORMAT_JSONV1;
       else if (strcasecmp(outfile_format_tmp, "jsonv1") == 0)
         fpassword_options.outfile_format = FORMAT_JSONV1;
-      else {
+      else
+      {
         fprintf(stderr, "[ERROR] Output file format must be (text, json, jsonv1)\n");
         exit(-1);
       }
@@ -2431,10 +2720,12 @@ int main(int argc, char *argv[]) {
       break;
     case 'w':
       fpassword_options.waittime = waittime = atoi(optarg);
-      if (waittime < 1) {
+      if (waittime < 1)
+      {
         fprintf(stderr, "[ERROR] waittime must be larger than 0\n");
         exit(-1);
-      } else if (waittime < 5)
+      }
+      else if (waittime < 5)
         fprintf(stderr, "[WARNING] the waittime you set is low, this can "
                         "result in errornous results\n");
       break;
@@ -2447,7 +2738,8 @@ int main(int argc, char *argv[]) {
     case 'c':
 #ifdef MSG_PEEK
       fpassword_options.time_next_attempt = atoi(optarg);
-      if (fpassword_options.time_next_attempt < 0) {
+      if (fpassword_options.time_next_attempt < 0)
+      {
         fprintf(stderr, "[ERROR] -c option value can not be negative\n");
         exit(-1);
       }
@@ -2497,7 +2789,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (fpassword_options.time_next_attempt > 0 && fpassword_options.tasks != 1) {
+  if (fpassword_options.time_next_attempt > 0 && fpassword_options.tasks != 1)
+  {
     printf("[INFO] setting max tasks per host to 1 due to -c option usage\n");
     fpassword_options.tasks = 1;
   }
@@ -2508,11 +2801,14 @@ int main(int argc, char *argv[]) {
 
 #ifdef LIBNCURSES
   // then check if the term is color enabled using ncurses lib
-  if (colored_output) {
-    if (!setupterm(NULL, 1, NULL) && (tigetnum("colors") <= 0)) {
+  if (colored_output)
+  {
+    if (!setupterm(NULL, 1, NULL) && (tigetnum("colors") <= 0))
+    {
       colored_output = 0;
     }
-    if (cur_term) {
+    if (cur_term)
+    {
       del_curterm(cur_term);
     }
   }
@@ -2530,7 +2826,8 @@ int main(int argc, char *argv[]) {
   //    bail("no option may be supplied together with -R");
 
   printf("%s (%s) starting at %s\n", PROGRAM, RESOURCE, fpassword_build_time());
-  if (debug) {
+  if (debug)
+  {
     printf("[DEBUG] cmdline: ");
     for (i = 0; i < argc; i++)
       printf("%s ", argv[i]);
@@ -2547,23 +2844,29 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[WARNING] output file format specified (-b) - but no "
                     "output file (-o)\n");
 
-  if (fpassword_options.restore) {
+  if (fpassword_options.restore)
+  {
     //    fpassword_restore_read();
     // stuff we have to copy from the non-restore part
-    if (strncmp(fpassword_options.service, "http-", 5) == 0) {
+    if (strncmp(fpassword_options.service, "http-", 5) == 0)
+    {
       if (getenv("FPASSWORD_PROXY_HTTP") && getenv("FPASSWORD_PROXY"))
         bail("Found FPASSWORD_PROXY_HTTP *and* FPASSWORD_PROXY environment variables - "
              "you can use only ONE for the service "
              "http-head/http-get/http-post!");
-      if (getenv("FPASSWORD_PROXY_HTTP")) {
+      if (getenv("FPASSWORD_PROXY_HTTP"))
+      {
         printf("[INFO] Using HTTP Proxy: %s\n", getenv("FPASSWORD_PROXY_HTTP"));
         use_proxy = 1;
       }
     }
-  } else { // normal mode, aka non-restore mode
+  }
+  else
+  { // normal mode, aka non-restore mode
     if (fpassword_options.colonfile)
       fpassword_options.loop_mode = 0; // just to be sure
-    if (fpassword_options.infile_ptr != NULL) {
+    if (fpassword_options.infile_ptr != NULL)
+    {
       if (optind + 2 < argc)
         bail("The -M FILE option can not be used together with a host on the "
              "commandline");
@@ -2576,7 +2879,9 @@ int main(int argc, char *argv[]) {
       fpassword_options.service = argv[optind];
       if (optind + 2 == argc)
         fpassword_options.miscptr = argv[optind + 1];
-    } else if (optind + 2 != argc && optind + 3 != argc && optind < argc) {
+    }
+    else if (optind + 2 != argc && optind + 3 != argc && optind < argc)
+    {
       // check if targetdef follow syntax
       // <service-name>://<target>[:<port-number>][/<parameters>] or it's a
       // syntax error
@@ -2584,7 +2889,8 @@ int main(int argc, char *argv[]) {
       char *service_pos, *target_pos, *port_pos = NULL, *param_pos = NULL;
       cmdlinetarget = argv[optind];
 
-      if ((targetdef != NULL) && (strstr(targetdef, "://") != NULL)) {
+      if ((targetdef != NULL) && (strstr(targetdef, "://") != NULL))
+      {
         service_pos = strstr(targetdef, "://");
         if ((service_pos - targetdef) == 0)
           bail("could not identify service");
@@ -2594,7 +2900,8 @@ int main(int argc, char *argv[]) {
         fpassword_options.service[service_pos - targetdef] = 0;
         target_pos = targetdef + (service_pos - targetdef + 3);
 
-        if (*target_pos == '[') {
+        if (*target_pos == '[')
+        {
           target_pos++;
           if ((param_pos = strchr(target_pos, ']')) == NULL)
             bail("no closing ']' found in target definition");
@@ -2603,7 +2910,9 @@ int main(int argc, char *argv[]) {
             port_pos = ++param_pos;
           if ((param_pos = strchr(param_pos, '/')) != NULL)
             *param_pos++ = 0;
-        } else {
+        }
+        else
+        {
           port_pos = strchr(target_pos, ':');
           param_pos = strchr(target_pos, '/');
           if (port_pos != NULL && param_pos != NULL && port_pos > param_pos)
@@ -2612,7 +2921,8 @@ int main(int argc, char *argv[]) {
             *port_pos++ = 0;
           if (param_pos != NULL)
             *param_pos++ = 0;
-          if (port_pos != NULL && strchr(port_pos, ':') != NULL) {
+          if (port_pos != NULL && strchr(port_pos, ':') != NULL)
+          {
             if (prefer_ipv6)
               bail("Illegal IPv6 target definition must be written within '[' "
                    "']'");
@@ -2626,7 +2936,8 @@ int main(int argc, char *argv[]) {
           fpassword_options.server = target_pos;
         if (port_pos != NULL)
           fpassword_options.port = port = atoi(port_pos);
-        if (param_pos != NULL) {
+        if (param_pos != NULL)
+        {
           if (strstr(fpassword_options.service, "http") != NULL && strstr(fpassword_options.service, "http-proxy") == NULL && param_pos[1] != '/')
             *--param_pos = '/';
           fpassword_options.miscptr = strdup(param_pos);
@@ -2635,22 +2946,30 @@ int main(int argc, char *argv[]) {
         // fpassword_options.service, port_pos, param_pos);
         if (debug)
           printf("[DEBUG] opt:%d argc:%d mod:%s tgt:%s port:%u misc:%s\n", optind, argc, fpassword_options.service, fpassword_options.server, fpassword_options.port, fpassword_options.miscptr);
-      } else {
+      }
+      else
+      {
         fpassword_options.server = NULL;
         fpassword_options.service = NULL;
 
-        if (modusage) {
+        if (modusage)
+        {
           fpassword_options.service = targetdef;
-        } else
+        }
+        else
           help(0);
       }
-    } else {
-      if (modusage && argv[optind] == NULL) {
+    }
+    else
+    {
+      if (modusage && argv[optind] == NULL)
+      {
         printf("[ERROR] you must supply a service name after the -U help "
                "switch\n");
         exit(-1);
       }
-      if (argv[optind] == NULL || strstr(argv[optind], "://") != NULL) {
+      if (argv[optind] == NULL || strstr(argv[optind], "://") != NULL)
+      {
         printf("[ERROR] Invalid target definition!\n");
         printf("[ERROR] Either you use \"www.example.com module "
                "[optional-module-parameters]\" *or* you use the "
@@ -2674,7 +2993,8 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "[WARNING] you want to access SMTP/POP3/IMAP with SSL. Are you sure "
                       "you want to use direct SSL (-S) instead of STARTTLS (-m TLS)?\n");
 
-    if (strcmp(fpassword_options.service, "http") == 0 || strcmp(fpassword_options.service, "https") == 0) {
+    if (strcmp(fpassword_options.service, "http") == 0 || strcmp(fpassword_options.service, "https") == 0)
+    {
       fprintf(stderr,
               "[ERROR] There is no service \"%s\", most likely you mean one of the "
               "many web modules, e.g. http-get or http-form-post. Read it up!\n",
@@ -2682,14 +3002,17 @@ int main(int argc, char *argv[]) {
       exit(-1);
     }
 
-    if (strcmp(fpassword_options.service, "pop3s") == 0 || strcmp(fpassword_options.service, "smtps") == 0 || strcmp(fpassword_options.service, "imaps") == 0 || strcmp(fpassword_options.service, "telnets") == 0 || (strncmp(fpassword_options.service, "ldap", 4) == 0 && fpassword_options.service[strlen(fpassword_options.service) - 1] == 's')) {
+    if (strcmp(fpassword_options.service, "pop3s") == 0 || strcmp(fpassword_options.service, "smtps") == 0 || strcmp(fpassword_options.service, "imaps") == 0 || strcmp(fpassword_options.service, "telnets") == 0 || (strncmp(fpassword_options.service, "ldap", 4) == 0 && fpassword_options.service[strlen(fpassword_options.service) - 1] == 's'))
+    {
       fpassword_options.ssl = 1;
       fpassword_options.service[strlen(fpassword_options.service) - 1] = 0;
     }
 
-    if (getenv("FPASSWORD_PROXY_HTTP") || getenv("FPASSWORD_PROXY")) {
+    if (getenv("FPASSWORD_PROXY_HTTP") || getenv("FPASSWORD_PROXY"))
+    {
       if (strcmp(fpassword_options.service, "afp") == 0 || strcmp(fpassword_options.service, "firebird") == 0 || strncmp(fpassword_options.service, "mysql", 5) == 0 || strcmp(fpassword_options.service, "ncp") == 0 || strcmp(fpassword_options.service, "oracle") == 0 || strcmp(fpassword_options.service, "postgres") == 0 || strncmp(fpassword_options.service, "ssh", 3) == 0 || strcmp(fpassword_options.service, "sshkey") == 0 || strcmp(fpassword_options.service, "svn") == 0 || strcmp(fpassword_options.service, "sapr3") == 0 ||
-          strcmp(fpassword_options.service, "memcached") == 0 || strcmp(fpassword_options.service, "mongodb") == 0) {
+          strcmp(fpassword_options.service, "memcached") == 0 || strcmp(fpassword_options.service, "mongodb") == 0)
+      {
         fprintf(stderr, "[WARNING] module %s does not support FPASSWORD_PROXY* !\n", fpassword_options.service);
         proxy_string = NULL;
       }
@@ -2697,14 +3020,17 @@ int main(int argc, char *argv[]) {
 
     /* here start the services */
 
-    if (strcmp(fpassword_options.service, "ssl") == 0 || strcmp(fpassword_options.service, "www") == 0 || strcmp(fpassword_options.service, "http") == 0 || strcmp(fpassword_options.service, "https") == 0) {
+    if (strcmp(fpassword_options.service, "ssl") == 0 || strcmp(fpassword_options.service, "www") == 0 || strcmp(fpassword_options.service, "http") == 0 || strcmp(fpassword_options.service, "https") == 0)
+    {
       fprintf(stderr, "[WARNING] The service http has been replaced with http-head and "
                       "http-get, using by default GET method. Same for https.\n");
-      if (strcmp(fpassword_options.service, "http") == 0) {
+      if (strcmp(fpassword_options.service, "http") == 0)
+      {
         fpassword_options.service = malloc(strlen("http-get") + 1);
         strcpy(fpassword_options.service, "http-get");
       }
-      if (strcmp(fpassword_options.service, "https") == 0) {
+      if (strcmp(fpassword_options.service, "https") == 0)
+      {
         fpassword_options.service = malloc(strlen("https-get") + 1);
         strcpy(fpassword_options.service, "https-get");
       }
@@ -2719,8 +3045,10 @@ int main(int argc, char *argv[]) {
     if (strcmp(fpassword_options.service, "https-form-post") == 0)
       strcpy(fpassword_options.service, "https-post-form");
 
-    if (modusage == 1) {
-      if (fpassword_options.service == NULL) {
+    if (modusage == 1)
+    {
+      if (fpassword_options.service == NULL)
+      {
         printf("[ERROR] you must supply a service name after the -U help "
                "switch\n");
         exit(-1);
@@ -2729,24 +3057,28 @@ int main(int argc, char *argv[]) {
     }
 
     i = 0;
-    if (strcmp(fpassword_options.service, "telnet") == 0) {
+    if (strcmp(fpassword_options.service, "telnet") == 0)
+    {
       fprintf(stderr, "[WARNING] telnet is by its nature unreliable to analyze, if "
                       "possible better choose FTP, SSH, etc. if available\n");
       i = 1;
     }
     if (strcmp(fpassword_options.service, "ftp") == 0)
       i = 1;
-    if (strcmp(fpassword_options.service, "ftps") == 0) {
+    if (strcmp(fpassword_options.service, "ftps") == 0)
+    {
       fprintf(stderr, "[WARNING] you enabled ftp-SSL (auth tls) mode. If you want to "
                       "use direct SSL ftp, use -S and the ftp module instead.\n");
       i = 1;
     }
-    if (strcmp(fpassword_options.service, "pop3") == 0) {
+    if (strcmp(fpassword_options.service, "pop3") == 0)
+    {
       fprintf(stderr, "[INFO] several providers have implemented cracking protection, "
                       "check with a small wordlist first - and stay legal!\n");
       i = 1;
     }
-    if (strcmp(fpassword_options.service, "imap") == 0) {
+    if (strcmp(fpassword_options.service, "imap") == 0)
+    {
       fprintf(stderr, "[INFO] several providers have implemented cracking protection, "
                       "check with a small wordlist first - and stay legal!\n");
       i = 1;
@@ -2767,7 +3099,8 @@ int main(int argc, char *argv[]) {
       i = 1;
     if (strcmp(fpassword_options.service, "socks5") == 0)
       i = 1;
-    if (strcmp(fpassword_options.service, "icq") == 0) {
+    if (strcmp(fpassword_options.service, "icq") == 0)
+    {
       fprintf(stderr, "[WARNING] The icq module is not working with the modern "
                       "protocol version! (somebody else will need to fix this "
                       "as I don't care for icq)\n");
@@ -2791,9 +3124,11 @@ int main(int argc, char *argv[]) {
       bail("Compiled without LIBMONGODB support, module not available!");
 #endif
 
-    if (strcmp(fpassword_options.service, "mysql") == 0) {
+    if (strcmp(fpassword_options.service, "mysql") == 0)
+    {
       i = 1;
-      if (fpassword_options.tasks > 4) {
+      if (fpassword_options.tasks > 4)
+      {
         fprintf(stderr, "[INFO] Reduced number of tasks to 4 (mysql does not "
                         "like many parallel connections)\n");
         fpassword_options.tasks = 4;
@@ -2803,18 +3138,21 @@ int main(int argc, char *argv[]) {
       i = 1;
     if (strcmp(fpassword_options.service, "cobaltstrike") == 0)
       i = 2;
-    if ((strcmp(fpassword_options.service, "oracle-listener") == 0) || (strcmp(fpassword_options.service, "tns") == 0)) {
+    if ((strcmp(fpassword_options.service, "oracle-listener") == 0) || (strcmp(fpassword_options.service, "tns") == 0))
+    {
       i = 2;
       fpassword_options.service = malloc(strlen("oracle-listener") + 1);
       strcpy(fpassword_options.service, "oracle-listener");
     }
-    if ((strcmp(fpassword_options.service, "oracle-sid") == 0) || (strcmp(fpassword_options.service, "sid") == 0)) {
+    if ((strcmp(fpassword_options.service, "oracle-sid") == 0) || (strcmp(fpassword_options.service, "sid") == 0))
+    {
       i = 3;
       fpassword_options.service = malloc(strlen("oracle-sid") + 1);
       strcpy(fpassword_options.service, "oracle-sid");
     }
 #ifdef LIBORACLE
-    if ((strcmp(fpassword_options.service, "oracle") == 0) || (strcmp(fpassword_options.service, "ora") == 0)) {
+    if ((strcmp(fpassword_options.service, "oracle") == 0) || (strcmp(fpassword_options.service, "ora") == 0))
+    {
       i = 1;
       fpassword_options.service = malloc(strlen("oracle") + 1);
       strcpy(fpassword_options.service, "oracle");
@@ -2853,26 +3191,32 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(fpassword_options.service, "pcanywhere") == 0)
       i = 1;
-    if (strcmp(fpassword_options.service, "http-proxy") == 0) {
+    if (strcmp(fpassword_options.service, "http-proxy") == 0)
+    {
       i = 1;
       if (fpassword_options.miscptr != NULL && strncmp(fpassword_options.miscptr, "http://", 7) != 0)
         bail("module option must start with http://");
     }
-    if (strcmp(fpassword_options.service, "cvs") == 0) {
+    if (strcmp(fpassword_options.service, "cvs") == 0)
+    {
       i = 1;
-      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0)) {
+      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0))
+      {
         fprintf(stderr, "[INFO] The CVS repository path wasn't passed so using "
                         "/root by default\n");
       }
     }
-    if (strcmp(fpassword_options.service, "svn") == 0) {
+    if (strcmp(fpassword_options.service, "svn") == 0)
+    {
       i = 1;
-      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0)) {
+      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0))
+      {
         fprintf(stderr, "[INFO] The SVN repository path wasn't passed so using "
                         "/trunk by default\n");
       }
     }
-    if (strcmp(fpassword_options.service, "ssh") == 0 || strcmp(fpassword_options.service, "sshkey") == 0) {
+    if (strcmp(fpassword_options.service, "ssh") == 0 || strcmp(fpassword_options.service, "sshkey") == 0)
+    {
       if (fpassword_options.tasks > 8)
         fprintf(stderr, "[WARNING] Many SSH configurations limit the number of parallel "
                         "tasks, it is recommended to reduce the tasks: use -t 4\n");
@@ -2882,7 +3226,8 @@ int main(int argc, char *argv[]) {
       bail("Compiled without LIBSSH v0.4.x support, module is not available!");
 #endif
     }
-    if (strcmp(fpassword_options.service, "smtp") == 0) {
+    if (strcmp(fpassword_options.service, "smtp") == 0)
+    {
       fprintf(stderr, "[INFO] several providers have implemented cracking protection, "
                       "check with a small wordlist first - and stay legal!\n");
       i = 1;
@@ -2891,8 +3236,10 @@ int main(int argc, char *argv[]) {
       i = 1;
     if (strcmp(fpassword_options.service, "teamspeak") == 0)
       i = 1;
-    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0)) {
-      if (fpassword_options.tasks > 1) {
+    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0))
+    {
+      if (fpassword_options.tasks > 1)
+      {
         fprintf(stderr, "[INFO] Reduced number of tasks to 1 (smb does not "
                         "like parallel connections)\n");
         fpassword_options.tasks = 1;
@@ -2902,9 +3249,11 @@ int main(int argc, char *argv[]) {
                         "login. You must use the -m option to pass a domain.\n");
       i = 1;
     }
-    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0)) {
+    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0))
+    {
 #ifdef LIBOPENSSL
-      if (fpassword_options.tasks > 1) {
+      if (fpassword_options.tasks > 1)
+      {
         fprintf(stderr, "[INFO] Reduced number of tasks to 1 (smb does not "
                         "like parallel connections)\n");
         fpassword_options.tasks = 1;
@@ -2912,37 +3261,43 @@ int main(int argc, char *argv[]) {
       i = 1;
 #endif
     }
-    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0) || (strcmp(fpassword_options.service, "sip") == 0) || (strcmp(fpassword_options.service, "oracle-listener") == 0) || (strcmp(fpassword_options.service, "oracle-sid") == 0)) {
+    if ((strcmp(fpassword_options.service, "smb") == 0) || (strcmp(fpassword_options.service, "smbnt") == 0) || (strcmp(fpassword_options.service, "sip") == 0) || (strcmp(fpassword_options.service, "oracle-listener") == 0) || (strcmp(fpassword_options.service, "oracle-sid") == 0))
+    {
 #ifndef LIBOPENSSL
       bail("Compiled without OPENSSL support, module not available!");
 #endif
     }
-    if (strcmp(fpassword_options.service, "smb2") == 0) {
+    if (strcmp(fpassword_options.service, "smb2") == 0)
+    {
 #if !defined(LIBSMBCLIENT)
       bail("Compiled without LIBSMBCLIENT support, module not available!");
 #else
       if (fpassword_options.login != NULL && (strchr(fpassword_options.login, '\\') != NULL || strchr(fpassword_options.login, '/') != NULL))
         fprintf(stderr, "[WARNING] potential windows domain specification found in "
                         "login. You must use the -m option to pass a domain.\n");
-      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0)) {
+      if (fpassword_options.miscptr == NULL || (strlen(fpassword_options.miscptr) == 0))
+      {
         fprintf(stderr, "[WARNING] Workgroup was not specified, using \"WORKGROUP\"\n");
       }
       i = 1;
 #endif
     }
 
-    if (strcmp(fpassword_options.service, "rdp") == 0) {
+    if (strcmp(fpassword_options.service, "rdp") == 0)
+    {
 #ifndef LIBFREERDP
       bail("Compiled without FREERDP support, modules not available!");
 #endif
     }
-    if (strcmp(fpassword_options.service, "pcnfs") == 0) {
+    if (strcmp(fpassword_options.service, "pcnfs") == 0)
+    {
       i = 1;
       if (port == 0)
         bail("You must set the port for pcnfs with -s (run \"rpcinfo -p %s\" "
              "and look for the pcnfs v2 UDP port)");
     }
-    if (strcmp(fpassword_options.service, "sapr3") == 0) {
+    if (strcmp(fpassword_options.service, "sapr3") == 0)
+    {
 #ifdef LIBSAPR3
       i = 1;
       if (port == PORT_SAPR3)
@@ -2958,13 +3313,15 @@ int main(int argc, char *argv[]) {
       bail("Compiled without LIBSAPR3 support, module not available!");
 #endif
     }
-    if (strcmp(fpassword_options.service, "cisco") == 0) {
+    if (strcmp(fpassword_options.service, "cisco") == 0)
+    {
       i = 2;
       if (fpassword_options.tasks > 4)
         fprintf(stderr, "[WARNING] you should set the number of parallel task "
                         "to 4 for cisco services.\n");
     }
-    if (strcmp(fpassword_options.service, "adam6500") == 0) {
+    if (strcmp(fpassword_options.service, "adam6500") == 0)
+    {
       i = 2;
       fprintf(stderr, "[WARNING] the module adam6500 is work in progress! "
                       "please submit a pcap of a successful login as well as "
@@ -2974,18 +3331,22 @@ int main(int argc, char *argv[]) {
                         "adam6500 modbus authentication\n");
       fpassword_options.tasks = 1;
     }
-    if (strncmp(fpassword_options.service, "snmpv", 5) == 0) {
+    if (strncmp(fpassword_options.service, "snmpv", 5) == 0)
+    {
       fpassword_options.service[4] = fpassword_options.service[5];
       fpassword_options.service[5] = 0;
     }
-    if (strcmp(fpassword_options.service, "snmp") == 0 || strcmp(fpassword_options.service, "snmp1") == 0) {
+    if (strcmp(fpassword_options.service, "snmp") == 0 || strcmp(fpassword_options.service, "snmp1") == 0)
+    {
       fpassword_options.service[4] = 0;
       i = 2;
     }
-    if (strcmp(fpassword_options.service, "snmp2") == 0 || strcmp(fpassword_options.service, "snmp3") == 0) {
+    if (strcmp(fpassword_options.service, "snmp2") == 0 || strcmp(fpassword_options.service, "snmp3") == 0)
+    {
       if (fpassword_options.miscptr == NULL)
         fpassword_options.miscptr = strdup(fpassword_options.service + 4);
-      else {
+      else
+      {
         tmpptr = malloc(strlen(fpassword_options.miscptr) + 4);
         strcpy(tmpptr, fpassword_options.miscptr);
         strcat(tmpptr, ":");
@@ -2995,33 +3356,45 @@ int main(int argc, char *argv[]) {
       fpassword_options.service[4] = 0;
       i = 2;
     }
-    if (strcmp(fpassword_options.service, "snmp") == 0 && fpassword_options.miscptr != NULL) {
+    if (strcmp(fpassword_options.service, "snmp") == 0 && fpassword_options.miscptr != NULL)
+    {
       char *lptr;
 
       j = 1;
       tmpptr = strdup(fpassword_options.miscptr);
       lptr = strtok(tmpptr, ":");
-      while (lptr != NULL) {
+      while (lptr != NULL)
+      {
         i = 0;
-        if (strcasecmp(lptr, "1") == 0 || strcasecmp(lptr, "2") == 0 || strcasecmp(lptr, "3") == 0) {
+        if (strcasecmp(lptr, "1") == 0 || strcasecmp(lptr, "2") == 0 || strcasecmp(lptr, "3") == 0)
+        {
           i = 1;
           j = lptr[0] - '0' + (j & 252);
-        } else if (strcasecmp(lptr, "READ") == 0 || strcasecmp(lptr, "WRITE") == 0 || strcasecmp(lptr, "PLAIN") == 0)
+        }
+        else if (strcasecmp(lptr, "READ") == 0 || strcasecmp(lptr, "WRITE") == 0 || strcasecmp(lptr, "PLAIN") == 0)
           i = 1;
-        else if (strcasecmp(lptr, "MD5") == 0) {
+        else if (strcasecmp(lptr, "MD5") == 0)
+        {
           i = 1;
           j = 4 + (j & 51);
-        } else if (strcasecmp(lptr, "SHA") == 0 || strcasecmp(lptr, "SHA1") == 0) {
+        }
+        else if (strcasecmp(lptr, "SHA") == 0 || strcasecmp(lptr, "SHA1") == 0)
+        {
           i = 1;
           j = 8 + (j & 51);
-        } else if (strcasecmp(lptr, "DES") == 0) {
+        }
+        else if (strcasecmp(lptr, "DES") == 0)
+        {
           i = 1;
           j = 16 + (j & 15);
-        } else if (strcasecmp(lptr, "AES") == 0) {
+        }
+        else if (strcasecmp(lptr, "AES") == 0)
+        {
           i = 1;
           j = 32 + (j & 15);
         }
-        if (i == 0) {
+        if (i == 0)
+        {
           fprintf(stderr, "[ERROR] unknown parameter in module option: %s\n", lptr);
           exit(-1);
         }
@@ -3031,14 +3404,17 @@ int main(int argc, char *argv[]) {
       if ((j & 3) < 3 && j > 2)
         fprintf(stderr, "[WARNING] SNMPv1 and SNMPv2 do not support hash and "
                         "encryption, ignored\n");
-      if ((j & 3) == 3) {
+      if ((j & 3) == 3)
+      {
         fprintf(stderr, "[WARNING] SNMPv3 is still in beta state, use at own "
                         "risk and report problems\n");
         if (j >= 16)
           bail("The SNMPv3 module so far only support authentication "
                "(md5/sha), not yet encryption\n");
-        if (fpassword_options.colonfile == NULL && ((fpassword_options.login == NULL && fpassword_options.loginfile == NULL) || (fpassword_options.pass == NULL && fpassword_options.passfile == NULL && fpassword_options.bfg == 0))) {
-          if (j > 3) {
+        if (fpassword_options.colonfile == NULL && ((fpassword_options.login == NULL && fpassword_options.loginfile == NULL) || (fpassword_options.pass == NULL && fpassword_options.passfile == NULL && fpassword_options.bfg == 0)))
+        {
+          if (j > 3)
+          {
             fprintf(stderr, "[ERROR] you specified SNMPv3, defined hashing/encryption but "
                             "only gave one of login or password list. Either supply both "
                             "logins and passwords (this is what is usually used in "
@@ -3053,44 +3429,58 @@ int main(int argc, char *argv[]) {
           strcat(tmpptr, ":");
           strcat(tmpptr, "PLAIN");
           fpassword_options.miscptr = tmpptr;
-        } else {
+        }
+        else
+        {
           i = 1; // snmpv3 with login+pass mode
 #ifndef LIBOPENSSL
           bail("fpassword was not compiled with OPENSSL support, snmpv3 can only "
                "be used on NoAuthNoPriv mode (only logins, no passwords)!");
 #endif
-          printf("[INFO] Using %s SNMPv3 with %s authentication and %s privacy\n", j > 16 ? "AuthPriv" : "AuthNoPriv", (j & 8) == 8 ? "SHA" : "MD5", (j & 16) == 16 ? "DES" : (j > 16) ? "AES" : "no");
+          printf("[INFO] Using %s SNMPv3 with %s authentication and %s privacy\n", j > 16 ? "AuthPriv" : "AuthNoPriv", (j & 8) == 8 ? "SHA" : "MD5", (j & 16) == 16 ? "DES" : (j > 16) ? "AES"
+                                                                                                                                                                                       : "no");
         }
       }
     }
-    if (strcmp(fpassword_options.service, "sip") == 0) {
-      if (fpassword_options.miscptr == NULL) {
-        if (fpassword_options.server != NULL) {
+    if (strcmp(fpassword_options.service, "sip") == 0)
+    {
+      if (fpassword_options.miscptr == NULL)
+      {
+        if (fpassword_options.server != NULL)
+        {
           fpassword_options.miscptr = fpassword_options.server;
           i = 1;
-        } else {
+        }
+        else
+        {
           bail("The sip module does not work with multiple servers (-M)\n");
         }
-      } else {
+      }
+      else
+      {
         i = 1;
       }
     }
-    if (strcmp(fpassword_options.service, "ldap") == 0) {
+    if (strcmp(fpassword_options.service, "ldap") == 0)
+    {
       bail("Please select ldap2 or ldap3 for simple authentication or "
            "ldap3-crammd5 or ldap3-digestmd5\n");
     }
-    if (strcmp(fpassword_options.service, "ldap2") == 0 || strcmp(fpassword_options.service, "ldap3") == 0) {
+    if (strcmp(fpassword_options.service, "ldap2") == 0 || strcmp(fpassword_options.service, "ldap3") == 0)
+    {
       i = 1;
       if ((fpassword_options.miscptr != NULL && fpassword_options.login != NULL) || (fpassword_options.miscptr != NULL && fpassword_options.loginfile != NULL) || (fpassword_options.login != NULL && fpassword_options.loginfile != NULL))
         bail("you may only use one of -l, -L or -m\n");
       if (fpassword_options.login == NULL && fpassword_options.loginfile == NULL && fpassword_options.miscptr == NULL)
         fprintf(stderr, "[WARNING] no DN to authenticate is defined, using DN "
                         "of null (use -m, -l or -L to define DNs)\n");
-      if (fpassword_options.login == NULL && fpassword_options.loginfile == NULL) {
+      if (fpassword_options.login == NULL && fpassword_options.loginfile == NULL)
+      {
         i = 2;
       }
     }
-    if (strcmp(fpassword_options.service, "ldap3-crammd5") == 0 || strcmp(fpassword_options.service, "ldap3-digestmd5") == 0) {
+    if (strcmp(fpassword_options.service, "ldap3-crammd5") == 0 || strcmp(fpassword_options.service, "ldap3-digestmd5") == 0)
+    {
       i = 1;
       if (fpassword_options.login == NULL && fpassword_options.loginfile == NULL)
         bail("-l or -L option is required to specify the login\n");
@@ -3101,15 +3491,18 @@ int main(int argc, char *argv[]) {
       i = 1;
     if (strcmp(fpassword_options.service, "rpcap") == 0)
       i = 1;
-    if (strcmp(fpassword_options.service, "s7-300") == 0) {
-      if (fpassword_options.tasks > 8) {
+    if (strcmp(fpassword_options.service, "s7-300") == 0)
+    {
+      if (fpassword_options.tasks > 8)
+      {
         fprintf(stderr, "[INFO] Reduced number of tasks to 8 (the PLC does not "
                         "like more connections)\n");
         fpassword_options.tasks = 8;
       }
       i = 2;
     }
-    if (strcmp(fpassword_options.service, "cisco-enable") == 0) {
+    if (strcmp(fpassword_options.service, "cisco-enable") == 0)
+    {
       if (fpassword_options.login != NULL || fpassword_options.loginfile != NULL)
         i = 1; // login will be the initial Username: login, or line Password:
       else
@@ -3121,23 +3514,27 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "[WARNING] you should set the number of parallel task "
                         "to 4 for cisco enable services.\n");
     }
-    if (strcmp(fpassword_options.service, "http-proxy-urlenum") == 0) {
+    if (strcmp(fpassword_options.service, "http-proxy-urlenum") == 0)
+    {
       i = 4;
       fpassword_options.pass = empty_login;
-      if (fpassword_options.miscptr == NULL) {
+      if (fpassword_options.miscptr == NULL)
+      {
         fprintf(stderr, "[WARNING] You did not supply proxy credentials via "
                         "the optional parameter\n");
       }
       if (fpassword_options.bfg || fpassword_options.passfile != NULL)
         bail("the http-proxy-urlenum does not need the -p/-P or -x option");
     }
-    if (strcmp(fpassword_options.service, "vnc") == 0) {
+    if (strcmp(fpassword_options.service, "vnc") == 0)
+    {
       i = 2;
       if (fpassword_options.tasks > 4)
         fprintf(stderr, "[WARNING] you should set the number of parallel task "
                         "to 4 for vnc services.\n");
     }
-    if (strcmp(fpassword_options.service, "https-head") == 0 || strcmp(fpassword_options.service, "https-get") == 0 || strcmp(fpassword_options.service, "https-post") == 0) {
+    if (strcmp(fpassword_options.service, "https-head") == 0 || strcmp(fpassword_options.service, "https-get") == 0 || strcmp(fpassword_options.service, "https-post") == 0)
+    {
 #ifdef LIBOPENSSL
       i = 1;
       fpassword_options.ssl = 1;
@@ -3151,9 +3548,11 @@ int main(int argc, char *argv[]) {
       bail("Compiled without SSL support, module not available");
 #endif
     }
-    if (strcmp(fpassword_options.service, "http-get") == 0 || strcmp(fpassword_options.service, "http-head") == 0 || strcmp(fpassword_options.service, "http-post") == 0) {
+    if (strcmp(fpassword_options.service, "http-get") == 0 || strcmp(fpassword_options.service, "http-head") == 0 || strcmp(fpassword_options.service, "http-post") == 0)
+    {
       i = 1;
-      if (fpassword_options.miscptr == NULL) {
+      if (fpassword_options.miscptr == NULL)
+      {
         fprintf(stderr, "[WARNING] You must supply the web page as an "
                         "additional option or via -m, default path set to /\n");
         fpassword_options.miscptr = malloc(2);
@@ -3165,7 +3564,8 @@ int main(int argc, char *argv[]) {
       if (getenv("FPASSWORD_PROXY_HTTP") && getenv("FPASSWORD_PROXY"))
         bail("Found FPASSWORD_PROXY_HTTP *and* FPASSWORD_PROXY environment variables - "
              "you can use only ONE for the service http-head/http-get!");
-      if (getenv("FPASSWORD_PROXY_HTTP")) {
+      if (getenv("FPASSWORD_PROXY_HTTP"))
+      {
         printf("[INFO] Using HTTP Proxy: %s\n", getenv("FPASSWORD_PROXY_HTTP"));
         use_proxy = 1;
       }
@@ -3174,14 +3574,18 @@ int main(int argc, char *argv[]) {
                         "server, better use http-get\n");
     }
 
-    if (strcmp(fpassword_options.service, "http-get-form") == 0 || strcmp(fpassword_options.service, "http-post-form") == 0 || strcmp(fpassword_options.service, "https-get-form") == 0 || strcmp(fpassword_options.service, "https-post-form") == 0) {
+    if (strcmp(fpassword_options.service, "http-get-form") == 0 || strcmp(fpassword_options.service, "http-post-form") == 0 || strcmp(fpassword_options.service, "https-get-form") == 0 || strcmp(fpassword_options.service, "https-post-form") == 0)
+    {
       char bufferurl[6096 + 24], *url, *variables, *cond,
           *optional1; // 6096 comes from issue 192 on github. Extra 24 bytes for
                       // null padding.
 
-      if (strncmp(fpassword_options.service, "http-", 5) == 0) {
+      if (strncmp(fpassword_options.service, "http-", 5) == 0)
+      {
         i = 1;
-      } else { // https
+      }
+      else
+      { // https
 #ifdef LIBOPENSSL
         i = 1;
         fpassword_options.ssl = 1;
@@ -3193,7 +3597,8 @@ int main(int argc, char *argv[]) {
         bail("Compiled without SSL support, module not available");
 #endif
       }
-      if (fpassword_options.miscptr == NULL) {
+      if (fpassword_options.miscptr == NULL)
+      {
         fprintf(stderr, "[WARNING] You must supply the web page as an "
                         "additional option or via -m, default path set to /\n");
         fpassword_options.miscptr = malloc(2);
@@ -3208,43 +3613,53 @@ int main(int argc, char *argv[]) {
       if (getenv("FPASSWORD_PROXY_HTTP") && getenv("FPASSWORD_PROXY"))
         bail("Found FPASSWORD_PROXY_HTTP *and* FPASSWORD_PROXY environment variables - "
              "you can use only ONE for the service http-head/http-get!");
-      if (getenv("FPASSWORD_PROXY_HTTP")) {
+      if (getenv("FPASSWORD_PROXY_HTTP"))
+      {
         printf("[INFO] Using HTTP Proxy: %s\n", getenv("FPASSWORD_PROXY_HTTP"));
         use_proxy = 1;
       }
-      if (strstr(fpassword_options.miscptr, "\\:") != NULL) {
+      if (strstr(fpassword_options.miscptr, "\\:") != NULL)
+      {
         fprintf(stderr, "[INFORMATION] escape sequence \\: detected in module "
                         "option, no parameter verification is performed.\n");
-      } else {
+      }
+      else
+      {
         sprintf(bufferurl, "%.6000s", fpassword_options.miscptr);
         url = strtok(bufferurl, ":");
         variables = strtok(NULL, ":");
         cond = strtok(NULL, ":");
         optional1 = strtok(NULL, "\n");
-        if ((variables == NULL) || (strstr(variables, "^USER^") == NULL && strstr(variables, "^PASS^") == NULL && strstr(variables, "^USER64^") == NULL && strstr(variables, "^PASS64^") == NULL)) {
+        if ((variables == NULL) || (strstr(variables, "^USER^") == NULL && strstr(variables, "^PASS^") == NULL && strstr(variables, "^USER64^") == NULL && strstr(variables, "^PASS64^") == NULL))
+        {
           fprintf(stderr,
                   "[ERROR] the variables argument needs at least the strings "
                   "^USER^, ^PASS^, ^USER64^ or ^PASS64^: %s\n",
                   STR_NULL(variables));
           exit(-1);
         }
-        if ((url == NULL) || (cond == NULL)) {
+        if ((url == NULL) || (cond == NULL))
+        {
           fprintf(stderr,
                   "[ERROR] Wrong syntax, requires three arguments separated by "
                   "a colon which may not be null: %s\n",
                   bufferurl);
           exit(-1);
         }
-        while ((optional1 = strtok(NULL, ":")) != NULL) {
-          if (optional1[1] != '=' && optional1[1] != ':' && optional1[1] != 0) {
+        while ((optional1 = strtok(NULL, ":")) != NULL)
+        {
+          if (optional1[1] != '=' && optional1[1] != ':' && optional1[1] != 0)
+          {
             fprintf(stderr, "[ERROR] Wrong syntax of optional argument: %s\n", optional1);
             exit(-1);
           }
 
-          switch (optional1[0]) {
+          switch (optional1[0])
+          {
           case 'C': // fall through
           case 'c':
-            if (optional1[1] != '=' || optional1[2] != '/') {
+            if (optional1[1] != '=' || optional1[2] != '/')
+            {
               fprintf(stderr,
                       "[ERROR] Wrong syntax of parameter C, must look like "
                       "'C=/url/of/page', not http:// etc.: %s\n",
@@ -3254,7 +3669,8 @@ int main(int argc, char *argv[]) {
             break;
           case 'H': // fall through
           case 'h':
-            if (optional1[1] != '=' || strtok(NULL, ":") == NULL) {
+            if (optional1[1] != '=' || strtok(NULL, ":") == NULL)
+            {
               fprintf(stderr,
                       "[ERROR] Wrong syntax of parameter H, must look like "
                       "'H=X-My-Header: MyValue', no http:// : %s\n",
@@ -3273,12 +3689,14 @@ int main(int argc, char *argv[]) {
       i = 1;
     if (strcmp(fpassword_options.service, "irc") == 0)
       i = 1;
-    if (strcmp(fpassword_options.service, "rdp") == 0) {
+    if (strcmp(fpassword_options.service, "rdp") == 0)
+    {
       if (fpassword_options.tasks > 4)
         fprintf(stderr, "[WARNING] rdp servers often don't like many connections, use -t 1 "
                         "or -t 4 to reduce the number of parallel connections and -W 1 or "
                         "-W 3 to wait between connection to allow the server to recover\n");
-      if (fpassword_options.tasks > 4) {
+      if (fpassword_options.tasks > 4)
+      {
         fprintf(stderr, "[INFO] Reduced number of tasks to 4 (rdp does not "
                         "like many parallel connections)\n");
         fpassword_options.tasks = 4;
@@ -3289,7 +3707,8 @@ int main(int argc, char *argv[]) {
              "and if possible, fix.\n");
       i = 1;
     }
-    if (strcmp(fpassword_options.service, "radmin2") == 0) {
+    if (strcmp(fpassword_options.service, "radmin2") == 0)
+    {
 #ifdef HAVE_GCRYPT
       i = 1;
 #else
@@ -3300,12 +3719,15 @@ int main(int argc, char *argv[]) {
 
     // ADD NEW SERVICES HERE
 
-    if (i == 0) {
+    if (i == 0)
+    {
       fprintf(stderr, "[ERROR] Unknown service: %s\n", fpassword_options.service);
       exit(-1);
     }
-    if (port < 1 || port > 65535) {
-      if ((port = fpassword_lookup_port(fpassword_options.service)) < 1) {
+    if (port < 1 || port > 65535)
+    {
+      if ((port = fpassword_lookup_port(fpassword_options.service)) < 1)
+      {
         fprintf(stderr, "[ERROR] No valid port set or no default port "
                         "available. Use the -s Option.\n");
         exit(-1);
@@ -3327,24 +3749,28 @@ int main(int argc, char *argv[]) {
     if (strncmp(fpassword_options.service, "http-", strlen("http-")) != 0 && strcmp(fpassword_options.service, "http-head") != 0 && getenv("FPASSWORD_PROXY_HTTP") != NULL)
       fprintf(stderr, "[WARNING] the FPASSWORD_PROXY_HTTP environment variable works only "
                       "with the http-head/http-get module, ignored...\n");
-    if (i == 2) {
+    if (i == 2)
+    {
       if (fpassword_options.colonfile != NULL || ((fpassword_options.login != NULL || fpassword_options.loginfile != NULL) && (fpassword_options.pass != NULL || fpassword_options.passfile != NULL || fpassword_options.bfg > 0)))
         bail("The redis, adam6500, cisco, oracle-listener, s7-300, snmp and "
              "vnc modules are only using the -p or -P option, not login (-l, "
              "-L) or colon file (-C).\nUse the telnet module for cisco using "
              "\"Username:\" authentication.\n");
-      if ((fpassword_options.login != NULL || fpassword_options.loginfile != NULL) && (fpassword_options.pass == NULL || fpassword_options.passfile == NULL)) {
+      if ((fpassword_options.login != NULL || fpassword_options.loginfile != NULL) && (fpassword_options.pass == NULL || fpassword_options.passfile == NULL))
+      {
         fpassword_options.pass = fpassword_options.login;
         fpassword_options.passfile = fpassword_options.loginfile;
       }
       fpassword_options.login = empty_login;
       fpassword_options.loginfile = NULL;
     }
-    if (i == 3) {
+    if (i == 3)
+    {
       if (fpassword_options.colonfile != NULL || fpassword_options.bfg > 0 || ((fpassword_options.login != NULL || fpassword_options.loginfile != NULL) && (fpassword_options.pass != NULL || fpassword_options.passfile != NULL)))
         bail("The rsh, oracle-sid login is neither using the -p, -P or -x "
              "options nor colon file (-C)\n");
-      if ((fpassword_options.login == NULL || fpassword_options.loginfile == NULL) && (fpassword_options.pass != NULL || fpassword_options.passfile != NULL)) {
+      if ((fpassword_options.login == NULL || fpassword_options.loginfile == NULL) && (fpassword_options.pass != NULL || fpassword_options.passfile != NULL))
+      {
         fpassword_options.login = fpassword_options.pass;
         fpassword_options.loginfile = fpassword_options.passfile;
       }
@@ -3363,7 +3789,8 @@ int main(int argc, char *argv[]) {
     if ((fpassword_options.bfg) && ((fpassword_options.pass != NULL) || (fpassword_options.passfile != NULL) || (fpassword_options.colonfile != NULL)))
       bail("The -x (password bruteforce generation option) doesn't work with "
            "-p/P, -C or -e!\n");
-    if (fpassword_options.try_password_reverse_login == 0 && fpassword_options.try_password_same_as_login == 0 && fpassword_options.try_null_password == 0 && (i != 3 && (fpassword_options.pass == NULL && fpassword_options.passfile == NULL && fpassword_options.colonfile == NULL)) && fpassword_options.bfg == 0) {
+    if (fpassword_options.try_password_reverse_login == 0 && fpassword_options.try_password_same_as_login == 0 && fpassword_options.try_null_password == 0 && (i != 3 && (fpassword_options.pass == NULL && fpassword_options.passfile == NULL && fpassword_options.colonfile == NULL)) && fpassword_options.bfg == 0)
+    {
       // test if the service is smtp-enum as it could be used either with a
       // login+pass or only a login
       if (strstr(fpassword_options.service, "smtp-enum") != NULL)
@@ -3372,39 +3799,48 @@ int main(int argc, char *argv[]) {
         bail("I need at least the -e, -p, -P or -x option to have some "
              "passwords!");
     }
-    if (fpassword_options.tasks < 1 || fpassword_options.tasks > MAXTASKS) {
+    if (fpassword_options.tasks < 1 || fpassword_options.tasks > MAXTASKS)
+    {
       fprintf(stderr, "[ERROR] Option -t needs to be a number between 1 and %d\n", MAXTASKS);
       exit(-1);
     }
-    if (fpassword_options.max_use > MAXTASKS) {
+    if (fpassword_options.max_use > MAXTASKS)
+    {
       fprintf(stderr, "[WARNING] reducing maximum tasks to MAXTASKS (%d)\n", MAXTASKS);
       fpassword_options.max_use = MAXTASKS;
     }
     // script kiddie patch
-    if (fpassword_options.server != NULL && (fpassword_strcasestr(fpassword_options.server, ".outlook.com") != NULL || fpassword_strcasestr(fpassword_options.server, ".hotmail.com") != NULL || fpassword_strcasestr(fpassword_options.server, ".yahoo.") != NULL || fpassword_strcasestr(fpassword_options.server, ".gmx.") != NULL || fpassword_strcasestr(fpassword_options.server, ".web.de") != NULL || fpassword_strcasestr(fpassword_options.server, ".gmail.") != NULL || fpassword_strcasestr(fpassword_options.server, "googlemail.") != NULL)) {
+    if (fpassword_options.server != NULL && (fpassword_strcasestr(fpassword_options.server, ".outlook.com") != NULL || fpassword_strcasestr(fpassword_options.server, ".hotmail.com") != NULL || fpassword_strcasestr(fpassword_options.server, ".yahoo.") != NULL || fpassword_strcasestr(fpassword_options.server, ".gmx.") != NULL || fpassword_strcasestr(fpassword_options.server, ".web.de") != NULL || fpassword_strcasestr(fpassword_options.server, ".gmail.") != NULL || fpassword_strcasestr(fpassword_options.server, "googlemail.") != NULL))
+    {
       fprintf(stderr, "[WARNING] Google Mail and others have bruteforce and "
                       "fpassword detection and send false positives. You are not "
                       "doing anything illegal right?!\n");
       fprintf(stderr, "[WARNING] !read the above!\n");
       sleep(5);
     }
-    if (fpassword_options.colonfile == NULL) {
-      if (fpassword_options.loginfile != NULL) {
-        if ((lfp = fopen(fpassword_options.loginfile, "r")) == NULL) {
+    if (fpassword_options.colonfile == NULL)
+    {
+      if (fpassword_options.loginfile != NULL)
+      {
+        if ((lfp = fopen(fpassword_options.loginfile, "r")) == NULL)
+        {
           fprintf(stderr, "[ERROR] File for logins not found: %s\n", fpassword_options.loginfile);
           exit(-1);
         }
         fpassword_brains.countlogin = countlines(lfp, 0);
         fpassword_brains.sizelogin = size_of_data;
-        if (fpassword_brains.countlogin == 0) {
+        if (fpassword_brains.countlogin == 0)
+        {
           fprintf(stderr, "[ERROR] File for logins is empty: %s\n", fpassword_options.loginfile);
           exit(-1);
         }
-        if (fpassword_brains.countlogin > MAX_LINES) {
+        if (fpassword_brains.countlogin > MAX_LINES)
+        {
           fprintf(stderr, "[ERROR] Maximum number of logins is %d, this file has %" hPRIu64 " entries.\n", MAX_LINES, fpassword_brains.countlogin);
           exit(-1);
         }
-        if (fpassword_brains.sizelogin > MAX_BYTES) {
+        if (fpassword_brains.sizelogin > MAX_BYTES)
+        {
           fprintf(stderr,
                   "[ERROR] Maximum size of the login file is %d, this file has "
                   "%" hPRIu64 " bytes.\n",
@@ -3416,30 +3852,37 @@ int main(int argc, char *argv[]) {
           bail("Could not allocate enough memory for login file data");
         memset(login_ptr, 0, fpassword_brains.sizelogin + fpassword_brains.countlogin + 8);
         fill_mem(login_ptr, lfp, 0);
-      } else {
+      }
+      else
+      {
         login_ptr = fpassword_options.login;
         fpassword_brains.sizelogin = strlen(fpassword_options.login) + 1;
         fpassword_brains.countlogin = 1;
       }
-      if (fpassword_options.passfile != NULL) {
-        if ((pfp = fopen(fpassword_options.passfile, "r")) == NULL) {
+      if (fpassword_options.passfile != NULL)
+      {
+        if ((pfp = fopen(fpassword_options.passfile, "r")) == NULL)
+        {
           fprintf(stderr, "[ERROR] File for passwords not found: %s\n", fpassword_options.passfile);
           exit(-1);
         }
         fpassword_brains.countpass = countlines(pfp, 0);
         fpassword_brains.sizepass = size_of_data;
-        if (fpassword_brains.countpass == 0) {
+        if (fpassword_brains.countpass == 0)
+        {
           fprintf(stderr, "[ERROR] File for passwords is empty: %s\n", fpassword_options.passfile);
           exit(-1);
         }
-        if (fpassword_brains.countpass > MAX_LINES) {
+        if (fpassword_brains.countpass > MAX_LINES)
+        {
           fprintf(stderr,
                   "[ERROR] Maximum number of passwords is %d, this file has "
                   "%" hPRIu64 " entries.\n",
                   MAX_LINES, fpassword_brains.countpass);
           exit(-1);
         }
-        if (fpassword_brains.sizepass > MAX_BYTES) {
+        if (fpassword_brains.sizepass > MAX_BYTES)
+        {
           fprintf(stderr,
                   "[ERROR] Maximum size of the password file is %d, this file "
                   "has %" hPRIu64 " bytes.\n",
@@ -3451,13 +3894,19 @@ int main(int argc, char *argv[]) {
           bail("Could not allocate enough memory for password file data");
         memset(pass_ptr, 0, fpassword_brains.sizepass + fpassword_brains.countpass + 8);
         fill_mem(pass_ptr, pfp, 0);
-      } else {
-        if (fpassword_options.pass != NULL) {
+      }
+      else
+      {
+        if (fpassword_options.pass != NULL)
+        {
           pass_ptr = fpassword_options.pass;
           fpassword_brains.countpass = 1;
           fpassword_brains.sizepass = strlen(fpassword_options.pass) + 1;
-        } else {
-          if (fpassword_options.bfg) {
+        }
+        else
+        {
+          if (fpassword_options.bfg)
+          {
 #ifdef HAVE_MATH_H
             if (bf_init(bf_options.arg))
               exit(-1); // error description is handled by bf_init
@@ -3468,32 +3917,40 @@ int main(int argc, char *argv[]) {
 #else
             sleep(1);
 #endif
-          } else {
+          }
+          else
+          {
             pass_ptr = fpassword_options.pass = empty_login;
             fpassword_brains.countpass = 0;
             fpassword_brains.sizepass = 1;
           }
         }
       }
-    } else {
-      if ((cfp = fopen(fpassword_options.colonfile, "r")) == NULL) {
+    }
+    else
+    {
+      if ((cfp = fopen(fpassword_options.colonfile, "r")) == NULL)
+      {
         fprintf(stderr, "[ERROR] File for colon files (login:pass) not found: %s\n", fpassword_options.colonfile);
         exit(-1);
       }
       fpassword_brains.countlogin = countlines(cfp, 1);
       fpassword_brains.sizelogin = size_of_data;
-      if (fpassword_brains.countlogin == 0) {
+      if (fpassword_brains.countlogin == 0)
+      {
         fprintf(stderr, "[ERROR] File for colon files (login:pass) is empty: %s\n", fpassword_options.colonfile);
         exit(-1);
       }
-      if (fpassword_brains.countlogin > MAX_LINES / 2) {
+      if (fpassword_brains.countlogin > MAX_LINES / 2)
+      {
         fprintf(stderr,
                 "[ERROR] Maximum number of colon file entries is %d, this file "
                 "has %" hPRIu64 " entries.\n",
                 MAX_LINES / 2, fpassword_brains.countlogin);
         exit(-1);
       }
-      if (fpassword_brains.sizelogin > MAX_BYTES / 2) {
+      if (fpassword_brains.sizelogin > MAX_BYTES / 2)
+      {
         fprintf(stderr,
                 "[ERROR] Maximum size of the colon file is %d, this file has "
                 "%" hPRIu64 " bytes.\n",
@@ -3517,12 +3974,14 @@ int main(int argc, char *argv[]) {
     }
 
     fpassword_brains.countpass += fpassword_options.try_password_reverse_login + fpassword_options.try_password_same_as_login + fpassword_options.try_null_password;
-    if ((memcheck = malloc(102400)) == NULL) {
+    if ((memcheck = malloc(102400)) == NULL)
+    {
       fprintf(stderr, "[ERROR] your wordlist is too large, not enough memory!\n");
       exit(-1);
     }
     free(memcheck);
-    if ((rfp = fopen(RESTOREFILE, "r")) != NULL) {
+    if ((rfp = fopen(RESTOREFILE, "r")) != NULL)
+    {
       fprintf(stderr,
               "[WARNING] Restorefile (%s) from a previous session found, to "
               "prevent overwriting, %s\n",
@@ -3535,13 +3994,16 @@ int main(int argc, char *argv[]) {
       fclose(rfp);
     }
 
-    if (fpassword_options.infile_ptr != NULL) {
-      if ((ifp = fopen(fpassword_options.infile_ptr, "r")) == NULL) {
+    if (fpassword_options.infile_ptr != NULL)
+    {
+      if ((ifp = fopen(fpassword_options.infile_ptr, "r")) == NULL)
+      {
         fprintf(stderr, "[ERROR] File for targets not found: %s\n", fpassword_options.infile_ptr);
         exit(-1);
       }
       fpassword_brains.targets = countservers = countinfile = countlines(ifp, 0);
-      if (countinfile == 0) {
+      if (countinfile == 0)
+      {
         fprintf(stderr, "[ERROR] File for targets is empty: %s\n", fpassword_options.infile_ptr);
         exit(-1);
       }
@@ -3551,14 +4013,16 @@ int main(int argc, char *argv[]) {
       if (fpassword_targets == NULL)
         bail("Could not allocate enough memory for target data");
       sizeinfile = size_of_data;
-      if (countinfile > MAX_LINES / 1000) {
+      if (countinfile > MAX_LINES / 1000)
+      {
         fprintf(stderr,
                 "[ERROR] Maximum number of target file entries is %d, this "
                 "file has %d entries.\n",
                 MAX_LINES / 1000, (int32_t)countinfile);
         exit(-1);
       }
-      if (sizeinfile > MAX_BYTES / 1000) {
+      if (sizeinfile > MAX_BYTES / 1000)
+      {
         fprintf(stderr,
                 "[ERROR] Maximum size of the server file is %d, this file has "
                 "%d bytes.\n",
@@ -3571,19 +4035,24 @@ int main(int argc, char *argv[]) {
       fill_mem(servers_ptr, ifp, 0);
       sizeservers = sizeinfile;
       tmpptr = servers_ptr;
-      for (i = 0; i < countinfile; i++) {
+      for (i = 0; i < countinfile; i++)
+      {
         fpassword_targets[i] = malloc(sizeof(fpassword_target));
         memset(fpassword_targets[i], 0, sizeof(fpassword_target));
-        if (*tmpptr == '[') {
+        if (*tmpptr == '[')
+        {
           tmpptr++;
           fpassword_targets[i]->target = tmpptr;
-          if ((tmpptr2 = strchr(tmpptr, ']')) != NULL) {
+          if ((tmpptr2 = strchr(tmpptr, ']')) != NULL)
+          {
             *tmpptr2++ = 0;
             tmpptr = tmpptr2;
           }
-        } else
+        }
+        else
           fpassword_targets[i]->target = tmpptr;
-        if ((tmpptr2 = strchr(tmpptr, ':')) != NULL) {
+        if ((tmpptr2 = strchr(tmpptr, ':')) != NULL)
+        {
           *tmpptr2++ = 0;
           tmpptr = tmpptr2;
           fpassword_targets[i]->port = atoi(tmpptr2);
@@ -3596,15 +4065,20 @@ int main(int argc, char *argv[]) {
           tmpptr++;
         tmpptr++;
       }
-    } else if (fpassword_options.server == NULL) {
+    }
+    else if (fpassword_options.server == NULL)
+    {
       fprintf(stderr, "Error: no target server given, nor -M option used\n");
       exit(-1);
-    } else if (strchr(fpassword_options.server, '/') != NULL) {
+    }
+    else if (strchr(fpassword_options.server, '/') != NULL)
+    {
       if (cmdlinetarget == NULL)
         bail("You seem to mix up \"service://target:port/options\" syntax with "
              "\"target service options\" syntax. Read the README on how to use "
              "fpassword correctly!");
-      if (strstr(cmdlinetarget, "://") != NULL) {
+      if (strstr(cmdlinetarget, "://") != NULL)
+      {
         tmpptr = strchr(fpassword_options.server, '/');
         if (tmpptr != NULL)
           *tmpptr = 0;
@@ -3615,7 +4089,9 @@ int main(int argc, char *argv[]) {
         fpassword_targets[0]->target = servers_ptr = fpassword_options.server;
         fpassword_targets[0]->port = fpassword_options.port;
         sizeservers = strlen(fpassword_options.server) + 1;
-      } else {
+      }
+      else
+      {
         /* CIDR notation on command line, e.g. 192.168.0.0/24 */
         uint32_t four_from, four_to, addr_cur, addr_cur2, k, l;
         in_addr_t addr4;
@@ -3623,18 +4099,21 @@ int main(int argc, char *argv[]) {
 
         fpassword_options.cidr = 1;
         do_retry = 0;
-        if ((tmpptr = malloc(strlen(fpassword_options.server) + 1)) == NULL) {
+        if ((tmpptr = malloc(strlen(fpassword_options.server) + 1)) == NULL)
+        {
           fprintf(stderr, "Error: can not allocate memory\n");
           exit(-1);
         }
         strcpy(tmpptr, fpassword_options.server);
         tmpptr2 = strchr(tmpptr, '/');
         *tmpptr2++ = 0;
-        if ((k = atoi(tmpptr2)) < 16 || k > 31) {
+        if ((k = atoi(tmpptr2)) < 16 || k > 31)
+        {
           fprintf(stderr, "Error: network size may only be between /16 and /31: %s\n", fpassword_options.server);
           exit(-1);
         }
-        if ((addr4 = htonl(inet_addr(tmpptr))) == 0xffffffff) {
+        if ((addr4 = htonl(inet_addr(tmpptr))) == 0xffffffff)
+        {
           fprintf(stderr, "Error: option is not a valid IPv4 address: %s\n", tmpptr);
           exit(-1);
         }
@@ -3651,7 +4130,8 @@ int main(int argc, char *argv[]) {
           bail("Could not allocate enough memory for target data");
         i = 0;
         addr_cur = four_from;
-        while (addr_cur <= four_to && i < l) {
+        while (addr_cur <= four_to && i < l)
+        {
           fpassword_targets[i] = malloc(sizeof(fpassword_target));
           memset(fpassword_targets[i], 0, sizeof(fpassword_target));
           addr_cur2 = htonl(addr_cur);
@@ -3666,7 +4146,9 @@ int main(int argc, char *argv[]) {
         printf("[WARNING] The CIDR attack mode is still beta. Please report "
                "issues.\n");
       }
-    } else { // standard: single target on command line
+    }
+    else
+    { // standard: single target on command line
       countservers = fpassword_brains.targets = 1;
       fpassword_targets = malloc(sizeof(fpassword_target *) * 4);
       fpassword_targets[0] = malloc(sizeof(fpassword_target));
@@ -3675,16 +4157,20 @@ int main(int argc, char *argv[]) {
       fpassword_targets[0]->port = fpassword_options.port;
       sizeservers = strlen(fpassword_options.server) + 1;
     }
-    for (i = 0; i < fpassword_brains.targets; i++) {
+    for (i = 0; i < fpassword_brains.targets; i++)
+    {
       fpassword_targets[i]->login_ptr = login_ptr;
       fpassword_targets[i]->pass_ptr = pass_ptr;
-      if (fpassword_options.loop_mode) {
+      if (fpassword_options.loop_mode)
+      {
         if (fpassword_options.try_password_same_as_login)
           fpassword_targets[i]->pass_state = 0;
-        else if (fpassword_options.try_null_password) {
+        else if (fpassword_options.try_null_password)
+        {
           fpassword_targets[i]->pass_ptr = empty_login;
           fpassword_targets[i]->pass_state = 1;
-        } else if (fpassword_options.try_password_reverse_login)
+        }
+        else if (fpassword_options.try_password_reverse_login)
           fpassword_targets[i]->pass_state = 2;
         else
           fpassword_targets[i]->pass_state = 3;
@@ -3693,7 +4179,8 @@ int main(int argc, char *argv[]) {
   } // END OF restore == 0
 
   // PROXY PROCESSING
-  if (getenv("FPASSWORD_PROXY") && use_proxy == 0) {
+  if (getenv("FPASSWORD_PROXY") && use_proxy == 0)
+  {
     printf("[INFO] Using Connect Proxy: %s\n", getenv("FPASSWORD_PROXY"));
     use_proxy = 2;
   }
@@ -3705,11 +4192,16 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[WARNING] environment variable FPASSWORD_PROXY_AUTH is "
                     "deprecated, use authentication in the FPASSWORD_PROXY "
                     "definitions, e.g. type://auth@target:port\n");
-  if (use_proxy && proxy_string != NULL) {
-    if (strstr(proxy_string, "://") != NULL) {
+  if (use_proxy && proxy_string != NULL)
+  {
+    if (strstr(proxy_string, "://") != NULL)
+    {
       process_proxy_line(use_proxy, proxy_string);
-    } else {
-      if ((proxyfp = fopen(proxy_string, "r")) == NULL) {
+    }
+    else
+    {
+      if ((proxyfp = fopen(proxy_string, "r")) == NULL)
+      {
         fprintf(stderr,
                 "[ERROR] proxy definition %s is neither of the kind "
                 "type://auth@target:port nor a file containing proxy entries!\n",
@@ -3724,14 +4216,16 @@ int main(int argc, char *argv[]) {
       bail("proxy defined but not valid, exiting");
   }
 
-  if (fpassword_options.restore == 0) {
+  if (fpassword_options.restore == 0)
+  {
     if ((strcmp(fpassword_options.service, "rsh") == 0) || (strcmp(fpassword_options.service, "oracle-sid") == 0))
       math2 = fpassword_brains.countlogin;
     else
       math2 = fpassword_brains.countlogin * fpassword_brains.countpass;
 
 #ifdef HAVE_MATH_H
-    if (fpassword_options.bfg) {
+    if (fpassword_options.bfg)
+    {
       math2 = fpassword_brains.countlogin * bf_get_pcount();
     }
 #endif
@@ -3741,7 +4235,8 @@ int main(int argc, char *argv[]) {
     fpassword_brains.todo_all = math2;
     if (fpassword_brains.todo_all == 0)
       bail("No login/password combination given!");
-    if (fpassword_brains.todo < fpassword_options.tasks) {
+    if (fpassword_brains.todo < fpassword_options.tasks)
+    {
       if (verbose && fpassword_options.tasks != TASKS)
         printf("[VERBOSE] More tasks defined than login/pass pairs exist. "
                "Tasks reduced to %" hPRIu64 "\n",
@@ -3750,20 +4245,25 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (fpassword_options.max_use == MAXTASKS) { // only if it was not set via -T
+  if (fpassword_options.max_use == MAXTASKS)
+  { // only if it was not set via -T
     if (fpassword_options.max_use < fpassword_brains.targets * fpassword_options.tasks)
       fpassword_options.max_use = fpassword_brains.targets * fpassword_options.tasks;
     if (fpassword_options.max_use > MAXTASKS)
       fpassword_options.max_use = MAXTASKS;
   }
-  if ((fpassword_options.tasks == TASKS || fpassword_options.tasks <= 8) && fpassword_options.max_use < fpassword_brains.targets * fpassword_options.tasks) {
+  if ((fpassword_options.tasks == TASKS || fpassword_options.tasks <= 8) && fpassword_options.max_use < fpassword_brains.targets * fpassword_options.tasks)
+  {
     if ((fpassword_options.tasks = fpassword_options.max_use / fpassword_brains.targets) == 0)
       fpassword_options.tasks = 1;
     // fprintf(stderr, "[WARNING] More tasks defined per server than allowed for
     // maximal connections. Tasks per server reduced to %d.\n",
     // fpassword_options.tasks);
-  } else {
-    if (fpassword_options.tasks > MAXTASKS) {
+  }
+  else
+  {
+    if (fpassword_options.tasks > MAXTASKS)
+    {
       // fprintf(stderr, "[WARNING] reducing tasks to MAXTASKS (%d)\n",
       // MAXTASKS);
       fpassword_options.tasks = MAXTASKS;
@@ -3785,23 +4285,32 @@ int main(int argc, char *argv[]) {
 
   printf("[DATA] max %d task%s per %d server%s, overall %d task%s, %" hPRIu64 " login tr", fpassword_options.tasks, fpassword_options.tasks == 1 ? "" : "s", fpassword_brains.targets, fpassword_brains.targets == 1 ? "" : "s", fpassword_options.max_use, fpassword_options.max_use == 1 ? "" : "s", fpassword_brains.todo);
   printf("%s", fpassword_brains.todo == 1 ? "y" : "ies");
-  if (fpassword_options.colonfile == NULL) {
+  if (fpassword_options.colonfile == NULL)
+  {
     printf(" (l:%" hPRIu64 "/p:%" hPRIu64 "), ~%" hPRIu64 " tr", (uint64_t)fpassword_brains.countlogin, (uint64_t)fpassword_brains.countpass, math2);
-  } else {
+  }
+  else
+  {
     printf(", ~%" hPRIu64 " tr", math2);
   }
   printf("%s", math2 == 1 ? "y" : "ies");
   printf(" per task\n");
 
-  if (fpassword_brains.targets == 1) {
-    if (strchr(fpassword_targets[0]->target, ':') == NULL) {
+  if (fpassword_brains.targets == 1)
+  {
+    if (strchr(fpassword_targets[0]->target, ':') == NULL)
+    {
       printf("[DATA] attacking %s%s://%s:", fpassword_options.service, fpassword_options.ssl == 1 ? "s" : "", fpassword_targets[0]->target);
       printf("%d%s%s\n", port, fpassword_options.miscptr == NULL || fpassword_options.miscptr[0] != '/' ? "/" : "", fpassword_options.miscptr != NULL ? fpassword_options.miscptr : "");
-    } else {
+    }
+    else
+    {
       printf("[DATA] attacking %s%s://[%s]:", fpassword_options.service, fpassword_options.ssl == 1 ? "s" : "", fpassword_targets[0]->target);
       printf("%d%s%s\n", port, fpassword_options.miscptr == NULL || fpassword_options.miscptr[0] != '/' ? "/" : "", fpassword_options.miscptr != NULL ? fpassword_options.miscptr : "");
     }
-  } else {
+  }
+  else
+  {
     printf("[DATA] attacking %s%s://(%d targets):", fpassword_options.service, fpassword_options.ssl == 1 ? "s" : "", fpassword_brains.targets);
     printf("%d%s%s\n", port, fpassword_options.miscptr == NULL || fpassword_options.miscptr[0] != '/' ? "/" : "", fpassword_options.miscptr != NULL ? fpassword_options.miscptr : "");
   }
@@ -3810,18 +4319,23 @@ int main(int argc, char *argv[]) {
   //  if (fpassword_options.miscptr != NULL && fpassword_options.miscptr[0] != 0)
   //    printf("[DATA] with additional data %s\n", fpassword_options.miscptr);
 
-  if (fpassword_options.outfile_ptr != NULL) {
+  if (fpassword_options.outfile_ptr != NULL)
+  {
     char outfile_open_type[] = "a+"; // Default open in a+ mode
-    if (fpassword_options.outfile_format == FORMAT_JSONV1 && fpassword_options.restore != 1) {
+    if (fpassword_options.outfile_format == FORMAT_JSONV1 && fpassword_options.restore != 1)
+    {
       outfile_open_type[0] = 'w'; // Creat new outfile, if using JSON output and
                                   // not using -R. The open mode should be "w+".
     }
-    if ((fpassword_brains.ofp = fopen(fpassword_options.outfile_ptr, outfile_open_type)) == NULL) {
+    if ((fpassword_brains.ofp = fopen(fpassword_options.outfile_ptr, outfile_open_type)) == NULL)
+    {
       perror("[ERROR] Error creating outputfile");
       exit(-1);
     }
-    if (fpassword_options.outfile_format == FORMAT_JSONV1) {
-      if (fpassword_options.restore != 1) { // No JSON head while using -R
+    if (fpassword_options.outfile_format == FORMAT_JSONV1)
+    {
+      if (fpassword_options.restore != 1)
+      { // No JSON head while using -R
         fprintf(fpassword_brains.ofp,
                 "{ \"generator\": {\n"
                 "\t\"software\": \"%s\", \"version\": \"%s\", \"built\": \"%s\",\n"
@@ -3829,14 +4343,17 @@ int main(int argc, char *argv[]) {
                 "\"1.00\",\n"
                 "\t\"commandline\": \"%s",
                 PROGRAM, VERSION, fpassword_build_time(), fpassword_options.server == NULL ? fpassword_options.infile_ptr : fpassword_options.server, fpassword_options.service, prg);
-        for (i = 1; i < argc; i++) {
+        for (i = 1; i < argc; i++)
+        {
           char *t = fpassword_string_replace(argv[i], "\"", "\\\"");
           fprintf(fpassword_brains.ofp, " %s", t);
           free(t);
         }
         fprintf(fpassword_brains.ofp, "\"\n\t},\n\"results\": [");
       }
-    } else { // else default is plain text aka == 0
+    }
+    else
+    { // else default is plain text aka == 0
       fprintf(fpassword_brains.ofp, "# %s %s run at %s on %s %s (%s", PROGRAM, VERSION, fpassword_build_time(), fpassword_options.server == NULL ? fpassword_options.infile_ptr : fpassword_options.server, fpassword_options.service, prg);
       for (i = 1; i < argc; i++)
         fprintf(fpassword_brains.ofp, " %s", argv[i]);
@@ -3848,7 +4365,8 @@ int main(int argc, char *argv[]) {
   signal(SIGCHLD, killed_childs);
   if (debug == 0)
     signal(SIGTERM, kill_children);
-  if (debug == 0) {
+  if (debug == 0)
+  {
 #ifdef SIGBUS
     signal(SIGBUS, kill_children);
 #endif
@@ -3862,7 +4380,8 @@ int main(int argc, char *argv[]) {
   if (debug)
     printf("\n");
 
-  for (i = 0; i < fpassword_brains.targets; i++) {
+  for (i = 0; i < fpassword_brains.targets; i++)
+  {
     if (debug)
       printf("[DEBUG] resolving %s\n", fpassword_targets[i]->target);
     memset(&hints, 0, sizeof(hints));
@@ -3872,8 +4391,10 @@ int main(int argc, char *argv[]) {
 #endif
     if ((device = strchr(fpassword_targets[i]->target, '%')) != NULL)
       *device++ = 0;
-    if (getaddrinfo(fpassword_targets[i]->target, NULL, &hints, &res) != 0) {
-      if (use_proxy == 0) {
+    if (getaddrinfo(fpassword_targets[i]->target, NULL, &hints, &res) != 0)
+    {
+      if (use_proxy == 0)
+      {
         if (verbose)
           printf("[failed for %s] ", fpassword_targets[i]->target);
         else
@@ -3881,23 +4402,31 @@ int main(int argc, char *argv[]) {
         fpassword_targets[i]->done = TARGET_UNRESOLVED;
         fpassword_brains.finished++;
       }
-    } else {
-      for (p = res; p != NULL; p = p->ai_next) {
+    }
+    else
+    {
+      for (p = res; p != NULL; p = p->ai_next)
+      {
 #ifdef AF_INET6
-        if (p->ai_family == AF_INET6) {
+        if (p->ai_family == AF_INET6)
+        {
           if (ipv6 == NULL)
             ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-        } else
+        }
+        else
 #endif
-            if (p->ai_family == AF_INET) {
+            if (p->ai_family == AF_INET)
+        {
           if (ipv4 == NULL)
             ipv4 = (struct sockaddr_in *)p->ai_addr;
         }
       }
 #ifdef AF_INET6
-      if (ipv6 != NULL && (ipv4 == NULL || prefer_ipv6)) {
+      if (ipv6 != NULL && (ipv4 == NULL || prefer_ipv6))
+      {
         // IPV6 FIXME
-        if ((strcmp(fpassword_options.service, "socks5") == 0) || (strcmp(fpassword_options.service, "sip") == 0)) {
+        if ((strcmp(fpassword_options.service, "socks5") == 0) || (strcmp(fpassword_options.service, "sip") == 0))
+        {
           fprintf(stderr,
                   "[ERROR] Target %s resolves to an IPv6 address, however "
                   "module %s does not support this. Maybe try \"-4\" option. "
@@ -3905,13 +4434,17 @@ int main(int argc, char *argv[]) {
                   fpassword_targets[i]->target, fpassword_options.service);
           fpassword_targets[i]->done = TARGET_UNRESOLVED;
           fpassword_brains.finished++;
-        } else {
+        }
+        else
+        {
           fpassword_targets[i]->ip[0] = 16;
           memcpy(&fpassword_targets[i]->ip[1], (char *)&ipv6->sin6_addr, 16);
           if (device != NULL && strlen(device) <= 16)
             strcpy(&fpassword_targets[i]->ip[17], device);
-          if (memcmp(&fpassword_targets[i]->ip[17], fe80, 2) == 0) {
-            if (device == NULL) {
+          if (memcmp(&fpassword_targets[i]->ip[17], fe80, 2) == 0)
+          {
+            if (device == NULL)
+            {
               fprintf(stderr,
                       "[ERROR] The target %s address is a link local address, "
                       "link local addresses require the interface being "
@@ -3921,12 +4454,16 @@ int main(int argc, char *argv[]) {
             }
           }
         }
-      } else
+      }
+      else
 #endif
-          if (ipv4 != NULL) {
+          if (ipv4 != NULL)
+      {
         fpassword_targets[i]->ip[0] = 4;
         memcpy(&fpassword_targets[i]->ip[1], (char *)&ipv4->sin_addr, 4);
-      } else {
+      }
+      else
+      {
         if (verbose)
           printf("[failed for %s] ", fpassword_targets[i]->target);
         else
@@ -3937,7 +4474,8 @@ int main(int argc, char *argv[]) {
       freeaddrinfo(res);
     }
     // restore device information if present (overwrite null bytes)
-    if (device != NULL) {
+    if (device != NULL)
+    {
       char *tmpptr = device - 1;
       *tmpptr = '%'; // you can ignore the compiler warning
       fprintf(stderr, "[WARNING] not all modules support BINDTODEVICE for IPv6 "
@@ -3950,7 +4488,8 @@ int main(int argc, char *argv[]) {
     bail("No server to scan!");
 
 #ifndef SO_BINDTODEVICE
-  if (device != NULL) {
+  if (device != NULL)
+  {
     fprintf(stderr,
             "[ERROR] your operating system does not support SO_BINDTODEVICE or "
             "IP_FORCE_OUT_IFP, dunno how to bind the IPv6 address to the "
@@ -3959,10 +4498,12 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  if (fpassword_options.restore == 0) {
+  if (fpassword_options.restore == 0)
+  {
     fpassword_heads = malloc(sizeof(fpassword_head *) * fpassword_options.max_use);
     target_no = 0;
-    for (i = 0; i < fpassword_options.max_use; i++) {
+    for (i = 0; i < fpassword_options.max_use; i++)
+    {
       fpassword_heads[i] = malloc(sizeof(fpassword_head));
       memset(fpassword_heads[i], 0, sizeof(fpassword_head));
     }
@@ -3981,7 +4522,8 @@ int main(int argc, char *argv[]) {
   fflush(fpassword_brains.ofp);
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-  if (fpassword_options.ssl) {
+  if (fpassword_options.ssl)
+  {
     fprintf(stderr, "[WARNING] *****************************************************\n");
     fprintf(stderr, "[WARNING] OPENSSL v1.1 development changes are active - modules "
                     "SMB, SNMP, RDP, ORACLE LISTENER and SSL in general might not work "
@@ -3995,12 +4537,15 @@ int main(int argc, char *argv[]) {
 
   // this is the big function which starts the attacking children, feeds
   // login/password pairs, etc.!
-  while (exit_condition == 0) {
+  while (exit_condition == 0)
+  {
     memset(&fdreadheads, 0, sizeof(fdreadheads));
     max_fd = 0;
     FD_ZERO(&fdreadheads);
-    for (head_no = 0, max_fd = 1; head_no < fpassword_options.max_use; head_no++) {
-      if (fpassword_heads[head_no]->active == HEAD_ACTIVE) {
+    for (head_no = 0, max_fd = 1; head_no < fpassword_options.max_use; head_no++)
+    {
+      if (fpassword_heads[head_no]->active == HEAD_ACTIVE)
+      {
         FD_SET(fpassword_heads[head_no]->sp[0], &fdreadheads);
         if (max_fd < fpassword_heads[head_no]->sp[0])
           max_fd = fpassword_heads[head_no]->sp[0];
@@ -4009,51 +4554,65 @@ int main(int argc, char *argv[]) {
     my_select(max_fd + 1, &fdreadheads, NULL, NULL, 0, 200000);
     tmp_time = time(NULL);
 
-    for (head_no = 0; head_no < fpassword_options.max_use; head_no++) {
+    for (head_no = 0; head_no < fpassword_options.max_use; head_no++)
+    {
       if (debug > 1 && fpassword_heads[head_no]->active != HEAD_DISABLED)
         printf("[DEBUG] head_no[%d] to target_no %d active %d\n", head_no, fpassword_heads[head_no]->target_no, fpassword_heads[head_no]->active);
 
-      switch (fpassword_heads[head_no]->active) {
+      switch (fpassword_heads[head_no]->active)
+      {
       case HEAD_DISABLED:
         break;
       case HEAD_UNUSED:
-        if (fpassword_heads[head_no]->redo) {
+        if (fpassword_heads[head_no]->redo)
+        {
           fpassword_spawn_head(head_no, fpassword_heads[head_no]->target_no);
-        } else {
+        }
+        else
+        {
           if (fpassword_brains.targets > fpassword_brains.finished)
             fpassword_heads[head_no]->target_no = fpassword_select_target();
           else
             fpassword_heads[head_no]->target_no = -1;
           if (debug)
             printf("[DEBUG] child %d got target %d selected\n", head_no, fpassword_heads[head_no]->target_no);
-          if (fpassword_heads[head_no]->target_no < 0) {
+          if (fpassword_heads[head_no]->target_no < 0)
+          {
             if (debug)
               printf("[DEBUG] fpassword_select_target() reports no more targets "
                      "left\n");
             fpassword_kill_head(head_no, 0, 3);
-          } else
+          }
+          else
             fpassword_spawn_head(head_no,
-                             fpassword_heads[head_no]->target_no); // target_no is ignored if head->redo == 1
+                                 fpassword_heads[head_no]->target_no); // target_no is ignored if head->redo == 1
         }
         break;
       case HEAD_ACTIVE:
-        if (FD_ISSET(fpassword_heads[head_no]->sp[0], &fdreadheads)) {
+        if (FD_ISSET(fpassword_heads[head_no]->sp[0], &fdreadheads))
+        {
           do_switch = 1;
-          if (fpassword_options.time_next_attempt > 0) {
-            if (last_attempt + fpassword_options.time_next_attempt >= time(NULL)) {
+          if (fpassword_options.time_next_attempt > 0)
+          {
+            if (last_attempt + fpassword_options.time_next_attempt >= time(NULL))
+            {
               if (recv(fpassword_heads[head_no]->sp[0], &rc, 1, MSG_PEEK) == 1 && (rc == 'N' || rc == 'n'))
                 do_switch = 0;
-            } else
+            }
+            else
               last_attempt = time(NULL);
           }
-          if (do_switch) {
+          if (do_switch)
+          {
             readres = read_safe(fpassword_heads[head_no]->sp[0], &rc, 1);
-            if (readres > 0) {
+            if (readres > 0)
+            {
               FD_CLR(fpassword_heads[head_no]->sp[0], &fdreadheads);
               fpassword_heads[head_no]->last_seen = tmp_time;
               if (debug)
                 printf("[DEBUG] head_no[%d] read %c\n", head_no, rc);
-              switch (rc) {
+              switch (rc)
+              {
               // Valid Results:
               //  n - mother says to itself that child requests next
               //  login/password pair N - child requests next login/password
@@ -4077,8 +4636,10 @@ int main(int argc, char *argv[]) {
 
               case 'F': // valid password found
                 fpassword_brains.found++;
-                if (colored_output) {
-                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0) {
+                if (colored_output)
+                {
+                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0)
+                  {
                     if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
                       printf("[\e[1;32m%d\e[0m][\e[1;32m%s\e[0m] host: "
                              "\e[1;32m%s\e[0m\n",
@@ -4087,61 +4648,82 @@ int main(int argc, char *argv[]) {
                       printf("[\e[1;32m%d\e[0m][\e[1;32m%s\e[0m] host: "
                              "\e[1;32m%s\e[0m   password: \e[1;32m%s\e[0m\n",
                              fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_pass_ptr);
-                  } else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) {
+                  }
+                  else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
+                  {
                     printf("[\e[1;32m%d\e[0m][\e[1;32m%s\e[0m] host: "
                            "\e[1;32m%s\e[0m   login: \e[1;32m%s\e[0m\n",
                            fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr);
-                  } else
+                  }
+                  else
                     printf("[\e[1;32m%d\e[0m][\e[1;32m%s\e[0m] host: "
                            "\e[1;32m%s\e[0m   login: \e[1;32m%s\e[0m   password: "
                            "\e[1;32m%s\e[0m\n",
                            fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr);
-                } else {
-                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0) {
+                }
+                else
+                {
+                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0)
+                  {
                     if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
                       printf("[%d][%s] host: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target);
                     else
                       printf("[%d][%s] host: %s   password: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_pass_ptr);
-                  } else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) {
+                  }
+                  else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
+                  {
                     printf("[%d][%s] host: %s   login: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr);
-                  } else
+                  }
+                  else
                     printf("[%d][%s] host: %s   login: %s   password: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr);
                 }
-                if (fpassword_options.outfile_format == FORMAT_JSONV1 && fpassword_options.outfile_ptr != NULL && fpassword_brains.ofp != NULL) {
+                if (fpassword_options.outfile_format == FORMAT_JSONV1 && fpassword_options.outfile_ptr != NULL && fpassword_brains.ofp != NULL)
+                {
                   fprintf(fpassword_brains.ofp,
                           "%s\n\t{\"port\": %d, \"service\": \"%s\", \"host\": "
                           "\"%s\", \"login\": \"%s\", \"password\": \"%s\"}",
                           fpassword_brains.found == 1 ? "" : ",", // prefix a comma if not first finding
                           fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target != NULL ? fpassword_targets[fpassword_heads[head_no]->target_no]->target : "", fpassword_heads[head_no]->current_login_ptr != NULL ? fpassword_string_replace(fpassword_heads[head_no]->current_login_ptr, "\"", "\\\"") : "", fpassword_heads[head_no]->current_pass_ptr != NULL ? fpassword_string_replace(fpassword_heads[head_no]->current_pass_ptr, "\"", "\\\"") : "");
                   fflush(fpassword_brains.ofp);
-                } else if (fpassword_options.outfile_ptr != NULL && fpassword_brains.ofp != NULL) { // else output format == 0 aka text
-                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0) {
+                }
+                else if (fpassword_options.outfile_ptr != NULL && fpassword_brains.ofp != NULL)
+                { // else output format == 0 aka text
+                  if (fpassword_heads[head_no]->current_login_ptr == NULL || strlen(fpassword_heads[head_no]->current_login_ptr) == 0)
+                  {
                     if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
                       fprintf(fpassword_brains.ofp, "[%d][%s] host: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target);
                     else
                       fprintf(fpassword_brains.ofp, "[%d][%s] host: %s   password: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_pass_ptr);
-                  } else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0) {
+                  }
+                  else if (fpassword_heads[head_no]->current_pass_ptr == NULL || strlen(fpassword_heads[head_no]->current_pass_ptr) == 0)
+                  {
                     fprintf(fpassword_brains.ofp, "[%d][%s] host: %s   login: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr);
-                  } else
+                  }
+                  else
                     fprintf(fpassword_brains.ofp, "[%d][%s] host: %s   login: %s   password: %s\n", fpassword_targets[fpassword_heads[head_no]->target_no]->port, fpassword_options.service, fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr);
                   fflush(fpassword_brains.ofp);
                 }
-                if (fpassword_options.exit_found) { // option set says quit target after on
-                                                // valid login/pass pair is found
-                  if (fpassword_targets[fpassword_heads[head_no]->target_no]->done == TARGET_ACTIVE) {
+                if (fpassword_options.exit_found)
+                { // option set says quit target after on
+                  // valid login/pass pair is found
+                  if (fpassword_targets[fpassword_heads[head_no]->target_no]->done == TARGET_ACTIVE)
+                  {
                     fpassword_targets[fpassword_heads[head_no]->target_no]->done = TARGET_FINISHED; // mark target as done
                     fpassword_brains.finished++;
                     printf("[STATUS] attack finished for %s (valid pair found)\n", fpassword_targets[fpassword_heads[head_no]->target_no]->target);
                   }
-                  if (fpassword_options.exit_found == 2) {
+                  if (fpassword_options.exit_found == 2)
+                  {
                     for (j = 0; j < fpassword_brains.targets; j++)
-                      if (fpassword_targets[j]->done == TARGET_ACTIVE) {
+                      if (fpassword_targets[j]->done == TARGET_ACTIVE)
+                      {
                         fpassword_targets[j]->done = TARGET_FINISHED;
                         fpassword_brains.finished++;
                       }
                   }
                   for (j = 0; j < fpassword_options.max_use; j++)
-                    if (fpassword_heads[j]->active >= 0 && (fpassword_heads[j]->target_no == target_no || fpassword_options.exit_found == 2)) {
+                    if (fpassword_heads[j]->active >= 0 && (fpassword_heads[j]->target_no == target_no || fpassword_options.exit_found == 2))
+                    {
                       if (fpassword_brains.targets > fpassword_brains.finished && fpassword_options.exit_found < 2)
                         fpassword_kill_head(j, 1, 0); // kill all heads working on the target
                       else
@@ -4162,12 +4744,14 @@ int main(int argc, char *argv[]) {
 
               case 'D': // disable target, unknown protocol or feature
                 for (j = 0; j < fpassword_brains.targets; j++)
-                  if (fpassword_targets[j]->done == TARGET_ACTIVE) {
+                  if (fpassword_targets[j]->done == TARGET_ACTIVE)
+                  {
                     fpassword_targets[j]->done = TARGET_FINISHED;
                     fpassword_brains.finished++;
                   }
                 for (j = 0; j < fpassword_options.max_use; j++)
-                  if (fpassword_heads[j]->active >= 0 && fpassword_heads[j]->target_no == target_no) {
+                  if (fpassword_heads[j]->active >= 0 && fpassword_heads[j]->target_no == target_no)
+                  {
                     if (fpassword_brains.targets > fpassword_brains.finished)
                       fpassword_kill_head(j, 1, 0); // kill all heads working on the target
                     else
@@ -4179,7 +4763,8 @@ int main(int argc, char *argv[]) {
               case 'E': // head reports protocol error
               case 'C': // head reports connect error
                 fck = write(fpassword_heads[head_no]->sp[0], "Q", 1);
-                if (debug) {
+                if (debug)
+                {
                   printf("[ATTEMPT-ERROR] target %s - login \"%s\" - pass "
                          "\"%s\" - child %d - %" hPRIu64 " of %" hPRIu64 "\n",
                          fpassword_targets[fpassword_heads[head_no]->target_no]->target, fpassword_heads[head_no]->current_login_ptr, fpassword_heads[head_no]->current_pass_ptr, head_no, fpassword_targets[fpassword_heads[head_no]->target_no]->sent, fpassword_brains.todo);
@@ -4201,8 +4786,9 @@ int main(int argc, char *argv[]) {
                         head_no);
                 fpassword_increase_fail_count(fpassword_heads[head_no]->target_no, head_no);
               } // end switch
-            }   // readres
-            if (readres == -1) {
+            } // readres
+            if (readres == -1)
+            {
               if (verbose)
                 fprintf(stderr,
                         "[WARNING] child %d seems to have died, restarting "
@@ -4211,11 +4797,16 @@ int main(int argc, char *argv[]) {
               fpassword_increase_fail_count(fpassword_heads[head_no]->target_no, head_no);
             }
           } // end do_switch
-        } else {
-          if (fpassword_heads[head_no]->last_seen + fpassword_options.waittime > tmp_time) {
+        }
+        else
+        {
+          if (fpassword_heads[head_no]->last_seen + fpassword_options.waittime > tmp_time)
+          {
             // check if recover of timed-out head is necessary
-            if (tmp_time > waittime + fpassword_heads[head_no]->last_seen) {
-              if (kill(fpassword_heads[head_no]->pid, 0) < 0) {
+            if (tmp_time > waittime + fpassword_heads[head_no]->last_seen)
+            {
+              if (kill(fpassword_heads[head_no]->pid, 0) < 0)
+              {
                 if (verbose)
                   fprintf(stderr,
                           "[WARNING] child %d seems to be dead, restarting it "
@@ -4226,7 +4817,8 @@ int main(int argc, char *argv[]) {
             }
             // if we do not get to hear anything for a longer time assume its
             // dead
-            if (tmp_time > waittime * 2 + fpassword_heads[head_no]->last_seen) {
+            if (tmp_time > waittime * 2 + fpassword_heads[head_no]->last_seen)
+            {
               if (verbose)
                 fprintf(stderr, "[WARNING] timeout from child %d, restarting\n", head_no);
               fpassword_increase_fail_count(fpassword_heads[head_no]->target_no, head_no);
@@ -4245,12 +4837,14 @@ int main(int argc, char *argv[]) {
     usleepn(USLEEP_LOOP);
     (void)waitpid(-1, NULL, WNOHANG);
     // write restore file and report status
-    if (process_restore == 1 && time(NULL) - elapsed_restore > 299) {
+    if (process_restore == 1 && time(NULL) - elapsed_restore > 299)
+    {
       fpassword_restore_write(0);
       elapsed_restore = time(NULL);
     }
 
-    if (time(NULL) - elapsed_status > status_print) {
+    if (time(NULL) - elapsed_status > status_print)
+    {
       elapsed_status = time(NULL);
       tmp_time = elapsed_status - starttime;
       if (tmp_time < 1)
@@ -4258,7 +4852,8 @@ int main(int argc, char *argv[]) {
       tmp_time = fpassword_brains.sent / tmp_time;
       if (tmp_time < 1)
         tmp_time = 1;
-      if (debug == 0) {
+      if (debug == 0)
+      {
         if (status_print < 15 * 59)
           status_print = ((status_print + 1) * 2) - 1;
         if (status_print > 299 && ((fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent) / tmp_time < 1500)
@@ -4271,11 +4866,11 @@ int main(int argc, char *argv[]) {
         if (fpassword_heads[j]->active >= HEAD_UNUSED)
           k++;
       printf("[STATUS] %.2f tries/min, %" hPRIu64 " tries in %02" hPRIu64 ":%02" hPRIu64 "h, %" hPRIu64 " to do in %02" hPRIu64 ":%02" hPRIu64 "h, %d active\n",
-             (1.0 * fpassword_brains.sent) / (((elapsed_status - starttime) * 1.0) / 60),                                                                                               // tries/min
-             fpassword_brains.sent,                                                                                                                                                     // tries
-             (uint64_t)((elapsed_status - starttime) / 3600),                                                                                                                       // hours
-             (uint64_t)(((elapsed_status - starttime) % 3600) / 60),                                                                                                                // minutes
-             (fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent != 0 ? (fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent : 1,                              // left todo
+             (1.0 * fpassword_brains.sent) / (((elapsed_status - starttime) * 1.0) / 60),                                                                                                       // tries/min
+             fpassword_brains.sent,                                                                                                                                                             // tries
+             (uint64_t)((elapsed_status - starttime) / 3600),                                                                                                                                   // hours
+             (uint64_t)(((elapsed_status - starttime) % 3600) / 60),                                                                                                                            // minutes
+             (fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent != 0 ? (fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent : 1,                          // left todo
              (uint64_t)(((double)(fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent) / ((double)fpassword_brains.sent / (elapsed_status - starttime))) / 3600,              // hours
              (((uint64_t)(((double)(fpassword_brains.todo_all + total_redo_count) - fpassword_brains.sent) / ((double)fpassword_brains.sent / (elapsed_status - starttime))) % 3600) / 60) + 1, // min
              k);
@@ -4291,7 +4886,8 @@ int main(int argc, char *argv[]) {
 
   j = k = error = 0;
   for (i = 0; i < fpassword_brains.targets; i++)
-    switch (fpassword_targets[i]->done) {
+    switch (fpassword_targets[i]->done)
+    {
     case TARGET_UNRESOLVED:
       k++;
       break;
@@ -4324,16 +4920,22 @@ int main(int argc, char *argv[]) {
     if (fpassword_heads[i]->active == HEAD_ACTIVE)
       k++;
 
-  if (error == 0 && k == 0) {
+  if (error == 0 && k == 0)
+  {
     process_restore = 0;
     unlink(RESTOREFILE);
-  } else {
-    if (fpassword_options.cidr == 0 && k == 0) {
+  }
+  else
+  {
+    if (fpassword_options.cidr == 0 && k == 0)
+    {
       printf("[INFO] Writing restore file because %d server scan%s could not "
              "be completed\n",
              j + error, j + error == 1 ? "" : "s");
       fpassword_restore_write(1);
-    } else if (k > 0) {
+    }
+    else if (k > 0)
+    {
       printf("[WARNING] Writing restore file because %d final worker threads "
              "did not complete until end.\n",
              k);
@@ -4352,7 +4954,8 @@ int main(int argc, char *argv[]) {
   char json_error[STRMAX + 2], tmp_str[STRMAX + 2];
   memset(json_error, 0, STRMAX + 2);
   memset(tmp_str, 0, STRMAX + 2);
-  if (error) {
+  if (error)
+  {
     snprintf(tmp_str, STRMAX, "[ERROR] %d target%s disabled because of too many errors", error, error == 1 ? " was" : "s were");
     fprintf(stderr, "%s\n", tmp_str);
     strncat(json_error, "\"", STRMAX);
@@ -4360,10 +4963,12 @@ int main(int argc, char *argv[]) {
     strncat(json_error, "\"", STRMAX);
     error = 1;
   }
-  if (k) {
+  if (k)
+  {
     snprintf(tmp_str, STRMAX, "[ERROR] %d target%s did not resolve or could not be connected", k, k == 1 ? "" : "s");
     fprintf(stderr, "%s\n", tmp_str);
-    if (*json_error) {
+    if (*json_error)
+    {
       strncat(json_error, ", ", STRMAX);
     }
     strncat(json_error, "\"", STRMAX);
@@ -4371,10 +4976,12 @@ int main(int argc, char *argv[]) {
     strncat(json_error, "\"", STRMAX);
     error = 1;
   }
-  if (error) {
+  if (error)
+  {
     snprintf(tmp_str, STRMAX, "[ERROR] %d target%s did not complete", j, j < 1 ? "" : "s");
     fprintf(stderr, "%s\n", tmp_str);
-    if (*json_error) {
+    if (*json_error)
+    {
       strncat(json_error, ", ", STRMAX);
     }
     strncat(json_error, "\"", STRMAX);
@@ -4385,8 +4992,10 @@ int main(int argc, char *argv[]) {
   }
   // yeah we did it
   printf("%s (%s) finished at %s\n", PROGRAM, RESOURCE, fpassword_build_time());
-  if (fpassword_brains.ofp != NULL && fpassword_brains.ofp != stdout) {
-    if (fpassword_options.outfile_format == FORMAT_JSONV1) {
+  if (fpassword_brains.ofp != NULL && fpassword_brains.ofp != stdout)
+  {
+    if (fpassword_options.outfile_format == FORMAT_JSONV1)
+    {
       fprintf(fpassword_brains.ofp,
               "\n\t],\n\"success\": %s,\n\"errormessages\": [ %s "
               "],\n\"quantityfound\": %" hPRIu64 "   }\n",
@@ -4401,6 +5010,3 @@ int main(int argc, char *argv[]) {
   else
     return 0;
 }
-
-
-

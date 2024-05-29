@@ -17,7 +17,8 @@ void dummy_rdp() { printf("\n"); }
 
 #include <freerdp/freerdp.h>
 freerdp *instance = 0;
-BOOL rdp_connect(char *server, int32_t port, char *domain, char *login, char *password) {
+BOOL rdp_connect(char *server, int32_t port, char *domain, char *login, char *password)
+{
   int32_t err = 0;
 
   instance->settings->Username = login;
@@ -40,7 +41,8 @@ BOOL rdp_connect(char *server, int32_t port, char *domain, char *login, char *pa
 }
 
 /* Client program */
-int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass;
   char server[64];
@@ -56,7 +58,8 @@ int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, 
 
   strncpy(server, fpassword_address2string(ip), sizeof(server) - 1);
 
-  if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+  if ((miscptr != NULL) && (strlen(miscptr) > 0))
+  {
     strncpy(domain, miscptr, sizeof(domain) - 1);
     domain[sizeof(domain) - 1] = 0;
   }
@@ -64,7 +67,8 @@ int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, 
   login_result = rdp_connect(server, port, domain, login, pass);
   if (debug)
     fpassword_report(stderr, "[DEBUG] rdp reported %08x\n", login_result);
-  switch (login_result) {
+  switch (login_result)
+  {
   case 0:
     // login success
     fpassword_report_found_host(port, ip, "rdp", fp);
@@ -82,10 +86,10 @@ int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, 
     break;
   case 0x0002000d:
     fpassword_report(stderr,
-                 "[%d][rdp] account on %s might be valid but account not "
-                 "active for remote desktop: login: %s password: %s, "
-                 "continuing attacking the account.\n",
-                 port, fpassword_address2string_beautiful(ip), login, pass);
+                     "[%d][rdp] account on %s might be valid but account not "
+                     "active for remote desktop: login: %s password: %s, "
+                     "continuing attacking the account.\n",
+                     port, fpassword_address2string_beautiful(ip), login, pass);
     fpassword_completed_pair();
     break;
   case 0x00020006:
@@ -95,7 +99,8 @@ int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, 
     // not rdp
     return 3;
   default:
-    if (verbose) {
+    if (verbose)
+    {
       fpassword_report(stderr, "[ERROR] freerdp: %s (0x%.8x)\n", freerdp_get_last_error_string(login_result), login_result);
     }
     return login_result;
@@ -105,7 +110,8 @@ int32_t start_rdp(char *ip, int32_t port, unsigned char options, char *miscptr, 
   return 1;
 }
 
-void service_rdp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_rdp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1;
   int32_t myport = PORT_RDP;
   int32_t __first_rdp_connect = 1;
@@ -116,9 +122,11 @@ void service_rdp(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
+  while (1)
+  {
     next_run = 0;
-    switch (run) {
+    switch (run)
+    {
     case 1: /* run the cracking function */
       if (__first_rdp_connect != 0)
         __first_rdp_connect = 0;
@@ -145,7 +153,8 @@ void service_rdp(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   }
 }
 
-int32_t service_rdp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_rdp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -162,14 +171,16 @@ int32_t service_rdp_init(char *ip, int32_t sp, unsigned char options, char *misc
 
   // Init freerdp instance
   instance = freerdp_new();
-  if (instance == NULL || freerdp_context_new(instance) == FALSE) {
+  if (instance == NULL || freerdp_context_new(instance) == FALSE)
+  {
     fpassword_report(stderr, "[ERROR] freerdp init failed\n");
     return -1;
   }
   return 0;
 }
 
-void usage_rdp(const char *service) {
+void usage_rdp(const char *service)
+{
   printf("Module rdp is optionally taking the windows domain name.\n"
          "For example:\nfpassword rdp://192.168.0.1/firstdomainname -l john -p "
          "doe\n\n");

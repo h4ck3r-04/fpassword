@@ -125,82 +125,118 @@ it also defines lots of intermediate macros, just ignore those :-)
 
 /* some switch macros that do both store and read to and from SMB buffers */
 
-#define RW_PCVAL(read, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      PCVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      PSCVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_PCVAL(read, inbuf, outbuf, len) \
+  {                                        \
+    if (read)                              \
+    {                                      \
+      PCVAL(inbuf, 0, outbuf, len);        \
+    }                                      \
+    else                                   \
+    {                                      \
+      PSCVAL(inbuf, 0, outbuf, len);       \
+    }                                      \
   }
 
-#define RW_PIVAL(read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RPIVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        PIVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RPSIVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        PSIVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_PIVAL(read, big_endian, inbuf, outbuf, len) \
+  {                                                    \
+    if (read)                                          \
+    {                                                  \
+      if (big_endian)                                  \
+      {                                                \
+        RPIVAL(inbuf, 0, outbuf, len);                 \
+      }                                                \
+      else                                             \
+      {                                                \
+        PIVAL(inbuf, 0, outbuf, len);                  \
+      }                                                \
+    }                                                  \
+    else                                               \
+    {                                                  \
+      if (big_endian)                                  \
+      {                                                \
+        RPSIVAL(inbuf, 0, outbuf, len);                \
+      }                                                \
+      else                                             \
+      {                                                \
+        PSIVAL(inbuf, 0, outbuf, len);                 \
+      }                                                \
+    }                                                  \
   }
 
-#define RW_PSVAL(read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RPSVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        PSVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RPSSVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        PSSVAL(inbuf, 0, outbuf, len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_PSVAL(read, big_endian, inbuf, outbuf, len) \
+  {                                                    \
+    if (read)                                          \
+    {                                                  \
+      if (big_endian)                                  \
+      {                                                \
+        RPSVAL(inbuf, 0, outbuf, len);                 \
+      }                                                \
+      else                                             \
+      {                                                \
+        PSVAL(inbuf, 0, outbuf, len);                  \
+      }                                                \
+    }                                                  \
+    else                                               \
+    {                                                  \
+      if (big_endian)                                  \
+      {                                                \
+        RPSSVAL(inbuf, 0, outbuf, len);                \
+      }                                                \
+      else                                             \
+      {                                                \
+        PSSVAL(inbuf, 0, outbuf, len);                 \
+      }                                                \
+    }                                                  \
   }
 
-#define RW_CVAL(read, inbuf, outbuf, offset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      (outbuf) = CVAL(inbuf, offset);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      SCVAL(inbuf, offset, outbuf);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_CVAL(read, inbuf, outbuf, offset) \
+  {                                          \
+    if (read)                                \
+    {                                        \
+      (outbuf) = CVAL(inbuf, offset);        \
+    }                                        \
+    else                                     \
+    {                                        \
+      SCVAL(inbuf, offset, outbuf);          \
+    }                                        \
   }
 
-#define RW_IVAL(read, big_endian, inbuf, outbuf, offset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      (outbuf) = ((big_endian) ? RIVAL(inbuf, offset) : IVAL(inbuf, offset));                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RSIVAL(inbuf, offset, outbuf);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        SIVAL(inbuf, offset, outbuf);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_IVAL(read, big_endian, inbuf, outbuf, offset)                      \
+  {                                                                           \
+    if (read)                                                                 \
+    {                                                                         \
+      (outbuf) = ((big_endian) ? RIVAL(inbuf, offset) : IVAL(inbuf, offset)); \
+    }                                                                         \
+    else                                                                      \
+    {                                                                         \
+      if (big_endian)                                                         \
+      {                                                                       \
+        RSIVAL(inbuf, offset, outbuf);                                        \
+      }                                                                       \
+      else                                                                    \
+      {                                                                       \
+        SIVAL(inbuf, offset, outbuf);                                         \
+      }                                                                       \
+    }                                                                         \
   }
 
-#define RW_SVAL(read, big_endian, inbuf, outbuf, offset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (read) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      (outbuf) = ((big_endian) ? RSVAL(inbuf, offset) : SVAL(inbuf, offset));                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      if (big_endian) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        RSSVAL(inbuf, offset, outbuf);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        SSVAL(inbuf, offset, outbuf);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define RW_SVAL(read, big_endian, inbuf, outbuf, offset)                      \
+  {                                                                           \
+    if (read)                                                                 \
+    {                                                                         \
+      (outbuf) = ((big_endian) ? RSVAL(inbuf, offset) : SVAL(inbuf, offset)); \
+    }                                                                         \
+    else                                                                      \
+    {                                                                         \
+      if (big_endian)                                                         \
+      {                                                                       \
+        RSSVAL(inbuf, offset, outbuf);                                        \
+      }                                                                       \
+      else                                                                    \
+      {                                                                       \
+        SSVAL(inbuf, offset, outbuf);                                         \
+      }                                                                       \
+    }                                                                         \
   }
 
 #undef CAREFUL_ALIGNMENT
@@ -223,7 +259,7 @@ it also defines lots of intermediate macros, just ignore those :-)
 
 #define SVAL(buf, pos) (PVAL(buf, pos) | PVAL(buf, (pos) + 1) << 8)
 #define IVAL(buf, pos) (SVAL(buf, pos) | SVAL(buf, (pos) + 2) << 16)
-#define SSVALX(buf, pos, val) (CVAL(buf, pos) = (val)&0xFF, CVAL(buf, pos + 1) = (val) >> 8)
+#define SSVALX(buf, pos, val) (CVAL(buf, pos) = (val) & 0xFF, CVAL(buf, pos + 1) = (val) >> 8)
 #define SIVALX(buf, pos, val) (SSVALX(buf, pos, val & 0xFFFF), SSVALX(buf, pos + 2, val >> 16))
 #define SVALS(buf, pos) ((int16)SVAL(buf, pos))
 #define IVALS(buf, pos) ((int32)IVAL(buf, pos))
@@ -258,18 +294,18 @@ it also defines lots of intermediate macros, just ignore those :-)
 
 /* macros for reading / writing arrays */
 
-#define SMBMACRO(macro, buf, pos, val, len, size)                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    int32_t l;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    for (l = 0; l < (len); l++)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      (val)[l] = macro((buf), (pos) + (size)*l);                                                                                                                                                                                                                                                                                                                                                                                                                                                                               \
+#define SMBMACRO(macro, buf, pos, val, len, size)  \
+  {                                                \
+    int32_t l;                                     \
+    for (l = 0; l < (len); l++)                    \
+      (val)[l] = macro((buf), (pos) + (size) * l); \
   }
 
-#define SSMBMACRO(macro, buf, pos, val, len, size)                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    int32_t l;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    for (l = 0; l < (len); l++)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      macro((buf), (pos) + (size)*l, (val)[l]);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
+#define SSMBMACRO(macro, buf, pos, val, len, size) \
+  {                                                \
+    int32_t l;                                     \
+    for (l = 0; l < (len); l++)                    \
+      macro((buf), (pos) + (size) * l, (val)[l]);  \
   }
 
 /* reads multiple data from an SMB buffer */
@@ -289,7 +325,7 @@ it also defines lots of intermediate macros, just ignore those :-)
 #define PSIVALS(buf, pos, val, len) SSMBMACRO(SIVALS, buf, pos, val, len, 4)
 
 /* now the reverse routines - these are used in nmb packets (mostly) */
-#define SREV(x) ((((x)&0xFF) << 8) | (((x) >> 8) & 0xFF))
+#define SREV(x) ((((x) & 0xFF) << 8) | (((x) >> 8) & 0xFF))
 #define IREV(x) ((SREV(x) << 16) | (SREV((x) >> 16)))
 
 #define RSVAL(buf, pos) SREV(SVAL(buf, pos))
@@ -313,67 +349,73 @@ it also defines lots of intermediate macros, just ignore those :-)
 #define RPSSVALS(buf, pos, val, len) SSMBMACRO(RSSVALS, buf, pos, val, len, 2)
 #define RPSIVALS(buf, pos, val, len) SSMBMACRO(RSIVALS, buf, pos, val, len, 4)
 
-#define DBG_RW_PCVAL(charmode, string, depth, base, read, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_PCVAL(read, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    if (charmode)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \
-      print_asc(5, (unsigned char *)(outbuf), (len));                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-      int32_t idx;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-      for (idx = 0; idx < len; idx++) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        DEBUG(5, ("%02x ", (outbuf)[idx]));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    DEBUG(5, ("\n"));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define DBG_RW_PCVAL(charmode, string, depth, base, read, inbuf, outbuf, len) \
+  {                                                                           \
+    RW_PCVAL(read, inbuf, outbuf, len)                                        \
+    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                \
+    if (charmode)                                                             \
+      print_asc(5, (unsigned char *)(outbuf), (len));                         \
+    else                                                                      \
+    {                                                                         \
+      int32_t idx;                                                            \
+      for (idx = 0; idx < len; idx++)                                         \
+      {                                                                       \
+        DEBUG(5, ("%02x ", (outbuf)[idx]));                                   \
+      }                                                                       \
+    }                                                                         \
+    DEBUG(5, ("\n"));                                                         \
   }
 
-#define DBG_RW_PSVAL(charmode, string, depth, base, read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_PSVAL(read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    if (charmode)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \
-      print_asc(5, (unsigned char *)(outbuf), 2 * (len));                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-    else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-      int32_t idx;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-      for (idx = 0; idx < len; idx++) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        DEBUG(5, ("%04x ", (outbuf)[idx]));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    DEBUG(5, ("\n"));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define DBG_RW_PSVAL(charmode, string, depth, base, read, big_endian, inbuf, outbuf, len) \
+  {                                                                                       \
+    RW_PSVAL(read, big_endian, inbuf, outbuf, len)                                        \
+    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                            \
+    if (charmode)                                                                         \
+      print_asc(5, (unsigned char *)(outbuf), 2 * (len));                                 \
+    else                                                                                  \
+    {                                                                                     \
+      int32_t idx;                                                                        \
+      for (idx = 0; idx < len; idx++)                                                     \
+      {                                                                                   \
+        DEBUG(5, ("%04x ", (outbuf)[idx]));                                               \
+      }                                                                                   \
+    }                                                                                     \
+    DEBUG(5, ("\n"));                                                                     \
   }
 
-#define DBG_RW_PIVAL(charmode, string, depth, base, read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_PIVAL(read, big_endian, inbuf, outbuf, len)                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    if (charmode)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \
-      print_asc(5, (unsigned char *)(outbuf), 4 * (len));                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-    else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-      int32_t idx;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-      for (idx = 0; idx < len; idx++) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-        DEBUG(5, ("%08x ", (outbuf)[idx]));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    DEBUG(5, ("\n"));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define DBG_RW_PIVAL(charmode, string, depth, base, read, big_endian, inbuf, outbuf, len) \
+  {                                                                                       \
+    RW_PIVAL(read, big_endian, inbuf, outbuf, len)                                        \
+    DEBUG(5, ("%s%04x %s: ", tab_depth(depth), base, string));                            \
+    if (charmode)                                                                         \
+      print_asc(5, (unsigned char *)(outbuf), 4 * (len));                                 \
+    else                                                                                  \
+    {                                                                                     \
+      int32_t idx;                                                                        \
+      for (idx = 0; idx < len; idx++)                                                     \
+      {                                                                                   \
+        DEBUG(5, ("%08x ", (outbuf)[idx]));                                               \
+      }                                                                                   \
+    }                                                                                     \
+    DEBUG(5, ("\n"));                                                                     \
   }
 
-#define DBG_RW_CVAL(string, depth, base, read, inbuf, outbuf)                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_CVAL(read, inbuf, outbuf, 0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    DEBUG(5, ("%s%04x %s: %02x\n", tab_depth(depth), base, string, outbuf));                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
+#define DBG_RW_CVAL(string, depth, base, read, inbuf, outbuf)                \
+  {                                                                          \
+    RW_CVAL(read, inbuf, outbuf, 0)                                          \
+    DEBUG(5, ("%s%04x %s: %02x\n", tab_depth(depth), base, string, outbuf)); \
   }
 
-#define DBG_RW_SVAL(string, depth, base, read, big_endian, inbuf, outbuf)                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_SVAL(read, big_endian, inbuf, outbuf, 0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-    DEBUG(5, ("%s%04x %s: %04x\n", tab_depth(depth), base, string, outbuf));                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
+#define DBG_RW_SVAL(string, depth, base, read, big_endian, inbuf, outbuf)    \
+  {                                                                          \
+    RW_SVAL(read, big_endian, inbuf, outbuf, 0)                              \
+    DEBUG(5, ("%s%04x %s: %04x\n", tab_depth(depth), base, string, outbuf)); \
   }
 
-#define DBG_RW_IVAL(string, depth, base, read, big_endian, inbuf, outbuf)                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    RW_IVAL(read, big_endian, inbuf, outbuf, 0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-    DEBUG(5, ("%s%04x %s: %08x\n", tab_depth(depth), base, string, outbuf));                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
+#define DBG_RW_IVAL(string, depth, base, read, big_endian, inbuf, outbuf)    \
+  {                                                                          \
+    RW_IVAL(read, big_endian, inbuf, outbuf, 0)                              \
+    DEBUG(5, ("%s%04x %s: %08x\n", tab_depth(depth), base, string, outbuf)); \
   }
 
 #endif /* _BYTEORDER_H */
@@ -393,7 +435,8 @@ static uint32 G(uint32 X, uint32 Y, uint32 Z) { return (X & Y) | (X & Z) | (Y & 
 
 static uint32 H(uint32 X, uint32 Y, uint32 Z) { return X ^ Y ^ Z; }
 
-static uint32 lshift(uint32 x, int32_t s) {
+static uint32 lshift(uint32 x, int32_t s)
+{
   x &= 0xFFFFFFFF;
   return ((x << s) & 0xFFFFFFFF) | (x >> (32 - s));
 }
@@ -403,7 +446,8 @@ static uint32 lshift(uint32 x, int32_t s) {
 #define ROUND3(a, b, c, d, k, s) a = lshift(a + H(b, c, d) + X[k] + (uint32)0x6ED9EBA1, s)
 
 /* this applies md4 to 64 byte chunks */
-static void mdfour64(uint32 *M) {
+static void mdfour64(uint32 *M)
+{
   int32_t j;
   uint32 AA, BB, CC, DD;
   uint32 X[16];
@@ -481,14 +525,16 @@ static void mdfour64(uint32 *M) {
     X[j] = 0;
 }
 
-static void copy64(uint32 *M, unsigned char *in) {
+static void copy64(uint32 *M, unsigned char *in)
+{
   int32_t i;
 
   for (i = 0; i < 16; i++)
     M[i] = (in[i * 4 + 3] << 24) | (in[i * 4 + 2] << 16) | (in[i * 4 + 1] << 8) | (in[i * 4 + 0] << 0);
 }
 
-static void copy4(unsigned char *out, uint32 x) {
+static void copy4(unsigned char *out, uint32 x)
+{
   out[0] = x & 0xFF;
   out[1] = (x >> 8) & 0xFF;
   out[2] = (x >> 16) & 0xFF;
@@ -496,7 +542,8 @@ static void copy4(unsigned char *out, uint32 x) {
 }
 
 /* produce a md4 message digest from data of length n bytes */
-void mdfour(unsigned char *out, unsigned char *in, int32_t n) {
+void mdfour(unsigned char *out, unsigned char *in, int32_t n)
+{
   unsigned char buf[128];
   uint32 M[16];
   uint32 b = n * 8;
@@ -507,7 +554,8 @@ void mdfour(unsigned char *out, unsigned char *in, int32_t n) {
   C = 0x98badcfe;
   D = 0x10325476;
 
-  while (n > 64) {
+  while (n > 64)
+  {
     copy64(M, in);
     mdfour64(M);
     in += 64;
@@ -519,11 +567,14 @@ void mdfour(unsigned char *out, unsigned char *in, int32_t n) {
   memcpy(buf, in, n);
   buf[n] = 0x80;
 
-  if (n <= 55) {
+  if (n <= 55)
+  {
     copy4(buf + 56, b);
     copy64(M, buf);
     mdfour64(M);
-  } else {
+  }
+  else
+  {
     copy4(buf + 120, b);
     copy64(M, buf);
     mdfour64(M);
@@ -577,14 +628,16 @@ static uchar sbox[8][4][16] = {{{14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9,
 
                                {{13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7}, {1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2}, {7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8}, {2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11}}};
 
-static void permute(char *out, char *in, uchar *p, int32_t n) {
+static void permute(char *out, char *in, uchar *p, int32_t n)
+{
   int32_t i;
 
   for (i = 0; i < n; i++)
     out[i] = in[p[i] - 1];
 }
 
-static void l_shift(char *d, int32_t count, int32_t n) {
+static void l_shift(char *d, int32_t count, int32_t n)
+{
   char out[64];
   int32_t i;
 
@@ -594,22 +647,24 @@ static void l_shift(char *d, int32_t count, int32_t n) {
     d[i] = out[i];
 }
 
-static void concat(char *out, char *in1, char *in2, int32_t l1, int32_t l2) {
+static void concat(char *out, char *in1, char *in2, int32_t l1, int32_t l2)
+{
   while (l1--)
     *out++ = *in1++;
   while (l2--)
     *out++ = *in2++;
 }
 
-void XOR
-    (char *out, char *in1, char *in2, int32_t n) {
-      int32_t i;
+void XOR(char *out, char *in1, char *in2, int32_t n)
+{
+  int32_t i;
 
-      for (i = 0; i < n; i++)
-        out[i] = in1[i] ^ in2[i];
-    }
+  for (i = 0; i < n; i++)
+    out[i] = in1[i] ^ in2[i];
+}
 
-    static void dohash(char *out, char *in, char *key, int32_t forw) {
+static void dohash(char *out, char *in, char *key, int32_t forw)
+{
   int32_t i, j, k;
   char pk1[56];
   char c[28];
@@ -627,7 +682,8 @@ void XOR
   for (i = 0; i < 28; i++)
     d[i] = pk1[i + 28];
 
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 16; i++)
+  {
     l_shift(c, sc[i], 28);
     l_shift(d, sc[i], 28);
 
@@ -637,12 +693,14 @@ void XOR
 
   permute(pd1, in, perm3, 64);
 
-  for (j = 0; j < 32; j++) {
+  for (j = 0; j < 32; j++)
+  {
     l[j] = pd1[j];
     r[j] = pd1[j + 32];
   }
 
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 16; i++)
+  {
     char er[48];
     char erk[48];
     char b[8][6];
@@ -658,7 +716,8 @@ void XOR
       for (k = 0; k < 6; k++)
         b[j][k] = erk[j * 6 + k];
 
-    for (j = 0; j < 8; j++) {
+    for (j = 0; j < 8; j++)
+    {
       int32_t m, n;
 
       m = (b[j][0] << 1) | b[j][5];
@@ -688,7 +747,8 @@ void XOR
   permute(out, rl, perm6, 64);
 }
 
-static void str_to_key(unsigned char *str, unsigned char *key) {
+static void str_to_key(unsigned char *str, unsigned char *key)
+{
   int32_t i;
 
   key[0] = str[0] >> 1;
@@ -699,12 +759,14 @@ static void str_to_key(unsigned char *str, unsigned char *key) {
   key[5] = ((str[4] & 0x1F) << 2) | (str[5] >> 6);
   key[6] = ((str[5] & 0x3F) << 1) | (str[6] >> 7);
   key[7] = str[6] & 0x7F;
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++)
+  {
     key[i] = (key[i] << 1);
   }
 }
 
-static void smbhash(unsigned char *out, unsigned char *in, unsigned char *key, int32_t forw) {
+static void smbhash(unsigned char *out, unsigned char *in, unsigned char *key, int32_t forw)
+{
   int32_t i;
   char outb[64];
   char inb[64];
@@ -713,7 +775,8 @@ static void smbhash(unsigned char *out, unsigned char *in, unsigned char *key, i
 
   str_to_key(key, key2);
 
-  for (i = 0; i < 64; i++) {
+  for (i = 0; i < 64; i++)
+  {
     inb[i] = (in[i / 8] & (1 << (7 - (i % 8)))) ? 1 : 0;
     keyb[i] = (key2[i / 8] & (1 << (7 - (i % 8)))) ? 1 : 0;
     outb[i] = 0;
@@ -721,46 +784,54 @@ static void smbhash(unsigned char *out, unsigned char *in, unsigned char *key, i
 
   dohash(outb, inb, keyb, forw);
 
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++)
+  {
     out[i] = 0;
   }
 
-  for (i = 0; i < 64; i++) {
+  for (i = 0; i < 64; i++)
+  {
     if (outb[i])
       out[i / 8] |= (1 << (7 - (i % 8)));
   }
 }
 
-void E_P16(unsigned char *p14, unsigned char *p16) {
+void E_P16(unsigned char *p14, unsigned char *p16)
+{
   unsigned char sp8[8] = {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
   smbhash(p16, sp8, p14, 1);
   smbhash(p16 + 8, sp8, p14 + 7, 1);
 }
 
-void E_P24(unsigned char *p21, unsigned char *c8, unsigned char *p24) {
+void E_P24(unsigned char *p21, unsigned char *c8, unsigned char *p24)
+{
   smbhash(p24, c8, p21, 1);
   smbhash(p24 + 8, c8, p21 + 7, 1);
   smbhash(p24 + 16, c8, p21 + 14, 1);
 }
 
-void D_P16(unsigned char *p14, unsigned char *in, unsigned char *out) {
+void D_P16(unsigned char *p14, unsigned char *in, unsigned char *out)
+{
   smbhash(out, in, p14, 0);
   smbhash(out + 8, in + 8, p14 + 7, 0);
 }
 
-void E_old_pw_hash(unsigned char *p14, unsigned char *in, unsigned char *out) {
+void E_old_pw_hash(unsigned char *p14, unsigned char *in, unsigned char *out)
+{
   smbhash(out, in, p14, 1);
   smbhash(out + 8, in + 8, p14 + 7, 1);
 }
 
-void cred_hash1(unsigned char *out, unsigned char *in, unsigned char *key) {
+void cred_hash1(unsigned char *out, unsigned char *in, unsigned char *key)
+{
   unsigned char buf[8];
 
   smbhash(buf, in, key, 1);
   smbhash(out, buf, key + 9, 1);
 }
 
-void cred_hash2(unsigned char *out, unsigned char *in, unsigned char *key) {
+void cred_hash2(unsigned char *out, unsigned char *in, unsigned char *key)
+{
   unsigned char buf[8];
   static unsigned char key2[8];
 
@@ -769,7 +840,8 @@ void cred_hash2(unsigned char *out, unsigned char *in, unsigned char *key) {
   smbhash(out, buf, key2, 1);
 }
 
-void cred_hash3(unsigned char *out, unsigned char *in, unsigned char *key, int32_t forw) {
+void cred_hash3(unsigned char *out, unsigned char *in, unsigned char *key, int32_t forw)
+{
   static unsigned char key2[8];
 
   smbhash(out, in, key, forw);
@@ -777,18 +849,21 @@ void cred_hash3(unsigned char *out, unsigned char *in, unsigned char *key, int32
   smbhash(out + 8, in + 8, key2, forw);
 }
 
-void SamOEMhash(unsigned char *data, unsigned char *key, int32_t val) {
+void SamOEMhash(unsigned char *data, unsigned char *key, int32_t val)
+{
   unsigned char s_box[256];
   unsigned char index_i = 0;
   unsigned char index_j = 0;
   unsigned char j = 0;
   int32_t ind;
 
-  for (ind = 0; ind < 256; ind++) {
+  for (ind = 0; ind < 256; ind++)
+  {
     s_box[ind] = (unsigned char)ind;
   }
 
-  for (ind = 0; ind < 256; ind++) {
+  for (ind = 0; ind < 256; ind++)
+  {
     unsigned char tc;
 
     j += (s_box[ind] + key[ind % 16]);
@@ -797,7 +872,8 @@ void SamOEMhash(unsigned char *data, unsigned char *key, int32_t val) {
     s_box[ind] = s_box[j];
     s_box[j] = tc;
   }
-  for (ind = 0; ind < (val ? 516 : 16); ind++) {
+  for (ind = 0; ind < (val ? 516 : 16); ind++)
+  {
     unsigned char tc;
     unsigned char t;
 
@@ -820,12 +896,14 @@ void SamOEMhash(unsigned char *data, unsigned char *key, int32_t val) {
  The variable n should always be one less than the available size.
 ****************************************************************************/
 
-char *StrnCpy(char *dest, const char *src, size_t n) {
+char *StrnCpy(char *dest, const char *src, size_t n)
+{
   char *d = dest;
 
   if (!dest)
     return (NULL);
-  if (!src) {
+  if (!src)
+  {
     *dest = 0;
     return (dest);
   }
@@ -842,22 +920,26 @@ safe string copy into a known length string. maxlength does not
 include the terminating zero.
 ********************************************************************/
 #define DEBUG(a, b) ;
-char *safe_strcpy(char *dest, const char *src, size_t maxlength) {
+char *safe_strcpy(char *dest, const char *src, size_t maxlength)
+{
   size_t len;
 
-  if (!dest) {
+  if (!dest)
+  {
     DEBUG(0, ("Error: NULL dest in safe_strcpy\n"));
     return NULL;
   }
 
-  if (!src) {
+  if (!src)
+  {
     *dest = 0;
     return dest;
   }
 
   len = strlen(src);
 
-  if (len > maxlength) {
+  if (len > maxlength)
+  {
     DEBUG(0, ("Error: string overflow by %d in safe_strcpy [%.50s]\n", (int32_t)(len - maxlength), src));
     len = maxlength;
   }
@@ -867,14 +949,17 @@ char *safe_strcpy(char *dest, const char *src, size_t maxlength) {
   return dest;
 }
 
-void strupper(char *s) {
-  while (*s) {
+void strupper(char *s)
+{
+  while (*s)
+  {
     {
       size_t skip = skip_multibyte_char(*s);
 
       if (skip != 0)
         s += skip;
-      else {
+      else
+      {
         if (islower((int32_t)*s))
           *s = toupper((int32_t)*s);
         s++;
@@ -891,7 +976,8 @@ extern void SMBOWFencrypt(uchar passwd[16], uchar *c8, uchar p24[24]);
  encrypted password into p24
  */
 
-void SMBencrypt(uchar *passwd, uchar *c8, uchar *p24) {
+void SMBencrypt(uchar *passwd, uchar *c8, uchar *p24)
+{
   uchar p14[15], p21[21];
 
   memset(p21, '\0', 21);
@@ -912,7 +998,8 @@ void SMBencrypt(uchar *passwd, uchar *c8, uchar *p24) {
 }
 
 /* Routines for Windows NT MD4 Hash functions. */
-static int32_t _my_wcslen(int16 *str) {
+static int32_t _my_wcslen(int16 *str)
+{
   int32_t len = 0;
 
   while (*str++ != 0)
@@ -927,11 +1014,13 @@ static int32_t _my_wcslen(int16 *str) {
  * format.
  */
 
-static int32_t _my_mbstowcs(int16 *dst, uchar *src, int32_t len) {
+static int32_t _my_mbstowcs(int16 *dst, uchar *src, int32_t len)
+{
   int32_t i;
   int16 val;
 
-  for (i = 0; i < len; i++) {
+  for (i = 0; i < len; i++)
+  {
     val = *src;
     SSVAL(dst, 0, val);
     dst++;
@@ -946,7 +1035,8 @@ static int32_t _my_mbstowcs(int16 *dst, uchar *src, int32_t len) {
  * Creates the MD4 Hash of the users password in NT UNICODE.
  */
 
-void E_md4hash(uchar *passwd, uchar *p16) {
+void E_md4hash(uchar *passwd, uchar *p16)
+{
   int32_t len;
   int16 wpwd[129];
 
@@ -964,7 +1054,8 @@ void E_md4hash(uchar *passwd, uchar *p16) {
 }
 
 /* Does both the NT and LM owfs of a user's password */
-void nt_lm_owf_gen(char *pwd, uchar nt_p16[16], uchar p16[16]) {
+void nt_lm_owf_gen(char *pwd, uchar nt_p16[16], uchar p16[16])
+{
   char passwd[130];
 
   memset(passwd, '\0', 130);
@@ -999,7 +1090,8 @@ void nt_lm_owf_gen(char *pwd, uchar nt_p16[16], uchar p16[16]) {
 }
 
 /* Does the des encryption from the NT or LM MD4 hash. */
-void SMBOWFencrypt(uchar passwd[16], uchar *c8, uchar p24[24]) {
+void SMBOWFencrypt(uchar passwd[16], uchar *c8, uchar p24[24])
+{
   uchar p21[21];
 
   memset(p21, '\0', 21);
@@ -1009,7 +1101,8 @@ void SMBOWFencrypt(uchar passwd[16], uchar *c8, uchar p24[24]) {
 }
 
 /* Does the des encryption from the FIRST 8 BYTES of the NT or LM MD4 hash. */
-void NTLMSSPOWFencrypt(uchar passwd[8], uchar *ntlmchalresp, uchar p24[24]) {
+void NTLMSSPOWFencrypt(uchar passwd[8], uchar *ntlmchalresp, uchar p24[24])
+{
   uchar p21[21];
 
   memset(p21, '\0', 21);
@@ -1027,7 +1120,8 @@ void NTLMSSPOWFencrypt(uchar passwd[8], uchar *ntlmchalresp, uchar p24[24]) {
 
 /* Does the NT MD4 hash then des encryption. */
 
-void SMBNTencrypt(uchar *passwd, uchar *c8, uchar *p24) {
+void SMBNTencrypt(uchar *passwd, uchar *c8, uchar *p24)
+{
   uchar p21[21];
 
   memset(p21, '\0', 21);
@@ -1109,46 +1203,51 @@ Contributed LGPL versions of some of the GPL'd Samba files.
  * in the structures probably needs to be designed
  */
 
-#define AddBytes(ptr, header, buf, count)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    if (buf != NULL && count != 0) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-      SSVAL(&ptr->header.len, 0, count);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \
-      SSVAL(&ptr->header.maxlen, 0, count);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
-      SIVAL(&ptr->header.offset, 0, ((ptr->buffer - ((uint8 *)ptr)) + ptr->bufIndex));                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      memcpy(ptr->buffer + ptr->bufIndex, buf, count);                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      ptr->bufIndex += count;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-    } else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      ptr->header.len = ptr->header.maxlen = 0;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-      SIVAL(&ptr->header.offset, 0, ptr->bufIndex);                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define AddBytes(ptr, header, buf, count)                                              \
+  {                                                                                    \
+    if (buf != NULL && count != 0)                                                     \
+    {                                                                                  \
+      SSVAL(&ptr->header.len, 0, count);                                               \
+      SSVAL(&ptr->header.maxlen, 0, count);                                            \
+      SIVAL(&ptr->header.offset, 0, ((ptr->buffer - ((uint8 *)ptr)) + ptr->bufIndex)); \
+      memcpy(ptr->buffer + ptr->bufIndex, buf, count);                                 \
+      ptr->bufIndex += count;                                                          \
+    }                                                                                  \
+    else                                                                               \
+    {                                                                                  \
+      ptr->header.len = ptr->header.maxlen = 0;                                        \
+      SIVAL(&ptr->header.offset, 0, ptr->bufIndex);                                    \
+    }                                                                                  \
   }
 
-#define AddString(ptr, header, string)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    char *p = string;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    int32_t len = 0;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-    if (p)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-      len = strlen(p);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-    AddBytes(ptr, header, ((unsigned char *)p), len);                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+#define AddString(ptr, header, string)                \
+  {                                                   \
+    char *p = string;                                 \
+    int32_t len = 0;                                  \
+    if (p)                                            \
+      len = strlen(p);                                \
+    AddBytes(ptr, header, ((unsigned char *)p), len); \
   }
 
-#define AddUnicodeString(ptr, header, string)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-  {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    char *p = string;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    unsigned char *b = NULL;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-    int32_t len = 0;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-    if (p) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \
-      len = strlen(p);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-      b = strToUnicode(p);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    AddBytes(ptr, header, b, len * 2);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
+#define AddUnicodeString(ptr, header, string) \
+  {                                           \
+    char *p = string;                         \
+    unsigned char *b = NULL;                  \
+    int32_t len = 0;                          \
+    if (p)                                    \
+    {                                         \
+      len = strlen(p);                        \
+      b = strToUnicode(p);                    \
+    }                                         \
+    AddBytes(ptr, header, b, len * 2);        \
   }
 
 #define GetUnicodeString(structPtr, header) unicodeToString(((char *)structPtr) + IVAL(&structPtr->header.offset, 0), SVAL(&structPtr->header.len, 0) / 2)
 #define GetString(structPtr, header) toString((((char *)structPtr) + IVAL(&structPtr->header.offset, 0)), SVAL(&structPtr->header.len, 0))
 #define DumpBuffer(fp, structPtr, header) dumpRaw(fp, ((unsigned char *)structPtr) + IVAL(&structPtr->header.offset, 0), SVAL(&structPtr->header.len, 0))
 
-static void dumpRaw(FILE *fp, unsigned char *buf, size_t len) {
+static void dumpRaw(FILE *fp, unsigned char *buf, size_t len)
+{
   int32_t i;
 
   for (i = 0; i < (int32_t)len; ++i)
@@ -1157,13 +1256,15 @@ static void dumpRaw(FILE *fp, unsigned char *buf, size_t len) {
   fprintf(fp, "\n");
 }
 
-static char *unicodeToString(char *p, size_t len) {
+static char *unicodeToString(char *p, size_t len)
+{
   int32_t i;
   static char buf[4096];
 
   assert(len + 1 < sizeof buf);
 
-  for (i = 0; i < (int32_t)len; ++i) {
+  for (i = 0; i < (int32_t)len; ++i)
+  {
     buf[i] = *p & 0x7f;
     p += 2;
   }
@@ -1172,14 +1273,16 @@ static char *unicodeToString(char *p, size_t len) {
   return buf;
 }
 
-static unsigned char *strToUnicode(char *p) {
+static unsigned char *strToUnicode(char *p)
+{
   static unsigned char buf[4096];
   size_t l = strlen(p);
   int32_t i = 0;
 
   assert(l * 2 < sizeof buf);
 
-  while (l--) {
+  while (l--)
+  {
     buf[i++] = *p++;
     buf[i++] = 0;
   }
@@ -1187,7 +1290,8 @@ static unsigned char *strToUnicode(char *p) {
   return buf;
 }
 
-static unsigned char *toString(char *p, size_t len) {
+static unsigned char *toString(char *p, size_t len)
+{
   static unsigned char buf[4096];
 
   assert(len + 1 < sizeof buf);
@@ -1197,7 +1301,8 @@ static unsigned char *toString(char *p, size_t len) {
   return buf;
 }
 
-void buildAuthRequest(tSmbNtlmAuthRequest *request, long flags, char *host, char *domain) {
+void buildAuthRequest(tSmbNtlmAuthRequest *request, long flags, char *host, char *domain)
+{
   char *h = NULL; // strdup(host);
   char *p = NULL; // strchr(h,'@');
 
@@ -1210,7 +1315,8 @@ void buildAuthRequest(tSmbNtlmAuthRequest *request, long flags, char *host, char
 
   h = strdup(host);
   p = strchr(h, '@');
-  if (p) {
+  if (p)
+  {
     if (!domain)
       domain = p + 1;
     *p = '\0';
@@ -1229,7 +1335,8 @@ void buildAuthRequest(tSmbNtlmAuthRequest *request, long flags, char *host, char
   free(h);
 }
 
-void buildAuthResponse(tSmbNtlmAuthChallenge *challenge, tSmbNtlmAuthResponse *response, long flags, char *user, char *password, char *domainname, char *host) {
+void buildAuthResponse(tSmbNtlmAuthChallenge *challenge, tSmbNtlmAuthResponse *response, long flags, char *user, char *password, char *domainname, char *host)
+{
   uint8 lmRespData[24];
   uint8 ntRespData[24];
   char *u = strdup(user);
@@ -1245,7 +1352,8 @@ void buildAuthResponse(tSmbNtlmAuthChallenge *challenge, tSmbNtlmAuthResponse *r
     host = "";
   w = strdup(host);
 
-  if (p) {
+  if (p)
+  {
     domain = p + 1;
     *p = '\0';
   }
@@ -1286,7 +1394,8 @@ void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request);
 void dumpAuthChallenge(FILE *fp, tSmbNtlmAuthChallenge *challenge);
 void dumpAuthResponse(FILE *fp, tSmbNtlmAuthResponse *response);
 
-void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request) {
+void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request)
+{
   fprintf(fp, "NTLM Request:\n");
   fprintf(fp, "      Ident = %s\n", request->ident);
   fprintf(fp, "      mType = %u\n", IVAL(&request->msgType, 0));
@@ -1295,7 +1404,8 @@ void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request) {
   fprintf(fp, "     Domain = %s\n", GetString(request, domain));
 }
 
-void dumpAuthChallenge(FILE *fp, tSmbNtlmAuthChallenge *challenge) {
+void dumpAuthChallenge(FILE *fp, tSmbNtlmAuthChallenge *challenge)
+{
   fprintf(fp, "NTLM Challenge:\n");
   fprintf(fp, "      Ident = %s\n", challenge->ident);
   fprintf(fp, "      mType = %u\n", IVAL(&challenge->msgType, 0));
@@ -1306,7 +1416,8 @@ void dumpAuthChallenge(FILE *fp, tSmbNtlmAuthChallenge *challenge) {
   fprintf(fp, "  Incomplete!! parse optional parameters\n");
 }
 
-void dumpAuthResponse(FILE *fp, tSmbNtlmAuthResponse *response) {
+void dumpAuthResponse(FILE *fp, tSmbNtlmAuthResponse *response)
+{
   fprintf(fp, "NTLM Response:\n");
   fprintf(fp, "      Ident = %s\n", response->ident);
   fprintf(fp, "      mType = %u\n", IVAL(&response->msgType, 0));
@@ -1340,7 +1451,7 @@ static const char base64digits[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 #define BAD -1
 static const char base64val[] = {BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, BAD, 62, BAD, BAD, BAD, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, BAD, BAD, BAD, BAD, BAD, BAD,
-                                 BAD, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  BAD, BAD, BAD, BAD, BAD, BAD, 26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36, 37,  38,  39,  40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  BAD, BAD, BAD, BAD, BAD};
+                                 BAD, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, BAD, BAD, BAD, BAD, BAD, BAD, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, BAD, BAD, BAD, BAD, BAD};
 
 #define DECODE64(c) (isascii(c) ? base64val[c] : BAD)
 
@@ -1348,14 +1459,16 @@ void to64frombits(unsigned char *out, const unsigned char *in, int32_t inlen)
 
 /* raw bytes in quasi-big-endian order to base 64 string (NUL-terminated) */
 {
-  for (; inlen >= 3; inlen -= 3) {
+  for (; inlen >= 3; inlen -= 3)
+  {
     *out++ = base64digits[in[0] >> 2];
     *out++ = base64digits[((in[0] << 4) & 0x30) | (in[1] >> 4)];
     *out++ = base64digits[((in[1] << 2) & 0x3c) | (in[2] >> 6)];
     *out++ = base64digits[in[2] & 0x3f];
     in += 3;
   }
-  if (inlen > 0) {
+  if (inlen > 0)
+  {
     unsigned char fragment;
 
     *out++ = base64digits[in[0] >> 2];
@@ -1382,7 +1495,8 @@ int32_t from64tobits(char *out, const char *in)
   if (*in == '\r')
     return (0);
 
-  do {
+  do
+  {
     digit1 = in[0];
     if (DECODE64(digit1) == BAD)
       return (-1);
@@ -1398,10 +1512,12 @@ int32_t from64tobits(char *out, const char *in)
     in += 4;
     *out++ = (DECODE64(digit1) << 2) | (DECODE64(digit2) >> 4);
     ++len;
-    if (digit3 != '=') {
+    if (digit3 != '=')
+    {
       *out++ = ((DECODE64(digit2) << 4) & 0xf0) | (DECODE64(digit3) >> 2);
       ++len;
-      if (digit4 != '=') {
+      if (digit4 != '=')
+      {
         *out++ = ((DECODE64(digit3) << 6) & 0xc0) | DECODE64(digit4);
         ++len;
       }

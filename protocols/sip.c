@@ -25,7 +25,8 @@ extern char *FPASSWORD_EXIT;
 
 #define SIP_MAX_BUF 1024
 
-void empty_register(char *buf, char *host, char *lhost, int32_t port, int32_t lport, char *user) {
+void empty_register(char *buf, char *host, char *lhost, int32_t port, int32_t lport, char *user)
+{
   memset(buf, 0, SIP_MAX_BUF);
   snprintf(buf, SIP_MAX_BUF,
            "REGISTER sip:%s SIP/2.0\r\n"
@@ -38,7 +39,8 @@ void empty_register(char *buf, char *host, char *lhost, int32_t port, int32_t lp
            host, lhost, lport, user, host, user, host, host, cseq);
 }
 
-int32_t get_sip_code(char *buf) {
+int32_t get_sip_code(char *buf)
+{
   int32_t code;
   char tmpbuf[SIP_MAX_BUF], word[SIP_MAX_BUF];
 
@@ -47,7 +49,8 @@ int32_t get_sip_code(char *buf) {
   return code;
 }
 
-int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, unsigned char options, char *miscptr, FILE *fp)
+{
   char *login, *pass, *host, buffer[SIP_MAX_BUF], *result = NULL;
   int32_t i;
   char buf[SIP_MAX_BUF];
@@ -66,7 +69,8 @@ int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, u
   empty_register(buffer, host, lip, port, lport, login);
   cseq++;
 
-  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+  {
     return 3;
   }
 
@@ -75,47 +79,56 @@ int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, u
 
   /* We have to check many times because server may begin to send "100 Trying"
    * before "401 Unauthorized" */
-  while (try < 2 && !has_sip_cred) {
+  while (try < 2 && !has_sip_cred)
+  {
     try++;
-    if (fpassword_data_ready_timed(s, 3, 0) > 0) {
+    if (fpassword_data_ready_timed(s, 3, 0) > 0)
+    {
       i = fpassword_recv(s, (char *)buf, sizeof(buf) - 1);
       if (i > 0)
         buf[i] = '\0';
-      if (strncmp(buf, "SIP/2.0 404", 11) == 0) {
+      if (strncmp(buf, "SIP/2.0 404", 11) == 0)
+      {
         fpassword_report(stdout, "[ERROR] Get error code 404 : user '%s' not found\n", login);
         return 2;
       }
-      if (strncmp(buf, "SIP/2.0 606", 11) == 0) {
+      if (strncmp(buf, "SIP/2.0 606", 11) == 0)
+      {
         char *ptr = NULL;
         int32_t i = 0;
 
         // if we already tried to connect, exit
-        if (external_ip_addr[0]) {
+        if (external_ip_addr[0])
+        {
           fpassword_report(stdout, "[ERROR] Get error code 606 : session is not "
-                               "acceptable by the server\n");
+                                   "acceptable by the server\n");
           return 2;
         }
 
         if (verbose)
           fpassword_report(stdout, "[VERBOSE] Get error code 606 : session is not "
-                               "acceptable by the server,\n"
-                               "maybe it's an addressing issue as you are "
-                               "using NAT, trying to reconnect\n"
-                               "using addr from the server reply\n");
+                                   "acceptable by the server,\n"
+                                   "maybe it's an addressing issue as you are "
+                                   "using NAT, trying to reconnect\n"
+                                   "using addr from the server reply\n");
           /*
              SIP/2.0 606 Not Acceptable
              Via: SIP/2.0/UDP 192.168.0.21:46759;received=82.227.229.137
            */
 #ifdef HAVE_PCRE
-        if (fpassword_string_match(buf, "Via: SIP.*received=")) {
+        if (fpassword_string_match(buf, "Via: SIP.*received="))
+        {
           ptr = strstr(buf, "received=");
 #else
-        if ((ptr = strstr(buf, "received="))) {
+        if ((ptr = strstr(buf, "received=")))
+        {
 #endif
           strncpy(external_ip_addr, ptr + strlen("received="), sizeof(external_ip_addr));
           external_ip_addr[sizeof(external_ip_addr) - 1] = '\0';
-          for (i = 0; i < strlen(external_ip_addr); i++) {
-            if (external_ip_addr[i] <= 32) {
+          for (i = 0; i < strlen(external_ip_addr); i++)
+          {
+            if (external_ip_addr[i] <= 32)
+            {
               external_ip_addr[i] = '\0';
             }
           }
@@ -128,7 +141,8 @@ int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, u
       }
     }
   }
-  if (!strstr(buf, "WWW-Authenticate: Digest")) {
+  if (!strstr(buf, "WWW-Authenticate: Digest"))
+  {
     fpassword_report(stderr, "[ERROR] no www-authenticate header found!\n");
     return -1;
   }
@@ -155,28 +169,33 @@ int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, u
   cseq++;
   if (debug)
     fpassword_report(stderr, "[INFO] C: %s\n", buffer);
-  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+  {
     return 3;
   }
   try = 0;
   int32_t has_resp = 0;
   int32_t sip_code = 0;
 
-  while (try < 2 && !has_resp) {
+  while (try < 2 && !has_resp)
+  {
     try++;
-    if (fpassword_data_ready_timed(s, 5, 0) > 0) {
+    if (fpassword_data_ready_timed(s, 5, 0) > 0)
+    {
       memset(buf, 0, sizeof(buf));
       if ((i = fpassword_recv(s, (char *)buf, sizeof(buf) - 1)) >= 0)
         buf[i] = 0;
       if (debug)
         fpassword_report(stderr, "[INFO] S: %s\n", buf);
       sip_code = get_sip_code(buf);
-      if (sip_code >= 200 && sip_code < 300) {
+      if (sip_code >= 200 && sip_code < 300)
+      {
         fpassword_report_found_host(port, ip, "sip", fp);
         fpassword_completed_pair_found();
         has_resp = 1;
       }
-      if (sip_code >= 400 && sip_code < 500) {
+      if (sip_code >= 400 && sip_code < 500)
+      {
         has_resp = 1;
       }
     }
@@ -189,7 +208,8 @@ int32_t start_sip(int32_t s, char *ip, char *lip, int32_t port, int32_t lport, u
   return 1;
 }
 
-void service_sip(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_sip(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_SIP, mysslport = PORT_SIP_SSL;
 
@@ -198,7 +218,8 @@ void service_sip(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   fpassword_register_socket(sp);
 
   // FIXME IPV6
-  if (ip[0] != 4) {
+  if (ip[0] != 4)
+  {
     fprintf(stderr, "[ERROR] sip module is not ipv6 enabled yet, patches are "
                     "appreciated.\n");
     fpassword_child_exit(2);
@@ -209,28 +230,35 @@ void service_sip(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
 
   int32_t lport = 0;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1:
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (port != 0)
           myport = port;
         lport = rand() % (65535 - 1024) + 1024;
         fpassword_set_srcport(lport);
 
-        if ((options & OPTION_SSL) == 0) {
+        if ((options & OPTION_SSL) == 0)
+        {
           if (port != 0)
             myport = port;
           sock = fpassword_connect_udp(ip, myport);
           port = myport;
-        } else {
+        }
+        else
+        {
           if (port != 0)
             mysslport = port;
           sock = fpassword_connect_ssl(ip, mysslport, hostname);
           port = mysslport;
         }
 
-        if (sock < 0) {
+        if (sock < 0)
+        {
           if (verbose || debug)
             fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
           free(lip);
@@ -260,7 +288,8 @@ void service_sip(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   }
 }
 
-char *get_iface_ip(uint64_t ip) {
+char *get_iface_ip(uint64_t ip)
+{
   int32_t sfd;
 
   sfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -271,7 +300,8 @@ char *get_iface_ip(uint64_t ip) {
   tparamet.sin_port = htons(2000);
   tparamet.sin_addr.s_addr = ip;
 
-  if (connect(sfd, (const struct sockaddr *)&tparamet, sizeof(struct sockaddr_in))) {
+  if (connect(sfd, (const struct sockaddr *)&tparamet, sizeof(struct sockaddr_in)))
+  {
     perror("connect");
     close(sfd);
     return NULL;
@@ -279,7 +309,8 @@ char *get_iface_ip(uint64_t ip) {
   struct sockaddr_in *local = malloc(sizeof(struct sockaddr_in));
   int32_t size = sizeof(struct sockaddr_in);
 
-  if (getsockname(sfd, (void *)local, (socklen_t *)&size)) {
+  if (getsockname(sfd, (void *)local, (socklen_t *)&size))
+  {
     perror("getsockname");
     close(sfd);
     free(local);
@@ -289,7 +320,8 @@ char *get_iface_ip(uint64_t ip) {
 
   char buff[32];
 
-  if (!inet_ntop(AF_INET, (void *)&local->sin_addr, buff, 32)) {
+  if (!inet_ntop(AF_INET, (void *)&local->sin_addr, buff, 32))
+  {
     perror("inet_ntop");
     free(local);
     return NULL;
@@ -303,7 +335,8 @@ char *get_iface_ip(uint64_t ip) {
 
 #endif
 
-int32_t service_sip_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_sip_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

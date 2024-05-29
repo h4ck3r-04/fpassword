@@ -80,13 +80,15 @@ typedef unsigned short uint16;
 typedef uint32_t uint32;
 typedef unsigned char uint8;
 
-typedef struct {
+typedef struct
+{
   uint16 len;
   uint16 maxlen;
   uint32 offset;
 } tSmbStrHeader;
 
-typedef struct {
+typedef struct
+{
   char ident[8];
   uint32 msgType;
   uint32 flags;
@@ -96,7 +98,8 @@ typedef struct {
   uint32 bufIndex;
 } tSmbNtlmAuthRequest;
 
-typedef struct {
+typedef struct
+{
   char ident[8];
   uint32 msgType;
   tSmbStrHeader uDomain;
@@ -108,7 +111,8 @@ typedef struct {
   uint32 bufIndex;
 } tSmbNtlmAuthChallenge;
 
-typedef struct {
+typedef struct
+{
   char ident[8];
   uint32 msgType;
   tSmbStrHeader lmResponse;
@@ -142,7 +146,7 @@ void buildAuthResponse(tSmbNtlmAuthChallenge *challenge, tSmbNtlmAuthResponse *r
 int32_t from64tobits(char *out, const char *in);
 void to64frombits(unsigned char *out, const unsigned char *in, int32_t inlen);
 
-void XOR (char *out, char *in1, char *in2, int32_t n);
+void XOR(char *out, char *in1, char *in2, int32_t n);
 
 // info functions
 void dumpAuthRequest(FILE *fp, tSmbNtlmAuthRequest *request);

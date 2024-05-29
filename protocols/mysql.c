@@ -41,7 +41,8 @@ char mysqlsalt[9];
 
 /* modified fpassword_receive_line, I've striped code which changed every 0x00 to
  * 0x20 */
-char *fpassword_mysql_receive_line(int32_t socket) {
+char *fpassword_mysql_receive_line(int32_t socket)
+{
   char buf[300], *buff, *buff2;
   int32_t i = 0, j = 0, buff_size = 300;
 
@@ -51,13 +52,16 @@ char *fpassword_mysql_receive_line(int32_t socket) {
   memset(buff, 0, sizeof(buf));
 
   i = fpassword_data_ready_timed(socket, (long)waittime, 0);
-  if (i > 0) {
-    if ((i = internal__fpassword_recv(socket, buff, sizeof(buf))) < 0) {
+  if (i > 0)
+  {
+    if ((i = internal__fpassword_recv(socket, buff, sizeof(buf))) < 0)
+    {
       free(buff);
       return NULL;
     }
   }
-  if (i <= 0) {
+  if (i <= 0)
+  {
     if (debug)
       fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN||END\n");
     free(buff);
@@ -65,13 +69,18 @@ char *fpassword_mysql_receive_line(int32_t socket) {
   }
 
   j = 1;
-  while (fpassword_data_ready(socket) > 0 && j > 0) {
+  while (fpassword_data_ready(socket) > 0 && j > 0)
+  {
     j = internal__fpassword_recv(socket, buf, sizeof(buf));
-    if (j > 0) {
-      if (i + j > buff_size || (buff2 = realloc(buff, i + j)) == NULL) {
+    if (j > 0)
+    {
+      if (i + j > buff_size || (buff2 = realloc(buff, i + j)) == NULL)
+      {
         free(buff);
         return NULL;
-      } else {
+      }
+      else
+      {
         buff = buff2;
         buff_size = i + j;
       }
@@ -86,7 +95,8 @@ char *fpassword_mysql_receive_line(int32_t socket) {
 }
 
 /* check if valid mysql protocol, mysql version and read salt */
-char fpassword_mysql_init(int32_t sock) {
+char fpassword_mysql_init(int32_t sock)
+{
   char *server_version, *pos, *buf;
   unsigned char protocol;
 
@@ -95,18 +105,21 @@ char fpassword_mysql_init(int32_t sock) {
     return 1;
 
   protocol = buf[4];
-  if (protocol == 0xff) {
+  if (protocol == 0xff)
+  {
     pos = &buf[6];
     //    *(strchr(pos, '.')) = '\0';
     fpassword_report(stderr, "[ERROR] %s\n", pos);
     free(buf);
     return 2;
   }
-  if (protocol <= 10) {
+  if (protocol <= 10)
+  {
     free(buf);
     return 2;
   }
-  if (protocol > 10) {
+  if (protocol > 10)
+  {
     fprintf(stderr,
             "[INFO] This is protocol version %d, only v10 is supported, not "
             "sure if it will work\n",
@@ -116,10 +129,11 @@ char fpassword_mysql_init(int32_t sock) {
   pos = buf + strlen(server_version) + 10;
   memcpy(mysqlsalt, pos, 9);
 
-  if (!strstr(server_version, "3.") && !strstr(server_version, "4.") && strstr(server_version, "5.")) {
+  if (!strstr(server_version, "3.") && !strstr(server_version, "4.") && strstr(server_version, "5."))
+  {
 #ifndef LIBMYSQLCLIENT
     fpassword_report(stderr, "[ERROR] Not an MySQL protocol or unsupported version,\ncheck "
-                         "configure to see if libmysql is found\n");
+                             "configure to see if libmysql is found\n");
 #endif
     free(buf);
     return 2;
@@ -130,13 +144,15 @@ char fpassword_mysql_init(int32_t sock) {
 }
 
 /* prepare response to server greeting */
-char *fpassword_mysql_prepare_auth(char *login, char *pass) {
+char *fpassword_mysql_prepare_auth(char *login, char *pass)
+{
   unsigned char *response;
   unsigned long login_len = strlen(login) > 32 ? 32 : strlen(login);
   unsigned long response_len = 4 /* header */ + 2 /* client flags */ + 3 /* max packet len */ + login_len + 1 + 8 /* scrambled password len */;
 
   response = (unsigned char *)malloc(response_len + 4);
-  if (response == NULL) {
+  if (response == NULL)
+  {
     fprintf(stderr, "[ERROR] could not allocate memory\n");
     return NULL;
   }
@@ -157,7 +173,8 @@ char *fpassword_mysql_prepare_auth(char *login, char *pass) {
 /* returns 0 if authentication succeed */
 
 /* and 1 if failed                     */
-char fpassword_mysql_parse_response(unsigned char *response) {
+char fpassword_mysql_parse_response(unsigned char *response)
+{
   unsigned long response_len = *((unsigned long *)response) & 0xffffff;
 
   if (response_len < 4)
@@ -169,14 +186,16 @@ char fpassword_mysql_parse_response(unsigned char *response) {
   return 0;
 }
 
-char fpassword_mysql_send_com_quit(int32_t sock) {
+char fpassword_mysql_send_com_quit(int32_t sock)
+{
   char com_quit_packet[5] = {0x01, 0x00, 0x00, 0x00, 0x01};
 
   fpassword_send(sock, com_quit_packet, 5, 0);
   return 0;
 }
 
-int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *response = NULL, *login = NULL, *pass = NULL;
   unsigned long response_len;
   char res = 0;
@@ -191,22 +210,26 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
   /* read server greeting */
   res = fpassword_mysql_init(sock);
 
-  if (res == 2) {
+  if (res == 2)
+  {
     /* old reversing protocol trick did not work */
     /* try using the libmysql client if available */
     fpassword_mysql_send_com_quit(sock);
     sock = fpassword_disconnect(sock);
 #ifdef LIBMYSQLCLIENT
 
-    if (mysql == NULL) {
+    if (mysql == NULL)
+    {
       mysql = mysql_init(NULL);
-      if (mysql == NULL) {
+      if (mysql == NULL)
+      {
         fpassword_report(stderr, "[ERROR] Insufficient memory to allocate new mysql object\n");
         return 1;
       }
     }
     /*mysql_options(&mysql,MYSQL_OPT_COMPRESS,0); */
-    if (!mysql_real_connect(mysql, fpassword_address2string(ip), login, pass, database, port, NULL, 0)) {
+    if (!mysql_real_connect(mysql, fpassword_address2string(ip), login, pass, database, port, NULL, 0))
+    {
       int32_t my_errno = mysql_errno(mysql);
 
       if (debug)
@@ -216,13 +239,15 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
          Error: 1049 SQLSTATE: 42000 (ER_BAD_DB_ERROR)
          Message: Unknown database '%s'
        */
-      if (my_errno == 1049) {
+      if (my_errno == 1049)
+      {
         fpassword_report(stderr, "[ERROR] Unknown database: %s\n", database);
       }
 
-      if (my_errno == 1251) {
+      if (my_errno == 1251)
+      {
         fpassword_report(stderr, "[ERROR] Client does not support authentication "
-                             "protocol requested by server\n");
+                                 "protocol requested by server\n");
       }
 
       /*
@@ -238,7 +263,8 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
 
       // if the error is more critical, we just try to reconnect
       // to the db later with the mysql_init
-      if ((my_errno != 1044) && (my_errno != 1045)) {
+      if ((my_errno != 1044) && (my_errno != 1045))
+      {
         mysql_close(mysql);
         mysql = NULL;
       }
@@ -247,7 +273,8 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
 
     fpassword_report_found_host(port, ip, "mysql", fp);
     fpassword_completed_pair_found();
-    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+    {
       mysql_close(mysql);
       mysql = NULL;
       return 3;
@@ -272,7 +299,8 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
   /* When I send response_len bytes, it always read response_len-4 bytes */
   /* I fixed it just by sending 4 characters more. It is maybe not good  */
   /* coding style, but working :)                                        */
-  if (fpassword_send(sock, response, response_len + 4, 0) < 0) {
+  if (fpassword_send(sock, response, response_len + 4, 0) < 0)
+  {
     free(response);
     return 1;
   }
@@ -283,7 +311,8 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
     return 1;
   res = fpassword_mysql_parse_response((unsigned char *)response);
 
-  if (!res) {
+  if (!res)
+  {
     fpassword_mysql_send_com_quit(sock);
     sock = fpassword_disconnect(sock);
     fpassword_report_found_host(port, ip, "mysql", fp);
@@ -303,28 +332,34 @@ int32_t start_mysql(int32_t sock, char *ip, int32_t port, unsigned char options,
   return 1;
 }
 
-void service_mysql(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_mysql(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_MYSQL;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
-      if (sock >= 0) {
+      if (sock >= 0)
+      {
         fpassword_mysql_send_com_quit(sock);
         sock = fpassword_disconnect(sock);
       }
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (quiet != 1)
           fprintf(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -337,7 +372,8 @@ void service_mysql(char *ip, int32_t sp, unsigned char options, char *miscptr, F
         sleep(fpassword_options.conwait);
       break;
     case 3: /* clean exit */
-      if (sock >= 0) {
+      if (sock >= 0)
+      {
         fpassword_mysql_send_com_quit(sock);
         sock = fpassword_disconnect(sock);
       }
@@ -364,28 +400,33 @@ void service_mysql(char *ip, int32_t sp, unsigned char options, char *miscptr, F
 /* data types)                                                          */
 
 /************************************************************************/
-struct fpassword_rand_struct {
+struct fpassword_rand_struct
+{
   unsigned long seed1, seed2, max_value;
   double max_value_dbl;
 };
 
-void fpassword_randominit(struct fpassword_rand_struct *rand_st, unsigned long seed1, unsigned long seed2) { /* For mysql 3.21.# */
+void fpassword_randominit(struct fpassword_rand_struct *rand_st, unsigned long seed1, unsigned long seed2)
+{ /* For mysql 3.21.# */
   rand_st->max_value = 0x3FFFFFFFL;
   rand_st->max_value_dbl = (double)rand_st->max_value;
   rand_st->seed1 = seed1 % rand_st->max_value;
   rand_st->seed2 = seed2 % rand_st->max_value;
 }
 
-double fpassword_rnd(struct fpassword_rand_struct *rand_st) {
+double fpassword_rnd(struct fpassword_rand_struct *rand_st)
+{
   rand_st->seed1 = (rand_st->seed1 * 3 + rand_st->seed2) % rand_st->max_value;
   rand_st->seed2 = (rand_st->seed1 + rand_st->seed2 + 33) % rand_st->max_value;
   return (((double)rand_st->seed1) / rand_st->max_value_dbl);
 }
-void fpassword_hash_password(unsigned long *result, const char *password) {
+void fpassword_hash_password(unsigned long *result, const char *password)
+{
   register unsigned long nr = 1345345333L, add = 7, nr2 = 0x12345671L;
   unsigned long tmp;
 
-  for (; *password; password++) {
+  for (; *password; password++)
+  {
     if (*password == ' ' || *password == '\t')
       continue; /* skipp space in password */
     tmp = (unsigned long)(unsigned char)*password;
@@ -399,12 +440,14 @@ void fpassword_hash_password(unsigned long *result, const char *password) {
   return;
 }
 
-char *fpassword_scramble(char *to, const char *message, const char *password) {
+char *fpassword_scramble(char *to, const char *message, const char *password)
+{
   struct fpassword_rand_struct rand_st;
   unsigned long hash_pass[2], hash_message[2];
   char extra;
 
-  if (password && password[0]) {
+  if (password && password[0])
+  {
     char *to_start = to;
 
     fpassword_hash_password(hash_pass, password);
@@ -421,7 +464,8 @@ char *fpassword_scramble(char *to, const char *message, const char *password) {
 }
 #endif
 
-int32_t service_mysql_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_mysql_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -435,7 +479,8 @@ int32_t service_mysql_init(char *ip, int32_t sp, unsigned char options, char *mi
   return 0;
 }
 
-void usage_mysql(const char *service) {
+void usage_mysql(const char *service)
+{
   printf("Module mysql is optionally taking the database to attack, default is "
          "\"mysql\"\n\n");
 }

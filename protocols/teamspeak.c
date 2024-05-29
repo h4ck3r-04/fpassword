@@ -17,7 +17,8 @@ TS3 protocol (udp/9987) is not needed as user/pass is not used anymore
 
 */
 
-struct team_speak {
+struct team_speak
+{
   char header[16];
   unsigned long crc;
   char clientlen;
@@ -37,7 +38,8 @@ extern int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec);
 
 extern char *FPASSWORD_EXIT;
 
-int32_t start_teamspeak(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_teamspeak(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass;
   char buf[100];
@@ -75,21 +77,27 @@ int32_t start_teamspeak(int32_t s, char *ip, int32_t port, unsigned char options
   teamspeak.crc = crc32(&teamspeak, sizeof(struct team_speak));
 #endif
 
-  if (fpassword_send(s, (char *)&teamspeak, sizeof(struct team_speak), 0) < 0) {
+  if (fpassword_send(s, (char *)&teamspeak, sizeof(struct team_speak), 0) < 0)
+  {
     return 3;
   }
 
-  if (fpassword_data_ready_timed(s, 5, 0) > 0) {
+  if (fpassword_data_ready_timed(s, 5, 0) > 0)
+  {
     fpassword_recv(s, (char *)buf, sizeof(buf));
-    if (buf[0x58] == 1) {
+    if (buf[0x58] == 1)
+    {
       fpassword_report_found_host(port, ip, "teamspeak", fp);
       fpassword_completed_pair_found();
     }
-    if (buf[0x4B] != 0) {
+    if (buf[0x4B] != 0)
+    {
       fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
       fpassword_child_exit(1);
     }
-  } else {
+  }
+  else
+  {
     fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
     fpassword_child_exit(1);
   }
@@ -101,7 +109,8 @@ int32_t start_teamspeak(int32_t s, char *ip, int32_t port, unsigned char options
   return 1;
 }
 
-void service_teamspeak(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_teamspeak(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_TEAMSPEAK;
 
@@ -110,18 +119,22 @@ void service_teamspeak(char *ip, int32_t sp, unsigned char options, char *miscpt
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     run = 3;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
             //      if (sock >= 0)
             //      sock = fpassword_disconnect(sock);
             //      usleepn(300);
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_udp(ip, myport);
         port = myport;
-        if (sock < 0) {
+        if (sock < 0)
+        {
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
           fpassword_child_exit(1);
         }
@@ -141,7 +154,8 @@ void service_teamspeak(char *ip, int32_t sp, unsigned char options, char *miscpt
   }
 }
 
-int32_t service_teamspeak_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_teamspeak_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

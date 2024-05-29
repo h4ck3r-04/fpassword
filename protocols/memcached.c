@@ -16,7 +16,8 @@ extern int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec);
 extern fpassword_option fpassword_options;
 extern char *FPASSWORD_EXIT;
 
-int mcached_send_com_quit(int32_t sock) {
+int mcached_send_com_quit(int32_t sock)
+{
   char *com_quit = "quit\r\n";
 
   if (fpassword_send(sock, com_quit, strlen(com_quit), 0) < 0)
@@ -24,7 +25,8 @@ int mcached_send_com_quit(int32_t sock) {
   return 0;
 }
 
-int mcached_send_com_version(int32_t sock) {
+int mcached_send_com_version(int32_t sock)
+{
   char *com_version = "version\r\n";
 
   if (fpassword_send(sock, com_version, strlen(com_version), 0) < 0)
@@ -32,7 +34,8 @@ int mcached_send_com_version(int32_t sock) {
   return 0;
 }
 
-int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass;
 
@@ -48,7 +51,8 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
   cache = memcached_create(NULL);
 
   rc = memcached_set_sasl_auth_data(cache, login, pass);
-  if (rc != MEMCACHED_SUCCESS) {
+  if (rc != MEMCACHED_SUCCESS)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] Couldn't setup SASL auth: %s\n", memcached_strerror(cache, rc));
     memcached_free(cache);
@@ -56,7 +60,8 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
   }
 
   rc = memcached_behavior_set(cache, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
-  if (rc != MEMCACHED_SUCCESS) {
+  if (rc != MEMCACHED_SUCCESS)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] Couldn't use the binary protocol: %s\n", memcached_strerror(cache, rc));
     memcached_destroy_sasl_auth_data(cache);
@@ -64,7 +69,8 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
     return 3;
   }
   rc = memcached_behavior_set(cache, MEMCACHED_BEHAVIOR_CONNECT_TIMEOUT, 10000);
-  if (rc != MEMCACHED_SUCCESS) {
+  if (rc != MEMCACHED_SUCCESS)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] Couldn't set the connect timeout: %s\n", memcached_strerror(cache, rc));
     memcached_destroy_sasl_auth_data(cache);
@@ -74,7 +80,8 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
 
   servers = memcached_server_list_append(servers, fpassword_address2string(ip), port, &rc);
   rc = memcached_server_push(cache, servers);
-  if (rc != MEMCACHED_SUCCESS) {
+  if (rc != MEMCACHED_SUCCESS)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] Couldn't add server: %s\n", memcached_strerror(cache, rc));
     memcached_destroy_sasl_auth_data(cache);
@@ -83,13 +90,15 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
   }
 
   rc = memcached_stat_execute(cache, "", NULL, NULL);
-  if (rc != MEMCACHED_SUCCESS) {
+  if (rc != MEMCACHED_SUCCESS)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] Couldn't get server stats: %s\n", memcached_strerror(cache, rc));
     memcached_destroy_sasl_auth_data(cache);
     memcached_free(cache);
     fpassword_completed_pair_skip();
-    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+    if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+    {
       return 3;
     }
     return 2;
@@ -106,16 +115,19 @@ int32_t start_mcached(int32_t s, char *ip, int32_t port, unsigned char options, 
   return 2;
 }
 
-void service_mcached(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_mcached(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
 
   fpassword_register_socket(sp);
 
-  while (1) {
+  while (1)
+  {
     if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
       return;
 
-    switch (run) {
+    switch (run)
+    {
     case 1:
       next_run = start_mcached(sock, ip, port, options, miscptr, fp);
       if (next_run == 1 && fpassword_options.conwait)
@@ -127,14 +139,15 @@ void service_mcached(char *ip, int32_t sp, unsigned char options, char *miscptr,
     default:
       if (!verbose)
         fpassword_report(stderr, "[ERROR] Caught unknown return code, try verbose "
-                             "option for more details\n");
+                                 "option for more details\n");
       fpassword_child_exit(2);
     }
     run = next_run;
   }
 }
 
-int32_t service_mcached_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_mcached_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -147,21 +160,25 @@ int32_t service_mcached_init(char *ip, int32_t sp, unsigned char options, char *
     myport = port;
 
   sock = fpassword_connect_tcp(ip, myport);
-  if (sock < 0) {
+  if (sock < 0)
+  {
     if (verbose || debug)
       fpassword_report(stderr, "[ERROR] Can not connect\n");
     return -1;
   }
 
-  if (mcached_send_com_version(sock)) {
+  if (mcached_send_com_version(sock))
+  {
     if (verbose || debug)
       fpassword_report(stderr, "[ERROR] Can not send request\n");
     return -1;
   }
 
-  if (fpassword_data_ready_timed(sock, 0, 1000) > 0) {
+  if (fpassword_data_ready_timed(sock, 0, 1000) > 0)
+  {
     buf = fpassword_receive_line(sock);
-    if (strstr(buf, "VERSION ")) {
+    if (strstr(buf, "VERSION "))
+    {
       fpassword_report_found_host(port, ip, "memcached", fp);
       mcached_send_com_quit(sock);
       if (sock >= 0)

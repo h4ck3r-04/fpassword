@@ -39,7 +39,8 @@ extern char *FPASSWORD_EXIT;
 
 static svn_error_t *print_dirdummy(void *baton, const char *path, const svn_dirent_t *dirent, const svn_lock_t *lock, const char *abs_path, apr_pool_t *pool) { return SVN_NO_ERROR; }
 
-static svn_error_t *my_simple_prompt_callback(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool) {
+static svn_error_t *my_simple_prompt_callback(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool)
+{
   char *empty = "";
   char *login, *pass;
   svn_auth_cred_simple_t *ret = apr_pcalloc(pool, sizeof(*ret));
@@ -56,7 +57,8 @@ static svn_error_t *my_simple_prompt_callback(svn_auth_cred_simple_t **cred, voi
   return SVN_NO_ERROR;
 }
 
-int32_t start_svn(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_svn(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   // int32_t ipv6 = 0;
   char URL[1024];
   char URLBRANCH[256];
@@ -85,23 +87,27 @@ int32_t start_svn(int32_t s, char *ip, int32_t port, unsigned char options, char
   pool = svn_pool_create(NULL);
 
   err = svn_config_ensure(NULL, pool);
-  if (err) {
+  if (err)
+  {
     svn_pool_destroy(pool);
     svn_handle_error2(err, stderr, FALSE, "fpassword: ");
     return 4;
   }
 
 #if SVN_VER_MINOR > 7
-  if ((err = svn_client_create_context2(&ctx, NULL, pool))) {
+  if ((err = svn_client_create_context2(&ctx, NULL, pool)))
+  {
 #else
-  if ((err = svn_client_create_context(&ctx, pool))) {
+  if ((err = svn_client_create_context(&ctx, pool)))
+  {
 #endif
     svn_pool_destroy(pool);
     svn_handle_error2(err, stderr, FALSE, "fpassword: ");
     return 4;
   }
 
-  if ((err = svn_config_get_config(&(ctx->config), NULL, pool))) {
+  if ((err = svn_config_get_config(&(ctx->config), NULL, pool)))
+  {
     svn_pool_destroy(pool);
     svn_handle_error2(err, stderr, FALSE, "fpassword: ");
     return 4;
@@ -131,27 +137,36 @@ err = svn_client_list2(URL, &revision, &revision, svn_depth_unknown, dirents, FA
 
   svn_pool_destroy(pool);
 
-  if (err) {
+  if (err)
+  {
     if (debug || (verbose && (err->apr_err != 170001 && err->apr_err != 170013)))
       fpassword_report(stderr, "[ERROR] Access refused (error code %d) , message: %s\n", err->apr_err, err->message);
     // Username not found 170001 ": Username not found"
     // Password incorrect 170001 ": Password incorrect"
-    if (err->apr_err != 170001 && err->apr_err != 170013) {
+    if (err->apr_err != 170001 && err->apr_err != 170013)
+    {
       return 4; // error
-    } else {
-      if (strstr(err->message, "Username not found")) {
+    }
+    else
+    {
+      if (strstr(err->message, "Username not found"))
+      {
         // if (verbose)
         // printf("[INFO] user %s does not exist, skipping\n", login);
         fpassword_completed_pair_skip();
         if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
           return 3;
-      } else {
+      }
+      else
+      {
         fpassword_completed_pair();
         if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
           return 3;
       }
     }
-  } else {
+  }
+  else
+  {
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Access granted\n");
     fpassword_report_found_host(port, ip, "svn", fp);
@@ -161,34 +176,41 @@ err = svn_client_list2(URL, &revision, &revision, svn_depth_unknown, dirents, FA
   return 3;
 }
 
-void service_svn(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_svn(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_SVN, mysslport = PORT_SVN_SSL;
 
   fpassword_register_socket(sp);
 
-  while (1) {
+  while (1)
+  {
     if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
       return;
 
-    switch (run) {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
 
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -209,7 +231,7 @@ void service_svn(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
     default:
       if (!verbose)
         fpassword_report(stderr, "[ERROR] Caught unknown return code, try verbose "
-                             "option for more details\n");
+                                 "option for more details\n");
       fpassword_child_exit(0);
     }
     run = next_run;
@@ -218,7 +240,8 @@ void service_svn(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
 
 #endif
 
-int32_t service_svn_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_svn_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -232,7 +255,8 @@ int32_t service_svn_init(char *ip, int32_t sp, unsigned char options, char *misc
 #ifdef LIBSVN
   if (verbose)
     fpassword_report(stderr, "[VERBOSE] detected subversion library v%d.%d\n", SVN_VER_MAJOR, SVN_VER_MINOR);
-  if (SVN_VER_MAJOR != 1 && SVN_VER_MINOR >= 5) {
+  if (SVN_VER_MAJOR != 1 && SVN_VER_MINOR >= 5)
+  {
     fpassword_report(stderr, "[ERROR] unsupported subversion library v%d.%d, exiting!\n", SVN_VER_MAJOR, SVN_VER_MINOR);
     return -1;
   }
@@ -240,7 +264,8 @@ int32_t service_svn_init(char *ip, int32_t sp, unsigned char options, char *misc
   return 0;
 }
 
-void usage_svn(const char *service) {
+void usage_svn(const char *service)
+{
   printf("Module svn is optionally taking the repository name to attack, "
          "default is \"trunk\"\n\n");
 }

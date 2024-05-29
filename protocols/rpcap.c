@@ -6,7 +6,8 @@
 extern char *FPASSWORD_EXIT;
 char *buf;
 
-int32_t start_rpcap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_rpcap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[1024];
 
@@ -44,13 +45,15 @@ int32_t start_rpcap(int32_t s, char *ip, int32_t port, unsigned char options, ch
   memcpy(buffer + 16, login, strlen(login));
   memcpy(buffer + 16 + strlen(login), pass, strlen(pass));
 
-  if (fpassword_send(s, buffer, 16 + strlen(login) + strlen(pass), 0) < 0) {
+  if (fpassword_send(s, buffer, 16 + strlen(login) + strlen(pass), 0) < 0)
+  {
     return 1;
   }
 
   buf = fpassword_receive_line(s);
 
-  if (buf[1] == '\x88') {
+  if (buf[1] == '\x88')
+  {
     fpassword_report_found_host(port, ip, "rpcap", fp);
     fpassword_completed_pair_found();
     free(buf);
@@ -72,32 +75,39 @@ int32_t start_rpcap(int32_t s, char *ip, int32_t port, unsigned char options, ch
   return 2;
 }
 
-void service_rpcap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_rpcap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_RPCAP, mysslport = PORT_RPCAP_SSL;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       // usleep(300000);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
 
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -120,7 +130,8 @@ void service_rpcap(char *ip, int32_t sp, unsigned char options, char *miscptr, F
   }
 }
 
-int32_t service_rpcap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_rpcap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, performed once only.
   // return codes:
   // 0 - rpcap with authentication
@@ -131,30 +142,36 @@ int32_t service_rpcap_init(char *ip, int32_t sp, unsigned char options, char *mi
   char buffer[] = "\x00\x08\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00";
 
   fpassword_register_socket(sp);
-  if ((options & OPTION_SSL) == 0) {
+  if ((options & OPTION_SSL) == 0)
+  {
     if (port != 0)
       myport = port;
     sock = fpassword_connect_tcp(ip, myport);
     port = myport;
-  } else {
+  }
+  else
+  {
     if (port != 0)
       mysslport = port;
     sock = fpassword_connect_ssl(ip, mysslport, hostname);
     port = mysslport;
   }
 
-  if (sock < 0) {
+  if (sock < 0)
+  {
     fpassword_report(stderr, "[ERROR] Can not connect to port %d on the target\n", myport);
     fpassword_child_exit(1);
   }
 
-  if (fpassword_send(sock, buffer, 16, 0) < 0) {
+  if (fpassword_send(sock, buffer, 16, 0) < 0)
+  {
     return 1;
   }
 
   buf = fpassword_receive_line(sock);
 
-  if (strstr(buf, "NULL authentication not permitted") == NULL) {
+  if (strstr(buf, "NULL authentication not permitted") == NULL)
+  {
     fpassword_report(stderr, "[!] rpcap error or no need of authentication!\n");
     free(buf);
     return 1;

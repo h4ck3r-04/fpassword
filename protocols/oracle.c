@@ -33,14 +33,17 @@ OCIDefine *o_define;
 text o_errormsg[512];
 sb4 o_errorcode;
 
-void print_oracle_error(char *err) {
-  if (verbose) {
+void print_oracle_error(char *err)
+{
+  if (verbose)
+  {
     OCIErrorGet(o_error, 1, NULL, &o_errorcode, o_errormsg, sizeof(o_errormsg), OCI_HTYPE_ERROR);
     fprintf(stderr, "[ERROR] Oracle_error: %s - %s\n", o_errormsg, err);
   }
 }
 
-int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[200], sid[100];
 
@@ -69,25 +72,30 @@ int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, c
 
    */
 
-  if (OCIInitialize(OCI_DEFAULT, NULL, NULL, NULL, NULL)) {
+  if (OCIInitialize(OCI_DEFAULT, NULL, NULL, NULL, NULL))
+  {
     print_oracle_error("OCIInitialize");
     return 4;
   }
-  if (OCIEnvInit(&o_environment, OCI_DEFAULT, 0, NULL)) {
+  if (OCIEnvInit(&o_environment, OCI_DEFAULT, 0, NULL))
+  {
     print_oracle_error("OCIEnvInit");
     return 4;
   }
-  if (OCIEnvInit(&o_environment, OCI_DEFAULT, 0, NULL)) {
+  if (OCIEnvInit(&o_environment, OCI_DEFAULT, 0, NULL))
+  {
     print_oracle_error("OCIEnvInit 2");
     return 4;
   }
-  if (OCIHandleAlloc(o_environment, (dvoid **)&o_error, OCI_HTYPE_ERROR, (size_t)0, NULL)) {
+  if (OCIHandleAlloc(o_environment, (dvoid **)&o_error, OCI_HTYPE_ERROR, (size_t)0, NULL))
+  {
     print_oracle_error("OCIHandleAlloc");
     return 4;
   }
 
   bool success = true;
-  if (OCILogon(o_environment, o_error, &o_servicecontext, (const OraText *)login, strlen(login), (const OraText *)pass, strlen(pass), (const OraText *)buffer, strlen(buffer))) {
+  if (OCILogon(o_environment, o_error, &o_servicecontext, (const OraText *)login, strlen(login), (const OraText *)pass, strlen(pass), (const OraText *)buffer, strlen(buffer)))
+  {
     success = false;
     OCIErrorGet(o_error, 1, NULL, &o_errorcode, o_errormsg, sizeof(o_errormsg), OCI_HTYPE_ERROR);
     // database: oracle_error: ORA-01017: invalid username/password; logon
@@ -95,16 +103,19 @@ int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, c
     // know of service requested in connect descriptor database: oracle_error:
     // ORA-28000: the account is locked Failed login attempts is set to 10 by
     // default
-    if (verbose) {
+    if (verbose)
+    {
       fpassword_report(stderr, "[VERBOSE] database: oracle_error: %s\n", o_errormsg);
     }
-    if (strstr((const char *)o_errormsg, "ORA-12514") != NULL) {
+    if (strstr((const char *)o_errormsg, "ORA-12514") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] ORACLE SID is not valid, you should try to "
-                           "enumerate them.\n");
+                               "enumerate them.\n");
       fpassword_completed_pair();
       return 3;
     }
-    if (strstr((const char *)o_errormsg, "ORA-28000") != NULL) {
+    if (strstr((const char *)o_errormsg, "ORA-28000") != NULL)
+    {
       fpassword_report(stderr, "[INFO] ORACLE account %s is locked.\n", login);
       fpassword_completed_pair_skip();
       if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
@@ -112,20 +123,25 @@ int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, c
       return 2;
     }
     // ORA-28002: the password will expire within 7 days
-    if (strstr((const char *)o_errormsg, "ORA-28002") != NULL) {
+    if (strstr((const char *)o_errormsg, "ORA-28002") != NULL)
+    {
       fpassword_report(stderr, "[INFO] ORACLE account %s password will expire soon.\n", login);
       success = true;
     }
   }
 
-  if (success) {
+  if (success)
+  {
     OCILogoff(o_servicecontext, o_error);
     fpassword_report_found_host(port, ip, "oracle", fp);
     fpassword_completed_pair_found();
-  } else {
+  }
+  else
+  {
     fpassword_completed_pair();
   }
-  if (o_error) {
+  if (o_error)
+  {
     OCIHandleFree((dvoid *)o_error, OCI_HTYPE_ERROR);
   }
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
@@ -133,7 +149,8 @@ int32_t start_oracle(int32_t s, char *ip, int32_t port, unsigned char options, c
   return success ? 1 : 2;
 }
 
-void service_oracle(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_oracle(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_ORACLE;
 
@@ -141,14 +158,17 @@ void service_oracle(char *ip, int32_t sp, unsigned char options, char *miscptr, 
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  if ((miscptr == NULL) || (strlen(miscptr) == 0)) {
+  if ((miscptr == NULL) || (strlen(miscptr) == 0))
+  {
     // SID is required as miscptr
     fpassword_report(stderr, "[ERROR] Oracle SID is required, using ORCL as default\n");
     miscptr = "ORCL";
   }
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
@@ -157,7 +177,8 @@ void service_oracle(char *ip, int32_t sp, unsigned char options, char *miscptr, 
       sock = fpassword_connect_tcp(ip, myport);
       port = myport;
 
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -190,7 +211,8 @@ void service_oracle(char *ip, int32_t sp, unsigned char options, char *miscptr, 
 
 #endif
 
-int32_t service_oracle_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_oracle_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -204,7 +226,8 @@ int32_t service_oracle_init(char *ip, int32_t sp, unsigned char options, char *m
   return 0;
 }
 
-void usage_oracle(const char *service) {
+void usage_oracle(const char *service)
+{
   printf("Module oracle / ora is optionally taking the ORACLE SID, default is "
          "\"ORCL\"\n\n");
 }

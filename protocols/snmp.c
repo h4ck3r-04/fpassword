@@ -23,7 +23,8 @@ unsigned char snmpv3_get2[] = {0x30, 0x2e, 0x04, 0x0c, 0x80, 0x00, 0x00, 0x09, 0
 
 unsigned char snmpv3_nouser[] = {0x04, 0x00, 0x04, 0x00, 0x04, 0x00};
 
-struct SNMPV1_A {
+struct SNMPV1_A
+{
   char ID;
   char len;
   char ver[4];
@@ -37,7 +38,8 @@ struct SNMPV1_A snmpv1_a = {.ID = '\x30',
                             .comid = '\x04',
                             .comlen = '\x00'};
 
-struct SNMPV1_R {
+struct SNMPV1_R
+{
   unsigned char type[3];
   unsigned char identid[3];
   unsigned char ident[5];
@@ -57,7 +59,8 @@ struct SNMPV1_R {
     .value = "\x05\x00"                                       /* we just read, so value = 0 */
 };
 
-struct SNMPV1_W {
+struct SNMPV1_W
+{
   unsigned char type[3];
   unsigned char identid[3];
   unsigned char ident[5];
@@ -82,7 +85,8 @@ void password_to_key_md5(u_char *password,   /* IN */
                          u_int passwordlen,  /* IN */
                          u_char *engineID,   /* IN  - pointer to snmpEngineID  */
                          u_int engineLength, /* IN  - length of snmpEngineID */
-                         u_char *key) {      /* OUT - pointer to caller 16-octet buffer */
+                         u_char *key)
+{ /* OUT - pointer to caller 16-octet buffer */
   MD5_CTX MD;
   u_char *cp, password_buf[80], *mypass = password, bpass[17];
   u_long password_index = 0, count = 0, i, mylen, myelen = engineLength;
@@ -93,10 +97,12 @@ void password_to_key_md5(u_char *password,   /* IN */
     passwordlen = sizeof(bpass) - 1;
   mylen = passwordlen;
 
-  if (mylen < 8) {
+  if (mylen < 8)
+  {
     memset(bpass, 0, sizeof(bpass));
     strncpy(bpass, password, sizeof(bpass) - 1);
-    while (mylen < 8) {
+    while (mylen < 8)
+    {
       strcat(bpass, password);
       mylen += passwordlen;
     }
@@ -107,9 +113,11 @@ void password_to_key_md5(u_char *password,   /* IN */
 
   MD5_Init(&MD); /* initialize MD5 */
   /* Use while loop until we've done 1 Megabyte */
-  while (count < 1048576) {
+  while (count < 1048576)
+  {
     cp = password_buf;
-    for (i = 0; i < 64; i++) {
+    for (i = 0; i < 64; i++)
+    {
       /* Take the next octet of the password, wrapping */
       /* to the beginning of the password as necessary. */
       *cp++ = mypass[password_index++ % mylen];
@@ -135,15 +143,18 @@ void password_to_key_sha(u_char *password,   /* IN */
                          u_int passwordlen,  /* IN */
                          u_char *engineID,   /* IN  - pointer to snmpEngineID  */
                          u_int engineLength, /* IN  - length of snmpEngineID */
-                         u_char *key) {      /* OUT - pointer to caller 20-octet buffer */
+                         u_char *key)
+{ /* OUT - pointer to caller 20-octet buffer */
   SHA_CTX SH;
   u_char *cp, password_buf[80], *mypass = password, bpass[17];
   u_long password_index = 0, count = 0, i, mylen = passwordlen, myelen = engineLength;
 
-  if (mylen < 8) {
+  if (mylen < 8)
+  {
     memset(bpass, 0, sizeof(bpass));
     strcpy(bpass, password);
-    while (mylen < 8) {
+    while (mylen < 8)
+    {
       strcat(bpass, password);
       mylen += passwordlen;
     }
@@ -155,9 +166,11 @@ void password_to_key_sha(u_char *password,   /* IN */
 
   SHA1_Init(&SH); /* initialize SHA */
   /* Use while loop until we've done 1 Megabyte */
-  while (count < 1048576) {
+  while (count < 1048576)
+  {
     cp = password_buf;
-    for (i = 0; i < 64; i++) {
+    for (i = 0; i < 64; i++)
+    {
       /* Take the next octet of the password, wrapping */
       /* to the beginning of the password as necessary. */
       *cp++ = mypass[password_index++ % mylen];
@@ -180,7 +193,8 @@ void password_to_key_sha(u_char *password,   /* IN */
 }
 #endif
 
-int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "\"\"", *ptr, *login, *pass, buffer[1024], buf[1024], hash[64], key[256] = "", salt[8] = "";
   int32_t i, j, k, size, off = 0, off2 = 0;
   unsigned char initVect[8], privacy_params[8];
@@ -195,15 +209,20 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  if (snmpversion < 3) {
+  if (snmpversion < 3)
+  {
     /* do we attack snmp v1 or v2c? */
-    if (snmpversion == 2) {
+    if (snmpversion == 2)
+    {
       snmpv1_a.ver[2] = '\x01';
     }
 
-    if (snmpread) {
+    if (snmpread)
+    {
       size = sizeof(snmpv1_r);
-    } else {
+    }
+    else
+    {
       size = sizeof(snmpv1_w);
     }
 
@@ -215,18 +234,26 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
     strcpy(buffer + i, pass);
     i += strlen(pass);
 
-    if (snmpread) {
+    if (snmpread)
+    {
       memcpy(buffer + i, &snmpv1_r, size);
       i += sizeof(snmpv1_r);
-    } else {
+    }
+    else
+    {
       memcpy(buffer + i, &snmpv1_w, size);
       i += sizeof(snmpv1_w);
     }
-  } else { // snmpv3
-    if (enctype == 0) {
+  }
+  else
+  { // snmpv3
+    if (enctype == 0)
+    {
       memcpy(buffer, snmpv3_get1, sizeof(snmpv3_get1));
       i = sizeof(snmpv3_get1);
-    } else {
+    }
+    else
+    {
       memcpy(buffer + 1, snmpv3_get1, sizeof(snmpv3_get1));
       buffer[0] = buffer[1];
       memset(buffer + 1, 0x81, 2);
@@ -236,20 +263,27 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
 
     memcpy(buffer + i, snmpv3info, snmpv3infolen);
 
-    if (hashtype > 0) {
+    if (hashtype > 0)
+    {
       off = 12;
 #ifdef LIBOPENSSL
-      if (hashtype == 1) {
+      if (hashtype == 1)
+      {
         password_to_key_md5(pass, strlen(pass), snmpv3info + 6, snmpv3info[5], key);
-      } else {
+      }
+      else
+      {
         password_to_key_sha(pass, strlen(pass), snmpv3info + 6, snmpv3info[5], key);
       }
 #endif
-      if (enctype > 0) {
+      if (enctype > 0)
+      {
         off += 8;
         buffer[20 + off2] = 7;
       }
-    } else {
+    }
+    else
+    {
       ptr = login;
       login = pass;
       pass = ptr;
@@ -270,30 +304,39 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
     i += 2 + strlen(login);
 
     buffer[i] = 0x04;
-    if (hashtype > 0) {
+    if (hashtype > 0)
+    {
       buffer[i + 1] = 12;
       memset(buffer + i + 2, 0, 12);
       off = i + 2;
       i += 2 + 12;
-    } else {
+    }
+    else
+    {
       buffer[i + 1] = 0;
       i += 2;
     }
 
     buffer[i] = 0x04;
-    if (enctype == 0) {
+    if (enctype == 0)
+    {
       buffer[i + 1] = 0x00;
       i += 2;
-    } else {
+    }
+    else
+    {
       buffer[i + 1] = 8;
       memcpy(buffer + i + 2, salt, 8); // uninitialized and we don't care
       i += 10;
     }
 
-    if (enctype == 0) {
+    if (enctype == 0)
+    {
       memcpy(buffer + i, snmpv3_get2, sizeof(snmpv3_get2));
       i += sizeof(snmpv3_get2);
-    } else {
+    }
+    else
+    {
       buffer[i] = 4;
       buffer[i + 1] = 0x30;
 
@@ -351,10 +394,13 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
 
     i++; // just to conform with the snmpv1/2 code
 #ifdef LIBOPENSSL
-    if (hashtype == 1) {
+    if (hashtype == 1)
+    {
       HMAC((EVP_MD *)EVP_md5(), key, 16, buffer, i - 1, hash, NULL);
       memcpy(buffer + off, hash, 12);
-    } else if (hashtype == 2) {
+    }
+    else if (hashtype == 2)
+    {
       HMAC((EVP_MD *)EVP_sha1(), key, 20, buffer, i - 1, hash, NULL);
       memcpy(buffer + off, hash, 12);
     }
@@ -362,26 +408,38 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
   }
 
   j = 0;
-  do {
+  do
+  {
     if (fpassword_send(s, buffer, i - 1, 0) < 0)
       return 3;
     j++;
   } while (fpassword_data_ready_timed(s, 1, 0) <= 0 && j < 3);
 
-  if (fpassword_data_ready_timed(s, 5, 0) > 0) {
+  if (fpassword_data_ready_timed(s, 5, 0) > 0)
+  {
     i = fpassword_recv(s, (char *)buf, sizeof(buf));
 
-    if (snmpversion < 3) {
+    if (snmpversion < 3)
+    {
       /* stolen from ADMsnmp... :P */
-      for (j = 0; j < i; j++) {
-        if (buf[j] == '\x04') { /* community name */
-          for (j = j + buf[j + 1]; j + 2 < i; j++) {
-            if (buf[j] == '\xa2') { /* PDU Response */
-              for (; j + 2 < i; j++) {
-                if (buf[j] == '\x02') { /* ID */
-                  for (j = j + (buf[j + 1]); j + 2 < i; j++) {
-                    if (buf[j] == '\x02') {
-                      if (buf[j + 1] == '\x01') { /* good ! */
+      for (j = 0; j < i; j++)
+      {
+        if (buf[j] == '\x04')
+        { /* community name */
+          for (j = j + buf[j + 1]; j + 2 < i; j++)
+          {
+            if (buf[j] == '\xa2')
+            { /* PDU Response */
+              for (; j + 2 < i; j++)
+              {
+                if (buf[j] == '\x02')
+                { /* ID */
+                  for (j = j + (buf[j + 1]); j + 2 < i; j++)
+                  {
+                    if (buf[j] == '\x02')
+                    {
+                      if (buf[j + 1] == '\x01')
+                      { /* good ! */
                         fpassword_report_found_host(port, ip, "snmp", fp);
                         fpassword_completed_pair_found();
                         if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
@@ -396,9 +454,12 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
           }
         }
       }
-    } else { // snmpv3 reply
+    }
+    else
+    { // snmpv3 reply
       off = 0;
-      if (buf[0] == 0x30) {
+      if (buf[0] == 0x30)
+      {
         if (buf[4] == 0x03 && buf[5] == 0x30)
           off = 4;
         if (buf[5] == 0x03 && buf[6] == 0x30)
@@ -413,13 +474,15 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
         printf("[DEBUG] buf[%d + 15] %d\n", off, buf[off + 15]);
       k = 3 + off + buf[2 + off];
       if ((j = fpassword_memsearch(buf + k, buf[k + 3], (char *)snmpv3_nouser, sizeof(snmpv3_nouser))) < 0)
-        if ((j = fpassword_memsearch(buf + k, buf[k + 3], login, strlen(login))) >= 0) {
+        if ((j = fpassword_memsearch(buf + k, buf[k + 3], login, strlen(login))) >= 0)
+        {
           if (snmpv3info[j - 2] == 0x04)
             j -= 2;
           else
             j = -1;
         }
-      if (j >= 0) {
+      if (j >= 0)
+      {
         i = buf[k + 3] + 4;
         if (i > sizeof(snmpv3info))
           i = sizeof(snmpv3info);
@@ -429,7 +492,8 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
           fpassword_dump_asciihex((unsigned char *)snmpv3info, snmpv3infolen);
       }
 
-      if ((buf[off + 15] & 1) == 1) {
+      if ((buf[off + 15] & 1) == 1)
+      {
         if (hashtype == 0)
           fpassword_report_found_host(port, ip, "snmp3", fp);
         else
@@ -438,8 +502,10 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
         if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
           return 3;
         return 1;
-      } else if ((buf[off + 15] & 5) == 4 && fpassword_memsearch(buf, i, (char *)snmpv3_nouser,
-                                                             sizeof(snmpv3_nouser)) >= 0) { // user does not exist
+      }
+      else if ((buf[off + 15] & 5) == 4 && fpassword_memsearch(buf, i, (char *)snmpv3_nouser,
+                                                               sizeof(snmpv3_nouser)) >= 0)
+      { // user does not exist
         if (verbose)
           printf("[INFO] user %s does not exist, skipping\n", login);
         fpassword_completed_pair_skip();
@@ -456,14 +522,17 @@ int32_t start_snmp(int32_t s, char *ip, int32_t port, unsigned char options, cha
   return 1;
 }
 
-void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1, i = 0;
   int32_t myport = PORT_SNMP;
   char *lptr;
 
-  if (miscptr != NULL) {
+  if (miscptr != NULL)
+  {
     lptr = strtok(miscptr, ":");
-    while (lptr != NULL) {
+    while (lptr != NULL)
+    {
       if (strcasecmp(lptr, "1") == 0)
         snmpversion = 1;
       else if (strcasecmp(lptr, "2") == 0)
@@ -484,7 +553,8 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
         enctype = 1;
       else if (strcasecmp(lptr, "AES") == 0)
         enctype = 2;
-      else {
+      else
+      {
         fprintf(stderr, "[ERROR] unknown optional parameter: %s\n", lptr);
         fpassword_child_exit(2);
       }
@@ -504,21 +574,28 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
 
   fpassword_register_socket(sp);
 
-  if (sock < 0) {
+  if (sock < 0)
+  {
     fpassword_report(stderr, "[ERROR] Child with pid %d terminating, no socket available\n", (int32_t)getpid());
     fpassword_child_exit(1);
   }
 
-  if (snmpversion == 3) {
+  if (snmpversion == 3)
+  {
     next_run = 0;
-    while (snmpv3info == NULL && next_run < 3) {
+    while (snmpv3info == NULL && next_run < 3)
+    {
       fpassword_send(sock, (char *)snmpv3_init, sizeof(snmpv3_init), 0);
-      if (fpassword_data_ready_timed(sock, 5, 0) > 0) {
-        if ((i = fpassword_recv(sock, (char *)snmpv3buf, sizeof(snmpv3buf))) > 30) {
-          if (snmpv3buf[4] == 3 && snmpv3buf[5] == 0x30) {
+      if (fpassword_data_ready_timed(sock, 5, 0) > 0)
+      {
+        if ((i = fpassword_recv(sock, (char *)snmpv3buf, sizeof(snmpv3buf))) > 30)
+        {
+          if (snmpv3buf[4] == 3 && snmpv3buf[5] == 0x30)
+          {
             snmpv3info = snmpv3buf + 7 + snmpv3buf[6];
             snmpv3infolen = snmpv3info[3] + 4;
-            if (snmpv3info + snmpv3infolen <= snmpv3buf + sizeof(snmpv3buf)) {
+            if (snmpv3info + snmpv3infolen <= snmpv3buf + sizeof(snmpv3buf))
+            {
               while (snmpv3info[snmpv3infolen - 2] == 4 && snmpv3info[snmpv3infolen - 1] == 0 && snmpv3infolen > 1)
                 snmpv3infolen -= 2;
               if (debug)
@@ -533,7 +610,8 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
       }
       next_run++;
     }
-    if (snmpv3info == NULL || i < snmpv3info + snmpv3infolen - snmpv3buf) {
+    if (snmpv3info == NULL || i < snmpv3info + snmpv3infolen - snmpv3buf)
+    {
       fpassword_report(stderr, "No valid reply from snmp server, exiting!\n");
       fpassword_child_exit(2);
     }
@@ -542,8 +620,10 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     run = 3;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       next_run = start_snmp(sock, ip, port, options, miscptr, fp);
       break;
@@ -560,7 +640,8 @@ void service_snmp(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   }
 }
 
-int32_t service_snmp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_snmp_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -574,7 +655,8 @@ int32_t service_snmp_init(char *ip, int32_t sp, unsigned char options, char *mis
   return 0;
 }
 
-void usage_snmp(const char *service) {
+void usage_snmp(const char *service)
+{
   printf("Module snmp is optionally taking the following parameters:\n"
          "   READ  perform read requests (default)\n"
          "   WRITE perform write requests\n"

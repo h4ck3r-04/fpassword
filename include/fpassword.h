@@ -170,11 +170,27 @@ int32_t sleepn(uint32_t seconds);
 int32_t usleepn(uint32_t useconds);
 #endif
 
-typedef enum { MODE_PASSWORD_LIST = 1, MODE_LOGIN_LIST = 2, MODE_PASSWORD_BRUTE = 4, MODE_PASSWORD_REVERSE = 8, MODE_PASSWORD_NULL = 16, MODE_PASSWORD_SAME = 32, MODE_COLON_FILE = 64 } fpassword_mode_t;
+typedef enum
+{
+  MODE_PASSWORD_LIST = 1,
+  MODE_LOGIN_LIST = 2,
+  MODE_PASSWORD_BRUTE = 4,
+  MODE_PASSWORD_REVERSE = 8,
+  MODE_PASSWORD_NULL = 16,
+  MODE_PASSWORD_SAME = 32,
+  MODE_COLON_FILE = 64
+} fpassword_mode_t;
 
-typedef enum { FORMAT_PLAIN_TEXT, FORMAT_JSONV1, FORMAT_JSONV2, FORMAT_XMLV1 } output_format_t;
+typedef enum
+{
+  FORMAT_PLAIN_TEXT,
+  FORMAT_JSONV1,
+  FORMAT_JSONV2,
+  FORMAT_XMLV1
+} output_format_t;
 
-typedef struct {
+typedef struct
+{
   fpassword_mode_t mode;
   int32_t loop_mode; // valid modes: 0 = password, 1 = user
   int32_t ssl;

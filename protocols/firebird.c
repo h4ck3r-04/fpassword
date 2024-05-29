@@ -25,7 +25,8 @@ void dummy_firebird() { printf("\n"); }
 extern fpassword_option fpassword_options;
 extern char *FPASSWORD_EXIT;
 
-int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass;
   char database[256];
@@ -49,7 +50,8 @@ int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options,
     pass = empty;
 
   dpb_length = (short)(1 + strlen(login) + 2 + strlen(pass) + 2);
-  if ((dpb = (char *)malloc(dpb_length)) == NULL) {
+  if ((dpb = (char *)malloc(dpb_length)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     return 1;
   }
@@ -63,9 +65,11 @@ int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options,
   /* Create connection string */
   snprintf(connection_string, sizeof(connection_string), "%s:%s", fpassword_address2string(ip), database);
 
-  if (isc_attach_database(status, 0, connection_string, &db, dpb_length, dpb)) {
+  if (isc_attach_database(status, 0, connection_string, &db, dpb_length, dpb))
+  {
     /* for debugging perpose */
-    if (verbose) {
+    if (verbose)
+    {
       fpassword_report(stderr, "[VERBOSE] ");
       isc_print_status(status);
     }
@@ -73,7 +77,9 @@ int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options,
     fpassword_completed_pair();
     if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
       return 2;
-  } else {
+  }
+  else
+  {
     isc_detach_database(status, &db);
     isc_free(dpb);
     fpassword_report_found_host(port, ip, "firebird", fp);
@@ -85,7 +91,8 @@ int32_t start_firebird(int32_t s, char *ip, int32_t port, unsigned char options,
   return 1;
 }
 
-void service_firebird(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_firebird(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_FIREBIRD, mysslport = PORT_FIREBIRD_SSL;
 
@@ -93,23 +100,29 @@ void service_firebird(char *ip, int32_t sp, unsigned char options, char *miscptr
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (quiet != 1)
           fprintf(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -146,7 +159,8 @@ void service_firebird(char *ip, int32_t sp, unsigned char options, char *miscptr
 
 #endif
 
-int32_t service_firebird_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_firebird_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -160,7 +174,8 @@ int32_t service_firebird_init(char *ip, int32_t sp, unsigned char options, char 
   return 0;
 }
 
-void usage_firebird(const char *service) {
+void usage_firebird(const char *service)
+{
   printf("Module firebird is optionally taking the database path to attack,\n"
          "default is \"C:\\Program "
          "Files\\Firebird\\Firebird_1_5\\security.fdb\"\n\n");

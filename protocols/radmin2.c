@@ -9,7 +9,8 @@ extern char *FPASSWORD_EXIT;
 
 // RAdmin 2.x
 
-struct rmessage {
+struct rmessage
+{
   uint8_t magic;          // Indicates version, probably?
   uint32_t length;        // Total message size of data.
   uint32_t checksum;      // Checksum from type to end of data.
@@ -24,7 +25,8 @@ struct rmessage {
  * [01][00000021][0f43d461] sum([1b6e779a f37189bb c1b22982 c80d1f4d 66678ff9
  * 4b10f0ce eabff6e8 f4fb8338 3b] + zeropad(3)]) Sum: is 0f43d461 (big endian)
  */
-uint32_t checksum(struct rmessage *msg) {
+uint32_t checksum(struct rmessage *msg)
+{
   int32_t blen;
   uint8_t *stream;
   uint32_t sum;
@@ -37,7 +39,8 @@ uint32_t checksum(struct rmessage *msg) {
   memcpy(stream + 1, msg->data, blen - 1);
 
   sum = 0;
-  for (blen -= sizeof(uint32_t); blen > 0; blen -= sizeof(uint32_t)) {
+  for (blen -= sizeof(uint32_t); blen > 0; blen -= sizeof(uint32_t))
+  {
     sum += *(uint32_t *)(stream + blen);
   }
   sum += *(uint32_t *)stream;
@@ -53,7 +56,8 @@ uint32_t checksum(struct rmessage *msg) {
  * Function: Modifies message to reflect a request for a challenge. Updates the
  * checksum as appropriate.
  */
-void challenge_request(struct rmessage *msg) {
+void challenge_request(struct rmessage *msg)
+{
   msg->magic = 0x01;
   msg->length = 0x01;
   msg->type = 0x1b;
@@ -65,7 +69,8 @@ void challenge_request(struct rmessage *msg) {
  * Function: Modifies message to reflect a response to a challenge. Updates the
  * checksum as appropriate.
  */
-void challenge_response(struct rmessage *msg, unsigned char *solution) {
+void challenge_response(struct rmessage *msg, unsigned char *solution)
+{
   msg->magic = 0x01;
   msg->length = 0x21;
   msg->type = 0x09;
@@ -79,18 +84,22 @@ void challenge_response(struct rmessage *msg, unsigned char *solution) {
  * buffer with message data such that it is ready to transmit.
  */
 // TODO: conver to a sendMessage() function?
-char *message2buffer(struct rmessage *msg) {
+char *message2buffer(struct rmessage *msg)
+{
   char *data;
-  if (msg == NULL) {
+  if (msg == NULL)
+  {
     fpassword_report(stderr, "rmessage is null\n");
     fpassword_child_exit(0);
     return NULL;
   }
 
-  switch (msg->type) {
+  switch (msg->type)
+  {
   case 0x1b: // Challenge request
     data = (char *)calloc(10, sizeof(char));
-    if (data == NULL) {
+    if (data == NULL)
+    {
       fpassword_report(stderr, "calloc failure\n");
       fpassword_child_exit(0);
     }
@@ -101,7 +110,8 @@ char *message2buffer(struct rmessage *msg) {
     break;
   case 0x09:
     data = (char *)calloc(42, sizeof(char));
-    if (data == NULL) {
+    if (data == NULL)
+    {
       fpassword_report(stderr, "calloc failure\n");
       fpassword_child_exit(0);
     }
@@ -119,10 +129,12 @@ char *message2buffer(struct rmessage *msg) {
   return data;
 }
 
-struct rmessage *buffer2message(char *buffer) {
+struct rmessage *buffer2message(char *buffer)
+{
   struct rmessage *msg;
   msg = calloc(1, sizeof(struct rmessage));
-  if (msg == NULL) {
+  if (msg == NULL)
+  {
     fpassword_report(stderr, "calloc failure\n");
     fpassword_child_exit(0);
   }
@@ -138,15 +150,18 @@ struct rmessage *buffer2message(char *buffer) {
   buffer += sizeof(char);
 
   // Verify known fields...
-  if (msg->magic != 0x01) {
+  if (msg->magic != 0x01)
+  {
     fpassword_report(stderr, "Bad magic\n");
     fpassword_child_exit(0);
     return NULL;
   }
 
-  switch (msg->type) {
+  switch (msg->type)
+  {
   case 0x1b:
-    if (msg->length != 0x21) {
+    if (msg->length != 0x21)
+    {
       fpassword_report(stderr, "Bad length...%08x\n", msg->length);
       fpassword_child_exit(0);
       return NULL;
@@ -168,7 +183,8 @@ struct rmessage *buffer2message(char *buffer) {
 
 int32_t start_radmin2(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) { return 0; }
 
-void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
 #ifdef HAVE_GCRYPT
   int32_t sock = -1;
   int32_t index;
@@ -185,7 +201,8 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
   gcry_cipher_hd_t cipher;
   gcry_md_hd_t md;
 
-  if (port != 0) {
+  if (port != 0)
+  {
     myport = port;
   }
 
@@ -195,11 +212,13 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
 
   // Phone the mother ship
   fpassword_register_socket(sp);
-  if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+  if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+  {
     return;
   }
 
-  while (1) {
+  while (1)
+  {
     /* Typical conversation goes as follows...
      0) connect to server
      1) request challenge
@@ -209,7 +228,8 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
      */
     // 0) Connect to the server
     sock = fpassword_connect_tcp(ip, myport);
-    if (sock < 0) {
+    if (sock < 0)
+    {
       fpassword_report(stderr, "Error: Child with pid %d terminating, can not connect\n", (int32_t)getpid());
       fpassword_child_exit(1);
     }
@@ -224,9 +244,11 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
 
     // 2) receive response (working)
     index = 0;
-    while (index < 42) { // We're always expecting back a 42 byte buffer from a
-                         // challenge request.
-      switch (fpassword_data_ready(sock)) {
+    while (index < 42)
+    { // We're always expecting back a 42 byte buffer from a
+      // challenge request.
+      switch (fpassword_data_ready(sock))
+      {
       case -1:
         fpassword_report(stderr, "Error: Child with pid %d terminating, receive error\nerror:\t%s\n", (int32_t)getpid(), strerror(errno));
         fpassword_child_exit(1);
@@ -236,11 +258,12 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
         break;
       default:
         bytecount = fpassword_recv(sock, buffer + index, 42 - index);
-        if (bytecount < 0) {
+        if (bytecount < 0)
+        {
           fpassword_report(stderr,
-                       "Error: Child with pid %d terminating, receive "
-                       "error\nerror:\t%s\n",
-                       (int32_t)getpid(), strerror(errno));
+                           "Error: Child with pid %d terminating, receive "
+                           "error\nerror:\t%s\n",
+                           (int32_t)getpid(), strerror(errno));
           fpassword_child_exit(1);
         }
         index += bytecount;
@@ -258,16 +281,18 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
     // MD5 the password to generate the password key, this is used with twofish
     // below.
     err = gcry_md_open(&md, GCRY_MD_MD5, 0);
-    if (err) {
+    if (err)
+    {
       fpassword_report(stderr,
-                   "Error: Child with pid %d terminating, gcry_md_open error "
-                   "(%08x)\n%s/%s",
-                   (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
+                       "Error: Child with pid %d terminating, gcry_md_open error "
+                       "(%08x)\n%s/%s",
+                       (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
       fpassword_child_exit(1);
     }
     gcry_md_reset(md);
     gcry_md_write(md, password, 100);
-    if (gcry_md_read(md, 0) == NULL) {
+    if (gcry_md_read(md, 0) == NULL)
+    {
       fpassword_report(stderr, "Error: Child with pid %d terminating, gcry_md_read error (%08x)\n", (int32_t)getpid(), index);
       fpassword_child_exit(1);
     }
@@ -279,45 +304,50 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
 
     // 3.b) encrypt data received using pkey & known IV
     err = gcry_cipher_open(&cipher, GCRY_CIPHER_TWOFISH128, GCRY_CIPHER_MODE_CBC, 0);
-    if (err) {
+    if (err)
+    {
       fpassword_report(stderr,
-                   "Error: Child with pid %d terminating, gcry_cipher_open "
-                   "error (%08x)\n%s/%s",
-                   (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
+                       "Error: Child with pid %d terminating, gcry_cipher_open "
+                       "error (%08x)\n%s/%s",
+                       (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
       fpassword_child_exit(1);
     }
 
     err = gcry_cipher_setiv(cipher, IV, 16);
-    if (err) {
+    if (err)
+    {
       fpassword_report(stderr,
-                   "Error: Child with pid %d terminating, gcry_cipher_setiv "
-                   "error (%08x)\n%s/%s",
-                   (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
+                       "Error: Child with pid %d terminating, gcry_cipher_setiv "
+                       "error (%08x)\n%s/%s",
+                       (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
       fpassword_child_exit(1);
     }
 
     err = gcry_cipher_setkey(cipher, rawkey, 16);
-    if (err) {
+    if (err)
+    {
       fpassword_report(stderr,
-                   "Error: Child with pid %d terminating, gcry_cipher_setkey "
-                   "error (%08x)\n%s/%s",
-                   (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
+                       "Error: Child with pid %d terminating, gcry_cipher_setkey "
+                       "error (%08x)\n%s/%s",
+                       (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
       fpassword_child_exit(1);
     }
 
     err = gcry_cipher_encrypt(cipher, encrypted, 32, msg->data, 32);
-    if (err) {
+    if (err)
+    {
       fpassword_report(stderr,
-                   "Error: Child with pid %d terminating, gcry_cipher_encrypt "
-                   "error (%08x)\n%s/%s",
-                   (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
+                       "Error: Child with pid %d terminating, gcry_cipher_encrypt "
+                       "error (%08x)\n%s/%s",
+                       (int32_t)getpid(), index, gcry_strsource(err), gcry_strerror(err));
       fpassword_child_exit(1);
     }
 
     gcry_cipher_close(cipher);
 
     // 3.c) half sum - this is the solution to the challenge.
-    for (index = 0; index < 16; index++) {
+    for (index = 0; index < 16; index++)
+    {
       *(encrypted + index) += *(encrypted + index + 16);
     }
     memset((encrypted + 16), 0x00, 16);
@@ -331,9 +361,11 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
 
     // 4) receive auth success/failure
     index = 0;
-    while (index < 10) { // We're always expecting back a 42 byte buffer from a
-                         // challenge request.
-      switch (fpassword_data_ready(sock)) {
+    while (index < 10)
+    { // We're always expecting back a 42 byte buffer from a
+      // challenge request.
+      switch (fpassword_data_ready(sock))
+      {
       case -1:
         fpassword_report(stderr, "Error: Child with pid %d terminating, receive error\nerror:\t%s\n", (int32_t)getpid(), strerror(errno));
         fpassword_child_exit(1);
@@ -343,18 +375,20 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
         break;
       default:
         bytecount = fpassword_recv(sock, buffer + index, 10 - index);
-        if (bytecount < 0) {
+        if (bytecount < 0)
+        {
           fpassword_report(stderr,
-                       "Error: Child with pid %d terminating, receive "
-                       "error\nerror:\t%s\n",
-                       (int32_t)getpid(), strerror(errno));
+                           "Error: Child with pid %d terminating, receive "
+                           "error\nerror:\t%s\n",
+                           (int32_t)getpid(), strerror(errno));
           fpassword_child_exit(1);
         }
         index += bytecount;
       }
     }
     msg = buffer2message(buffer);
-    switch (msg->type) {
+    switch (msg->type)
+    {
     case 0x0a:
       fpassword_completed_pair_found();
       break;
@@ -371,7 +405,8 @@ void service_radmin2(char *ip, int32_t sp, unsigned char options, char *miscptr,
 #endif
 }
 
-int32_t service_radmin2_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_radmin2_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

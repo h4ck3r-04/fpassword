@@ -7,7 +7,8 @@ unsigned char *buf;
 int32_t counter;
 int32_t tls_required = 0;
 
-int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp, char *hostname, char version, int32_t auth_method) {
+int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp, char *hostname, char version, int32_t auth_method)
+{
   char *empty = "", *result = NULL;
   char *login = "", *pass, *fooptr = "";
   unsigned char buffer[512];
@@ -21,9 +22,12 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
      * user/password authenticated= user and pass
    */
 
-  if ((miscptr != NULL) && (ldap_auth_mechanism == AUTH_CLEAR)) {
+  if ((miscptr != NULL) && (ldap_auth_mechanism == AUTH_CLEAR))
+  {
     login = miscptr;
-  } else {
+  }
+  else
+  {
     if (strlen(login = fpassword_get_next_login()) == 0)
       login = empty;
   }
@@ -33,7 +37,8 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  switch (ldap_auth_mechanism) {
+  switch (ldap_auth_mechanism)
+  {
   case AUTH_CLEAR:
     length = 14 + strlen(login) + strlen(pass);
     break;
@@ -62,20 +67,25 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   buffer[9] = version;
   buffer[10] = 4;
 
-  if (ldap_auth_mechanism == AUTH_CLEAR) {
+  if (ldap_auth_mechanism == AUTH_CLEAR)
+  {
     buffer[11] = strlen(login); /* DN */
     memcpy(&buffer[12], login, strlen(login));
     buffer[12 + strlen(login)] = (unsigned char)128;
     buffer[13 + strlen(login)] = strlen(pass);
     memcpy(&buffer[14 + strlen(login)], pass, strlen(pass)); /* PASS */
-  } else {
+  }
+  else
+  {
     char *authm = "DIGEST-MD5";
 
-    if (ldap_auth_mechanism == AUTH_CRAMMD5) {
+    if (ldap_auth_mechanism == AUTH_CRAMMD5)
+    {
       authm = "CRAM-MD5";
     }
 
-    if ((strlen(miscptr)) > sizeof(buffer) - 16 - strlen(authm)) {
+    if ((strlen(miscptr)) > sizeof(buffer) - 16 - strlen(authm))
+    {
       miscptr[sizeof(buffer) - 16 - strlen(authm)] = '\0';
     }
 
@@ -92,14 +102,16 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   if ((buf = (unsigned char *)fpassword_receive_line(s)) == NULL)
     return 1;
 
-  if (buf[0] != 0 && buf[0] != 32 && buf[9] == 2) {
+  if (buf[0] != 0 && buf[0] != 32 && buf[9] == 2)
+  {
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Protocol invalid\n");
     free(buf);
     return 3;
   }
 
-  if (buf[0] != 0 && buf[0] != 32 && buf[9] == 13) {
+  if (buf[0] != 0 && buf[0] != 32 && buf[9] == 13)
+  {
     if (verbose)
       fpassword_report(stderr, "[VERBOSE] Confidentiality required, TLS has to be enabled\n");
     tls_required = 1;
@@ -107,7 +119,8 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     return 1;
   }
 
-  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 34) {
+  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 34)
+  {
     fpassword_report(stderr, "[ERROR] Invalid DN Syntax\n");
     fpassword_child_exit(2);
     free(buf);
@@ -116,7 +129,8 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
 #ifdef LIBOPENSSL
 
   /* one more step auth for CRAM and DIGEST */
-  if (ldap_auth_mechanism == AUTH_CRAMMD5) {
+  if (ldap_auth_mechanism == AUTH_CRAMMD5)
+  {
     /* get the challenge, need to extract it */
     char *ptr;
     char buf2[32];
@@ -127,7 +141,8 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     if (result == NULL)
       return 1;
     counter++;
-    if (strstr(miscptr, "^USER^") != NULL) {
+    if (strstr(miscptr, "^USER^") != NULL)
+    {
       miscptr = fpassword_strrep(miscptr, "^USER^", login);
     }
 
@@ -166,8 +181,11 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     free(buf);
     if ((buf = (unsigned char *)fpassword_receive_line(s)) == NULL)
       return 1;
-  } else {
-    if (ldap_auth_mechanism == AUTH_DIGESTMD5) {
+  }
+  else
+  {
+    if (ldap_auth_mechanism == AUTH_DIGESTMD5)
+    {
       char *ptr;
       char buffer2[500];
       int32_t ind = 0;
@@ -175,13 +193,15 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       ptr = strstr((char *)buf, "realm=");
 
       counter++;
-      if (strstr(miscptr, "^USER^") != NULL) {
+      if (strstr(miscptr, "^USER^") != NULL)
+      {
         miscptr = fpassword_strrep(miscptr, "^USER^", login);
       }
 
       fooptr = buffer2;
       result = sasl_digest_md5(fooptr, login, pass, ptr, miscptr, "ldap", NULL, 0, NULL);
-      if (result == NULL) {
+      if (result == NULL)
+      {
         free(buf);
         return 3;
       }
@@ -195,12 +215,15 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       buffer[ind] = 130;
       ind++;
 
-      if (length - 4 > 255) {
+      if (length - 4 > 255)
+      {
         buffer[ind] = 1;
         ind++;
         buffer[ind] = length - 256 - 4;
         ind++;
-      } else {
+      }
+      else
+      {
         buffer[ind] = 0;
         ind++;
         buffer[ind] = length - 4;
@@ -217,12 +240,15 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       ind++;
       buffer[ind] = 130;
       ind++;
-      if (length - 7 - 4 > 255) {
+      if (length - 7 - 4 > 255)
+      {
         buffer[ind] = 1;
         ind++;
         buffer[ind] = length - 256 - 11;
         ind++;
-      } else {
+      }
+      else
+      {
         buffer[ind] = 0;
         ind++;
         buffer[ind] = length - 11;
@@ -245,11 +271,14 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       buffer[ind + strlen(miscptr)] = 130; // 0x82
       ind++;
 
-      if (strlen(buffer2) + 6 + strlen("DIGEST-MD5") > 255) {
+      if (strlen(buffer2) + 6 + strlen("DIGEST-MD5") > 255)
+      {
         buffer[ind + strlen(miscptr)] = 1;
         ind++;
         buffer[ind + strlen(miscptr)] = strlen(buffer2) + 6 + strlen("DIGEST-MD5") - 256;
-      } else {
+      }
+      else
+      {
         buffer[ind + strlen(miscptr)] = 0;
         ind++;
         buffer[ind + strlen(miscptr)] = strlen(buffer2) + 6 + strlen("DIGEST-MD5");
@@ -266,11 +295,14 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       buffer[ind + strlen(miscptr) + strlen("DIGEST-MD5")] = 130;
       ind++;
 
-      if (strlen(buffer2) > 255) {
+      if (strlen(buffer2) > 255)
+      {
         buffer[ind + strlen(miscptr) + strlen("DIGEST-MD5")] = 1;
         ind++;
         buffer[ind + strlen(miscptr) + strlen("DIGEST-MD5")] = strlen(buffer2) - 256;
-      } else {
+      }
+      else
+      {
         buffer[ind + strlen(miscptr) + strlen("DIGEST-MD5")] = 0;
         ind++;
         buffer[ind + strlen(miscptr) + strlen("DIGEST-MD5")] = strlen(buffer2);
@@ -289,7 +321,8 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
 #endif
 
   /* success is: 0a 01 00 - failure is: 0a 01 31 */
-  if ((buf[0] != 0 && buf[9] == 0) || (buf[0] != 32 && buf[9] == 32)) {
+  if ((buf[0] != 0 && buf[9] == 0) || (buf[0] != 32 && buf[9] == 32))
+  {
     fpassword_report_found_host(port, ip, "ldap", fp);
     fpassword_completed_pair_found();
     free(buf);
@@ -298,27 +331,30 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     return 1;
   }
 
-  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 7) {
+  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 7)
+  {
     fpassword_report(stderr, "[ERROR] Unknown authentication method\n");
     free(buf);
     fpassword_child_exit(2);
   }
 
-  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 53) {
+  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 53)
+  {
     if (verbose)
       fpassword_report(stderr,
-                   "[VERBOSE] Server unwilling to perform action, maybe deny by server "
-                   "config or too busy when tried login: %s   password: %s\n",
-                   login, pass);
+                       "[VERBOSE] Server unwilling to perform action, maybe deny by server "
+                       "config or too busy when tried login: %s   password: %s\n",
+                       login, pass);
     free(buf);
     return 1;
   }
 
-  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 2) {
+  if ((buf[0] != 0 && buf[0] != 32) && buf[9] == 2)
+  {
     fpassword_report(stderr,
-                 "[ERROR] Invalid protocol version, you tried ldap%c, better "
-                 "try ldap%c\n",
-                 version + '0', version == 2 ? '3' : '2');
+                     "[ERROR] Invalid protocol version, you tried ldap%c, better "
+                     "try ldap%c\n",
+                     version + '0', version == 2 ? '3' : '2');
     free(buf);
     fpassword_child_exit(2);
     sleep(1);
@@ -329,9 +365,12 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   // 16 0x01, 0x20, 0x04, 0x20, 0x04, 0x20, 0x00, 0x00,
 
   // this is for w2k8 active directory ldap auth
-  if (buf[0] == 48 && buf[1] == 132) {
-    if (buf[9] == 0x61 && buf[1] == 0x84) {
-      if (buf[17] == 0 || buf[17] == 0x20) {
+  if (buf[0] == 48 && buf[1] == 132)
+  {
+    if (buf[9] == 0x61 && buf[1] == 0x84)
+    {
+      if (buf[17] == 0 || buf[17] == 0x20)
+      {
         fpassword_report_found_host(port, ip, "ldap", fp);
         fpassword_completed_pair_found();
         free(buf);
@@ -340,8 +379,11 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
         return 1;
       }
     }
-  } else {
-    if (buf[9] != 49 && buf[9] != 2 && buf[9] != 53) {
+  }
+  else
+  {
+    if (buf[9] != 49 && buf[9] != 2 && buf[9] != 53)
+    {
       fpassword_report(stderr, "[ERROR] Uh, unknown LDAP response! Please report this: \n");
       print_hex((unsigned char *)buf, 24);
       free(buf);
@@ -356,37 +398,45 @@ int32_t start_ldap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   return 2;
 }
 
-void service_ldap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname, char version, int32_t auth_method) {
+void service_ldap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname, char version, int32_t auth_method)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_LDAP, mysslport = PORT_LDAP_SSL;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(275);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
       counter = 1;
-      if (tls_required) {
+      if (tls_required)
+      {
         /* Start TLS operation OID = 1.3.6.1.4.1.1466.20037 according to RFC
          * 2830 */
         char confidentiality_required[] = "\x30\x1d\x02\x01\x01\x77\x18\x80\x16\x31\x2e\x33\x2e\x36\x2e\x31"
@@ -398,18 +448,24 @@ void service_ldap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
         if ((buf = (unsigned char *)fpassword_receive_line(sock)) == NULL)
           fpassword_child_exit(1);
 
-        if ((buf[0] != 0 && buf[9] == 0) || (buf[0] != 32 && buf[9] == 32)) {
+        if ((buf[0] != 0 && buf[9] == 0) || (buf[0] != 32 && buf[9] == 32))
+        {
           /* TLS option negociation goes well, now trying to connect */
           free(buf);
-          if ((fpassword_connect_to_ssl(sock, hostname) == -1) && verbose) {
+          if ((fpassword_connect_to_ssl(sock, hostname) == -1) && verbose)
+          {
             fpassword_report(stderr, "[ERROR] Can't use TLS\n");
             fpassword_child_exit(1);
-          } else {
+          }
+          else
+          {
             if (verbose)
               fpassword_report(stderr, "[VERBOSE] TLS connection done\n");
             counter++;
           }
-        } else {
+        }
+        else
+        {
           fpassword_report(stderr, "[ERROR] Can't use TLS %s\n", buf);
           free(buf);
           fpassword_child_exit(1);
@@ -442,7 +498,8 @@ void service_ldap3_cram_md5(char *ip, int32_t sp, unsigned char options, char *m
 
 void service_ldap3_digest_md5(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) { service_ldap(ip, sp, options, miscptr, fp, port, hostname, 3, AUTH_DIGESTMD5); }
 
-int32_t service_ldap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_ldap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -452,7 +509,8 @@ int32_t service_ldap_init(char *ip, int32_t sp, unsigned char options, char *mis
   // return codes:
   //   0 all OK
   //   -1  error, fpassword will exit, so print a good error message here
-  if (miscptr != NULL && strlen(miscptr) > 220) {
+  if (miscptr != NULL && strlen(miscptr) > 220)
+  {
     fprintf(stderr, "[ERROR] the option string to this module may not be "
                     "larger than 220 bytes\n");
     return -1;
@@ -461,7 +519,8 @@ int32_t service_ldap_init(char *ip, int32_t sp, unsigned char options, char *mis
   return 0;
 }
 
-void usage_ldap(const char *service) {
+void usage_ldap(const char *service)
+{
   printf("Module %s is optionally taking the DN (depending of the auth method "
          "choosed\n"
          "Note: you can also specify the DN as login when Simple auth method "

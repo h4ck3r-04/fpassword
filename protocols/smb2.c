@@ -30,7 +30,8 @@
 extern fpassword_option fpassword_options;
 extern char *FPASSWORD_EXIT;
 
-typedef struct creds {
+typedef struct creds
+{
   const char *workgroup;
   const char *user;
   const char *pass;
@@ -45,7 +46,8 @@ const char *netbios_name = NULL;
 #define EXIT_CONNECTION_ERROR fpassword_child_exit(1)
 #define EXIT_NORMAL fpassword_child_exit(0)
 
-void smb2_auth_provider(SMBCCTX *c, const char *srv, const char *shr, char *wg, int wglen, char *un, int unlen, char *pw, int pwlen) {
+void smb2_auth_provider(SMBCCTX *c, const char *srv, const char *shr, char *wg, int wglen, char *un, int unlen, char *pw, int pwlen)
+{
   creds_t *cr = (creds_t *)smbc_getOptionUserData(c);
   strncpy(wg, cr->workgroup, wglen);
   strncpy(un, cr->user, unlen);
@@ -55,9 +57,11 @@ void smb2_auth_provider(SMBCCTX *c, const char *srv, const char *shr, char *wg, 
   pw[pwlen - 1] = 0;
 }
 
-bool smb2_run_test(creds_t *cr, const char *server, uint16_t port) {
+bool smb2_run_test(creds_t *cr, const char *server, uint16_t port)
+{
   SMBCCTX *ctx = smbc_new_context();
-  if (ctx == NULL) {
+  if (ctx == NULL)
+  {
     fpassword_report(stderr, "[ERROR] failed to create context\n");
     EXIT_PROTOCOL_ERROR;
   }
@@ -70,12 +74,14 @@ bool smb2_run_test(creds_t *cr, const char *server, uint16_t port) {
   smbc_setPort(ctx, port);
   smbc_setOptionNoAutoAnonymousLogin(ctx, false);
   smbc_setOptionUseNTHash(ctx, use_nt_hash);
-  if (netbios_name) {
+  if (netbios_name)
+  {
     smbc_setNetbiosName(ctx, (char *)netbios_name);
   }
 
   ctx = smbc_init_context(ctx);
-  if (!ctx) {
+  if (!ctx)
+  {
     fpassword_report(stderr, "[ERROR] smbc_init_context fail\n");
     smbc_free_context(ctx, 1);
     EXIT_PROTOCOL_ERROR;
@@ -84,11 +90,13 @@ bool smb2_run_test(creds_t *cr, const char *server, uint16_t port) {
   char uri[2048];
   snprintf(uri, sizeof(uri) - 1, "smb://%s/IPC$", server);
   uri[sizeof(uri) - 1] = 0;
-  if (verbose) {
+  if (verbose)
+  {
     printf("[INFO] Connecting to: %s with %s\\%s%%%s\n", uri, cr->workgroup, cr->user, cr->pass);
   }
   SMBCFILE *fd = smbc_getFunctionOpendir(ctx)(ctx, uri);
-  if (fd) {
+  if (fd)
+  {
     fpassword_report(stderr, "[WARNING] Unexpected open on IPC$\n");
     smbc_getFunctionClosedir(ctx)(ctx, fd);
     smbc_free_context(ctx, 1);
@@ -126,7 +134,8 @@ bool smb2_run_test(creds_t *cr, const char *server, uint16_t port) {
         - ENODEV the workgroup or server could not be found.
 
   */
-  switch (errno) {
+  switch (errno)
+  {
   case 0:
     // maybe false positive? unclear ... :( ... needs more testing
     smbc_free_context(ctx, 1);
@@ -173,11 +182,13 @@ bool smb2_run_test(creds_t *cr, const char *server, uint16_t port) {
   return false;
 }
 
-void service_smb2(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_smb2(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   static int first_run = 0;
   fpassword_register_socket(sp);
 
-  while (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT))) {
+  while (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)))
+  {
     char *login, *pass;
 
     if (first_run && fpassword_options.conwait)
@@ -192,9 +203,12 @@ void service_smb2(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
         .workgroup = workgroup,
     };
 
-    if (smb2_run_test(&cr, fpassword_address2string(ip), port & 0xffff)) {
+    if (smb2_run_test(&cr, fpassword_address2string(ip), port & 0xffff))
+    {
       fpassword_completed_pair_found();
-    } else {
+    }
+    else
+    {
       fpassword_completed_pair();
     }
 
@@ -211,67 +225,82 @@ const char tkn_netbios[] = "netbios:{";
 
 #define CMP(s1, s2) (strncmp(s1, s2, sizeof(s1) - 1) == 0)
 
-int32_t service_smb2_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_smb2_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   if (!miscptr)
     return 0;
 
-  while (*miscptr) {
-    if (isspace(*miscptr)) {
+  while (*miscptr)
+  {
+    if (isspace(*miscptr))
+    {
       miscptr++;
       continue;
     }
-    if (CMP(tkn_workgroup, miscptr)) {
-      if (workgroup != default_workgroup) {
+    if (CMP(tkn_workgroup, miscptr))
+    {
+      if (workgroup != default_workgroup)
+      {
         // miscptr has already been processed, goto end
         miscptr += strlen(miscptr) + 1;
         continue;
       }
       miscptr += sizeof(tkn_workgroup) - 1;
       char *p = strchr(miscptr, '}');
-      if (p == NULL) {
+      if (p == NULL)
+      {
         fpassword_report(stderr, "[ERROR] missing closing brace in workgroup\n");
         return -1;
       }
       *p = '\0';
       workgroup = miscptr;
       miscptr = p + 1;
-      if (verbose || debug) {
+      if (verbose || debug)
+      {
         printf("[VERBOSE] Set workgroup to: %s\n", workgroup);
       }
       continue;
     }
-    if (CMP(tkn_netbios, miscptr)) {
-      if (netbios_name != NULL) {
+    if (CMP(tkn_netbios, miscptr))
+    {
+      if (netbios_name != NULL)
+      {
         // miscptr has already been processed, goto end
         miscptr += strlen(miscptr) + 1;
         continue;
       }
       miscptr += sizeof(tkn_netbios) - 1;
       char *p = strchr(miscptr, '}');
-      if (p == NULL) {
+      if (p == NULL)
+      {
         fpassword_report(stderr, "[ERROR] missing closing brace in netbios name\n");
         return -1;
       }
       *p = '\0';
       netbios_name = miscptr;
       miscptr = p + 1;
-      if (verbose || debug) {
+      if (verbose || debug)
+      {
         printf("[VERBOSE] Set netbios name to: %s\n", netbios_name);
       }
       continue;
     }
-    if (CMP(tkn_nthash_true, miscptr)) {
+    if (CMP(tkn_nthash_true, miscptr))
+    {
       miscptr += sizeof(tkn_nthash_true) - 1;
       use_nt_hash = true;
-      if (verbose || debug) {
+      if (verbose || debug)
+      {
         printf("[VERBOSE] Enabled nthash.\n");
       }
       continue;
     }
-    if (CMP(tkn_nthash_false, miscptr)) {
+    if (CMP(tkn_nthash_false, miscptr))
+    {
       miscptr += sizeof(tkn_nthash_false) - 1;
       use_nt_hash = false;
-      if (verbose || debug) {
+      if (verbose || debug)
+      {
         printf("[VERBOSE] Disabled nthash.\n");
       }
       continue;
@@ -284,7 +313,8 @@ int32_t service_smb2_init(char *ip, int32_t sp, unsigned char options, char *mis
   return 0;
 }
 
-void usage_smb2(const char *service) {
+void usage_smb2(const char *service)
+{
   puts("Module is a thin wrapper over the Samba client library (libsmbclient).\n"
        "Thus, is capable of negotiating v1, v2 and v3 of the protocol.\n"
        "\n"

@@ -69,33 +69,38 @@ void deskey(unsigned char *key, int32_t edf) /* Thanks to James Gillogly & Phil 
   unsigned char pc1m[56], pcr[56];
   unsigned long kn[32];
 
-  for (j = 0; j < 56; j++) {
+  for (j = 0; j < 56; j++)
+  {
     l = pc1[j];
     m = l & 07;
     pc1m[j] = (key[l >> 3] & bytebit[m]) ? 1 : 0;
   }
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 16; i++)
+  {
     if (edf == DE1)
       m = (15 - i) << 1;
     else
       m = i << 1;
     n = m + 1;
     kn[m] = kn[n] = 0L;
-    for (j = 0; j < 28; j++) {
+    for (j = 0; j < 28; j++)
+    {
       l = j + totrot[i];
       if (l < 28)
         pcr[j] = pc1m[l];
       else
         pcr[j] = pc1m[l - 28];
     }
-    for (j = 28; j < 56; j++) {
+    for (j = 28; j < 56; j++)
+    {
       l = j + totrot[i];
       if (l < 56)
         pcr[j] = pc1m[l];
       else
         pcr[j] = pc1m[l - 28];
     }
-    for (j = 0; j < 24; j++) {
+    for (j = 0; j < 24; j++)
+    {
       if (pcr[pc2[j]])
         kn[m] |= bigbyte[j];
       if (pcr[pc2[j + 24]])
@@ -115,7 +120,8 @@ static void cookey(unsigned long *raw1) // register unsigned long *raw1;
   int32_t i;
 
   cook = dough;
-  for (i = 0; i < 16; i++, raw1++) {
+  for (i = 0; i < 16; i++, raw1++)
+  {
     raw0 = raw1++;
     *cook = (*raw0 & 0x00fc0000L) << 6;
     *cook |= (*raw0 & 0x00000fc0L) << 10;
@@ -130,7 +136,7 @@ static void cookey(unsigned long *raw1) // register unsigned long *raw1;
   return;
 }
 
-void cpkey(unsigned long * into) // register unsigned long *into;
+void cpkey(unsigned long *into) // register unsigned long *into;
 {
   // register unsigned long *from, *endp;
   unsigned long *from, *endp;
@@ -152,7 +158,8 @@ void usekey(unsigned long *from) // register unsigned long *from;
   return;
 }
 
-void des(unsigned char *inblock, unsigned char *outblock) {
+void des(unsigned char *inblock, unsigned char *outblock)
+{
   unsigned long work[2];
 
   scrunch(inblock, work);
@@ -175,7 +182,7 @@ static void scrunch(unsigned char *outof, unsigned long *into) // register unsig
   return;
 }
 
-static void unscrun(unsigned long * outof, unsigned char *into) //register unsigned long *outof;
+static void unscrun(unsigned long *outof, unsigned char *into) // register unsigned long *outof;
 // register unsigned char *into;
 {
   *into++ = (*outof >> 24) & 0xffL;
@@ -213,7 +220,7 @@ static unsigned long SP7[64] = {0x00200000L, 0x04200002L, 0x04000802L, 0x0000000
 static unsigned long SP8[64] = {0x10001040L, 0x00001000L, 0x00040000L, 0x10041040L, 0x10000000L, 0x10001040L, 0x00000040L, 0x10000000L, 0x00040040L, 0x10040000L, 0x10041040L, 0x00041000L, 0x10041000L, 0x00041040L, 0x00001000L, 0x00000040L, 0x10040000L, 0x10000040L, 0x10001000L, 0x00001040L, 0x00041000L, 0x00040040L, 0x10040040L, 0x10041000L, 0x00001040L, 0x00000000L, 0x00000000L, 0x10040040L, 0x10000040L, 0x10001000L, 0x00041040L, 0x00040000L,
                                 0x00041040L, 0x00040000L, 0x10041000L, 0x00001000L, 0x00000040L, 0x10040040L, 0x00001000L, 0x00041040L, 0x10001000L, 0x00000040L, 0x10000040L, 0x10040000L, 0x10040040L, 0x10000000L, 0x00040000L, 0x10001040L, 0x00000000L, 0x10041040L, 0x00040040L, 0x10000040L, 0x10040000L, 0x10001000L, 0x10001040L, 0x00000000L, 0x10041040L, 0x00041000L, 0x00041000L, 0x00001040L, 0x00001040L, 0x00040040L, 0x10000000L, 0x10041000L};
 
-static void desfunc(unsigned long *block, unsigned long *keys) //register unsigned long *block, *keys;
+static void desfunc(unsigned long *block, unsigned long *keys) // register unsigned long *block, *keys;
 {
   // register unsigned long fval, work, right, leftt;
   unsigned long fval, work, right, leftt;
@@ -240,7 +247,8 @@ static void desfunc(unsigned long *block, unsigned long *keys) //register unsign
   right ^= work;
   leftt = ((leftt << 1) | ((leftt >> 31) & 1L)) & 0xffffffffL;
 
-  for (round = 0; round < 8; round++) {
+  for (round = 0; round < 8; round++)
+  {
     work = (right << 28) | (right >> 4);
     work ^= *keys++;
     fval = SP7[work & 0x3fL];

@@ -25,18 +25,21 @@ char *buf;
 unsigned char *hash;
 int32_t sid_mechanism = AUTH_PLAIN;
 
-int32_t initial_permutation(unsigned char **result, char *p_str, int32_t *sz) {
+int32_t initial_permutation(unsigned char **result, char *p_str, int32_t *sz)
+{
   int32_t k = 0;
   int32_t i = strlen(p_str);
   char *buff;
 
   // expand the string with zero so that length is a multiple of 4
-  while ((i % 4) != 0) {
+  while ((i % 4) != 0)
+  {
     i = i + 1;
   }
   *sz = 2 * i;
 
-  if ((buff = malloc(i + 4)) == NULL) {
+  if ((buff = malloc(i + 4)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     return 1;
   }
@@ -44,20 +47,23 @@ int32_t initial_permutation(unsigned char **result, char *p_str, int32_t *sz) {
   strcpy(buff, p_str);
 
   // swap the order of every byte pair
-  for (k = 0; k < i; k += 2) {
+  for (k = 0; k < i; k += 2)
+  {
     char bck = buff[k + 1];
 
     buff[k + 1] = buff[k];
     buff[k] = bck;
   }
   // convert to unicode
-  if ((*result = malloc(2 * i)) == NULL) {
+  if ((*result = malloc(2 * i)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     free(buff);
     return 1;
   }
   memset(*result, 0, 2 * i);
-  for (k = 0; k < i; k++) {
+  for (k = 0; k < i; k++)
+  {
     (*result)[2 * k] = buff[k];
   }
   free(buff);
@@ -65,31 +71,37 @@ int32_t initial_permutation(unsigned char **result, char *p_str, int32_t *sz) {
   return 0;
 }
 
-int32_t ora_hash(unsigned char **orahash, unsigned char *buf, int32_t len) {
+int32_t ora_hash(unsigned char **orahash, unsigned char *buf, int32_t len)
+{
   int32_t i;
 
-  if ((*orahash = malloc(HASHSIZE)) == NULL) {
+  if ((*orahash = malloc(HASHSIZE)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     return 1;
   }
 
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++)
+  {
     sprintf(((char *)*orahash) + i * 2, "%02X", buf[len - 8 + i]);
   }
   return 0;
 }
 
-int32_t convert_byteorder(unsigned char **result, int32_t size) {
+int32_t convert_byteorder(unsigned char **result, int32_t size)
+{
   int32_t i = 0;
   char *buff;
 
-  if ((buff = malloc(size)) == NULL) {
+  if ((buff = malloc(size)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     return 1;
   }
   memcpy(buff, *result, size);
 
-  while (i < size) {
+  while (i < size)
+  {
     buff[i + 0] = (*result)[i + 3];
     buff[i + 1] = (*result)[i + 2];
     buff[i + 2] = (*result)[i + 1];
@@ -101,7 +113,8 @@ int32_t convert_byteorder(unsigned char **result, int32_t size) {
   return 0;
 }
 
-int32_t ora_descrypt(unsigned char **rs, unsigned char *result, int32_t siz) {
+int32_t ora_descrypt(unsigned char **rs, unsigned char *result, int32_t siz)
+{
   int32_t i = 0;
   char lastkey[8];
   DES_key_schedule ks1;
@@ -110,14 +123,16 @@ int32_t ora_descrypt(unsigned char **rs, unsigned char *result, int32_t siz) {
   unsigned char *desresult;
 
   memset(ivec1, 0, sizeof(ivec1));
-  if ((desresult = malloc(siz)) == NULL) {
+  if ((desresult = malloc(siz)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     return 1;
   }
   DES_key_sched((const_DES_cblock *)key1, &ks1);
   DES_ncbc_encrypt(result, desresult, siz, &ks1, &ivec1, DES_ENCRYPT);
 
-  for (i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++)
+  {
     lastkey[i] = desresult[siz - 8 + i];
   }
 
@@ -126,7 +141,8 @@ int32_t ora_descrypt(unsigned char **rs, unsigned char *result, int32_t siz) {
   memset(ivec1, 0, sizeof(ivec1));
   DES_ncbc_encrypt(result, desresult, siz, &ks1, &ivec1, DES_ENCRYPT);
 
-  if ((*rs = malloc(siz)) == NULL) {
+  if ((*rs = malloc(siz)) == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
     free(desresult);
     return 1;
@@ -136,7 +152,8 @@ int32_t ora_descrypt(unsigned char **rs, unsigned char *result, int32_t siz) {
   return 0;
 }
 
-int32_t ora_hash_password(char *pass) {
+int32_t ora_hash_password(char *pass)
+{
   // secret hash function comes here, and written to char *hash
   int32_t siz = 0;
   unsigned char *desresult;
@@ -149,23 +166,27 @@ int32_t ora_hash_password(char *pass) {
   snprintf(buff, sizeof(buff), "Arb%s", pass);
   strupper(buff);
 
-  if (initial_permutation(&result, buff, &siz)) {
+  if (initial_permutation(&result, buff, &siz))
+  {
     fpassword_report(stderr, "[ERROR] ora_hash_password: in initial_permutation\n");
     return 1;
   }
 
-  if (convert_byteorder(&result, siz)) {
+  if (convert_byteorder(&result, siz))
+  {
     fpassword_report(stderr, "[ERROR] ora_hash_password: in convert_byteorder\n");
     free(result);
     return 1;
   }
-  if (ora_descrypt(&desresult, result, siz)) {
+  if (ora_descrypt(&desresult, result, siz))
+  {
     fpassword_report(stderr, "[ERROR] ora_hash_password: in DES crypt\n");
     free(result);
     return 1;
   }
   free(result);
-  if (ora_hash(&result, desresult, siz)) {
+  if (ora_hash(&result, desresult, siz))
+  {
     fpassword_report(stderr, "[ERROR] ora_hash_password: in extracting Oracle hash\n");
     free(desresult);
     return 1;
@@ -178,7 +199,8 @@ int32_t ora_hash_password(char *pass) {
   return 0;
 }
 
-int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   unsigned char tns_packet_begin[22] = {"\x00\x00\x01\x00\x00\x00\x01\x36\x01\x2c\x00\x00\x08\x00\x7f\xff\x86\x0e"
                                         "\x00\x00\x01\x00"};
   unsigned char tns_packet_end[32] = {"\x00\x3a\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -196,13 +218,16 @@ int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char o
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  if (sid_mechanism == AUTH_PLAIN) {
-    if ((hash = malloc(HASHSIZE)) == NULL) {
+  if (sid_mechanism == AUTH_PLAIN)
+  {
+    if ((hash = malloc(HASHSIZE)) == NULL)
+    {
       fpassword_report(stderr, "[ERROR] Can't allocate memory\n");
       return 1;
     }
     memset(hash, 0, HASHSIZE);
-    if (ora_hash_password(pass)) {
+    if (ora_hash_password(pass))
+    {
       fpassword_report(stderr, "[ERROR] generating Oracle hash\n");
       free(hash);
       return 1;
@@ -220,23 +245,30 @@ int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char o
     fpassword_report(stderr, "[VERBOSE] using connectiong string: %s\n", connect_string);
 
   siz = 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string);
-  if (siz > 255) {
+  if (siz > 255)
+  {
     buffer2[0] = 1;
     buffer2[1] = siz - 256;
-  } else {
+  }
+  else
+  {
     buffer2[1] = siz;
   }
   memcpy(buffer2 + 2, (char *)tns_packet_begin, sizeof(tns_packet_begin));
   siz = strlen(connect_string);
-  if (siz > 255) {
+  if (siz > 255)
+  {
     buffer2[2 + sizeof(tns_packet_begin)] = 1;
     buffer2[1 + 2 + sizeof(tns_packet_begin)] = siz - 256;
-  } else {
+  }
+  else
+  {
     buffer2[1 + 2 + sizeof(tns_packet_begin)] = siz;
   }
   memcpy(buffer2 + 2 + sizeof(tns_packet_begin) + 2, (char *)tns_packet_end, sizeof(tns_packet_end));
   memcpy(buffer2 + 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end), connect_string, strlen(connect_string));
-  if (fpassword_send(s, buffer2, 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string), 0) < 0) {
+  if (fpassword_send(s, buffer2, 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string), 0) < 0)
+  {
     return 1;
   }
 
@@ -245,10 +277,12 @@ int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char o
   if (verbose || debug)
     fpassword_report(stderr, "[VERBOSE] Server answer: %s\n", buf);
 
-  if (strstr(buf, "ERR=0") != NULL) {
+  if (strstr(buf, "ERR=0") != NULL)
+  {
     fpassword_report_found_host(port, ip, "oracle-listener", fp);
     fpassword_completed_pair_found();
-  } else
+  }
+  else
     fpassword_completed_pair();
 
   free(buf);
@@ -257,7 +291,8 @@ int32_t start_oracle_listener(int32_t s, char *ip, int32_t port, unsigned char o
   return 1;
 }
 
-void service_oracle_listener(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_oracle_listener(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_ORACLE, mysslport = PORT_ORACLE_SSL;
 
@@ -265,13 +300,16 @@ void service_oracle_listener(char *ip, int32_t sp, unsigned char options, char *
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+  if ((miscptr != NULL) && (strlen(miscptr) > 0))
+  {
     strupper(miscptr);
     if (strncmp(miscptr, "CLEAR", 5) == 0)
       sid_mechanism = AUTH_CLEAR;
   }
-  if (verbose) {
-    switch (sid_mechanism) {
+  if (verbose)
+  {
+    switch (sid_mechanism)
+    {
     case AUTH_CLEAR:
       fpassword_report(stderr, "[VERBOSE] using SID CLEAR mechanism\n");
       break;
@@ -281,24 +319,30 @@ void service_oracle_listener(char *ip, int32_t sp, unsigned char options, char *
     }
   }
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -326,7 +370,8 @@ void service_oracle_listener(char *ip, int32_t sp, unsigned char options, char *
   }
 }
 
-int32_t service_oracle_listener_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_oracle_listener_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -340,7 +385,8 @@ int32_t service_oracle_listener_init(char *ip, int32_t sp, unsigned char options
   return 0;
 }
 
-void usage_oracle_listener(const char *service) {
+void usage_oracle_listener(const char *service)
+{
   printf("Module oracle-listener / tns is optionally taking the mode the "
          "password is stored as, could be PLAIN (default) or CLEAR\n\n");
 }

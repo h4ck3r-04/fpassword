@@ -53,7 +53,8 @@ unsigned char p_lng[] = "\x02\x01\x00\x47\x00\x00\x02\x00\x00\x00\x00"
                         "\x00\x00\x00\x00\x00\x00\x30\x30\x30\x00\x00"
                         "\x00\x03\x00\x00\x00";
 
-int32_t start_mssql(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_mssql(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[1024];
   char ms_login[MSLEN + 1];
@@ -98,7 +99,8 @@ int32_t start_mssql(int32_t s, char *ip, int32_t port, unsigned char options, ch
   if (ret <= 0)
     return 3;
 
-  if (ret > 10 && buffer[8] == '\xe3') {
+  if (ret > 10 && buffer[8] == '\xe3')
+  {
     fpassword_report_found_host(port, ip, "mssql", fp);
     fpassword_completed_pair_found();
     free(buf);
@@ -115,28 +117,35 @@ int32_t start_mssql(int32_t s, char *ip, int32_t port, unsigned char options, ch
   return 1;
 }
 
-void service_mssql(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_mssql(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_MSSQL, mysslport = PORT_MSSQL_SSL;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
@@ -161,7 +170,8 @@ void service_mssql(char *ip, int32_t sp, unsigned char options, char *miscptr, F
   }
 }
 
-int32_t service_mssql_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_mssql_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

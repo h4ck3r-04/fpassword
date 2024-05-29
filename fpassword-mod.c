@@ -60,7 +60,8 @@ RSA *rsa = NULL;
 int32_t my_select(int32_t fd, fd_set *fdread, fd_set *fdwrite, fd_set *fdex, long sec, long usec);
 
 /* ----------------- alarming functions ---------------- */
-void alarming() {
+void alarming()
+{
   fail++;
   alarm_went_off++;
 
@@ -82,14 +83,16 @@ void alarming() {
    */
 }
 
-void interrupt() {
+void interrupt()
+{
   if (debug)
     printf("DEBUG_INTERRUPTED\n");
 }
 
 /* ----------------- internal functions ----------------- */
 
-int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int32_t protocol) {
+int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int32_t protocol)
+{
   int32_t s, ret = -1, ipv6 = 0, reset_selected = 0;
 
 #ifdef AF_INET6
@@ -101,7 +104,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
   char *buf, *tmpptr = NULL;
   int32_t err = 0;
 
-  if (proxy_count > 0 && use_proxy > 0 && selected_proxy == -1) {
+  if (proxy_count > 0 && use_proxy > 0 && selected_proxy == -1)
+  {
     reset_selected = 1;
     selected_proxy = random() % proxy_count;
   }
@@ -121,15 +125,19 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
   else
 #endif
     s = socket(PF_INET, type, protocol);
-  if (s >= 0) {
-    if (src_port != 0) {
+  if (s >= 0)
+  {
+    if (src_port != 0)
+    {
       int32_t bind_ok = 0;
 
 #ifdef AF_INET6
-      if (ipv6) {
+      if (ipv6)
+      {
         sin6.sin6_family = AF_INET6;
         sin6.sin6_port = htons(src_port);
-      } else
+      }
+      else
 #endif
       {
         sin.sin_family = PF_INET;
@@ -138,7 +146,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
       }
 
       // we will try to find a free port down to 512
-      while (!bind_ok && src_port >= 512) {
+      while (!bind_ok && src_port >= 512)
+      {
 #ifdef AF_INET6
         if (ipv6)
           ret = bind(s, (struct sockaddr *)&sin6, sizeof(sin6));
@@ -146,10 +155,12 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
 #endif
           ret = bind(s, (struct sockaddr *)&sin, sizeof(sin));
 
-        if (ret == -1) {
+        if (ret == -1)
+        {
           if (verbose)
             perror("internal_fpassword_connect error");
-          if (errno == EADDRINUSE) {
+          if (errno == EADDRINUSE)
+          {
             src_port--;
 #ifdef AF_INET6
             if (ipv6)
@@ -157,8 +168,11 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
             else
 #endif
               sin.sin_port = htons(src_port);
-          } else {
-            if (errno == EACCES && (getuid() > 0)) {
+          }
+          else
+          {
+            if (errno == EACCES && (getuid() > 0))
+            {
               fprintf(stderr, "[ERROR] You need to be root to test this service\n");
               close(s);
               if (reset_selected)
@@ -166,51 +180,62 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
               return -1;
             }
           }
-        } else
+        }
+        else
           bind_ok = 1;
       }
     }
-    if (use_proxy > 0 && proxy_count > 0) {
-      if (proxy_string_ip[selected_proxy][0] == 4) {
+    if (use_proxy > 0 && proxy_count > 0)
+    {
+      if (proxy_string_ip[selected_proxy][0] == 4)
+      {
         memcpy(&target.sin_addr.s_addr, &proxy_string_ip[selected_proxy][1], 4);
         target.sin_family = AF_INET;
         target.sin_port = htons(proxy_string_port[selected_proxy]);
       }
 #ifdef AF_INET6
-      if (proxy_string_ip[selected_proxy][0] == 16) {
+      if (proxy_string_ip[selected_proxy][0] == 16)
+      {
         memcpy(&target6.sin6_addr, &proxy_string_ip[selected_proxy][1], 16);
         target6.sin6_family = AF_INET6;
         target6.sin6_port = htons(proxy_string_port[selected_proxy]);
       }
 #endif
-    } else {
-      if (host[0] == 4) {
+    }
+    else
+    {
+      if (host[0] == 4)
+      {
         memcpy(&target.sin_addr.s_addr, &host[1], 4);
         target.sin_family = AF_INET;
         target.sin_port = htons(port);
       }
 #ifdef AF_INET6
-      if (host[0] == 16) {
+      if (host[0] == 16)
+      {
         memcpy(&target6.sin6_addr, &host[1], 16);
         target6.sin6_family = AF_INET6;
         target6.sin6_port = htons(port);
       }
 #endif
     }
-    signal(SIGALRM, (void (*) (int))alarming);
-    do {
+    signal(SIGALRM, (void (*)(int))alarming);
+    do
+    {
       if (fail > 0)
         sleep(WAIT_BETWEEN_CONNECT_RETRY);
       alarm_went_off = 0;
       alarm(waittime);
 #ifdef AF_INET6
 #ifdef SO_BINDTODEVICE
-      if (host[17] != 0) {
+      if (host[17] != 0)
+      {
         setsockopt(s, SOL_SOCKET, SO_BINDTODEVICE, &host[17], strlen(&host[17]) + 1);
       }
 #else
 #ifdef IP_FORCE_OUT_IFP
-      if (host[17] != 0) {
+      if (host[17] != 0)
+      {
         setsockopt(s, SOL_SOCKET, IP_FORCE_OUT_IFP, &host[17], strlen(&host[17]) + 1);
       }
 #endif
@@ -222,9 +247,11 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
 #endif
         ret = connect(s, (struct sockaddr *)&target, sizeof(target));
       alarm(0);
-      if (ret < 0 && alarm_went_off == 0) {
+      if (ret < 0 && alarm_went_off == 0)
+      {
         fail++;
-        if (verbose) {
+        if (verbose)
+        {
           if (do_retry && fail <= MAX_CONNECT_RETRY)
             fprintf(stderr,
                     "Process %d: Can not connect [unreachable], retrying (%d "
@@ -235,7 +262,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
         }
       }
     } while (ret < 0 && fail <= MAX_CONNECT_RETRY && do_retry);
-    if (ret < 0 && fail > MAX_CONNECT_RETRY) {
+    if (ret < 0 && fail > MAX_CONNECT_RETRY)
+    {
       if (debug)
         printf("DEBUG_CONNECT_UNREACHABLE\n");
 
@@ -257,8 +285,10 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
       printf("DEBUG_CONNECT_OK\n");
 
     err = 0;
-    if (use_proxy == 2) {
-      if ((buf = (char *) malloc(4096)) == NULL) {
+    if (use_proxy == 2)
+    {
+      if ((buf = (char *)malloc(4096)) == NULL)
+      {
         fprintf(stderr, "[ERROR] could not malloc()\n");
         close(s);
         if (reset_selected)
@@ -266,21 +296,24 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
         return -1;
       }
       memset(&target, 0, sizeof(target));
-      if (host[0] == 4) {
+      if (host[0] == 4)
+      {
         memcpy(&target.sin_addr.s_addr, &host[1], 4);
         target.sin_family = AF_INET;
         target.sin_port = htons(port);
       }
 #ifdef AF_INET6
       memset(&target6, 0, sizeof(target6));
-      if (host[0] == 16) {
+      if (host[0] == 16)
+      {
         memcpy(&target6.sin6_addr, &host[1], 16);
         target6.sin6_family = AF_INET6;
         target6.sin6_port = htons(port);
       }
 #endif
 
-      if (fpassword_strcasestr(proxy_string_type[selected_proxy], "connect") || fpassword_strcasestr(proxy_string_type[selected_proxy], "http")) {
+      if (fpassword_strcasestr(proxy_string_type[selected_proxy], "connect") || fpassword_strcasestr(proxy_string_type[selected_proxy], "http"))
+      {
         if (proxy_authentication[selected_proxy] == NULL)
           if (host[0] == 16)
             snprintf(buf, 4096, "CONNECT [%s]:%d HTTP/1.0\r\n\r\n", fpassword_address2string(host), port);
@@ -295,17 +328,21 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
           snprintf(buf, 4096, "CONNECT %s:%d HTTP/1.0\r\nProxy-Authorization: Basic %s\r\n\r\n", fpassword_address2string(host), port, proxy_authentication[selected_proxy]);
 
         send(s, buf, strlen(buf), 0);
-        if (debug) {
+        if (debug)
+        {
           char *ptr = strchr(buf, '\r');
           if (ptr != NULL)
             *ptr = 0;
           printf("DEBUG_CONNECT_PROXY_SENT: %s\n", buf);
         }
         recv(s, buf, 4096, 0);
-        if (strncmp("HTTP/", buf, 5) == 0 && (tmpptr = strchr(buf, ' ')) != NULL && *++tmpptr == '2') {
+        if (strncmp("HTTP/", buf, 5) == 0 && (tmpptr = strchr(buf, ' ')) != NULL && *++tmpptr == '2')
+        {
           if (debug)
             printf("DEBUG_CONNECT_PROXY_OK\n");
-        } else {
+        }
+        else
+        {
           if (debug && tmpptr)
             printf("DEBUG_CONNECT_PROXY_FAILED (Code: %c%c%c)\n", *tmpptr, *(tmpptr + 1), *(tmpptr + 2));
           if (verbose && tmpptr)
@@ -313,8 +350,11 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
           err = 1;
         }
         //        free(buf);
-      } else {
-        if (fpassword_strcasestr(proxy_string_type[selected_proxy], "socks5")) {
+      }
+      else
+      {
+        if (fpassword_strcasestr(proxy_string_type[selected_proxy], "socks5"))
+        {
           //          char buf[1024];
           size_t cnt, wlen;
 
@@ -326,24 +366,31 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
           else
             buf[2] = SOCKS_PASSAUTH;
           cnt = fpassword_send(s, buf, 3, 0);
-          if (cnt != 3) {
+          if (cnt != 3)
+          {
             fpassword_report(stderr, "[ERROR] SOCKS5 proxy write failed (%zu/3)\n", cnt);
             err = 1;
-          } else {
+          }
+          else
+          {
             cnt = fpassword_recv(s, buf, 2);
-            if (cnt != 2) {
+            if (cnt != 2)
+            {
               fpassword_report(stderr, "[ERROR] SOCKS5 proxy read failed (%zu/2)\n", cnt);
               err = 1;
             }
-            if ((unsigned char)buf[1] == SOCKS_NOMETHOD) {
+            if ((unsigned char)buf[1] == SOCKS_NOMETHOD)
+            {
               fpassword_report(stderr, "[ERROR] SOCKS5 proxy authentication method "
-                                   "negotiation failed\n");
+                                       "negotiation failed\n");
               err = 1;
             }
             /* SOCKS_DOMAIN not supported here, do we need it ? */
-            if (err != 1) {
+            if (err != 1)
+            {
               /* send user/pass */
-              if (proxy_authentication[selected_proxy] != NULL) {
+              if (proxy_authentication[selected_proxy] != NULL)
+              {
                 // format was checked previously
                 char *login = strtok(proxy_authentication[selected_proxy], ":");
                 char *pass = strtok(NULL, ":");
@@ -351,26 +398,34 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
                 snprintf(buf, 4096, "\x01%c%s%c%s", (char)strlen(login), login, (char)strlen(pass), pass);
 
                 cnt = fpassword_send(s, buf, strlen(buf), 0);
-                if (cnt != strlen(buf)) {
+                if (cnt != strlen(buf))
+                {
                   fpassword_report(stderr, "[ERROR] SOCKS5 proxy write failed (%zu/3)\n", cnt);
                   err = 1;
-                } else {
+                }
+                else
+                {
                   cnt = fpassword_recv(s, buf, 2);
-                  if (cnt != 2) {
+                  if (cnt != 2)
+                  {
                     fpassword_report(stderr, "[ERROR] SOCKS5 proxy read failed (%zu/2)\n", cnt);
                     err = 1;
                   }
-                  if (buf[1] != 0) {
+                  if (buf[1] != 0)
+                  {
                     fpassword_report(stderr, "[ERROR] SOCKS5 proxy authentication failure\n");
                     err = 1;
-                  } else {
+                  }
+                  else
+                  {
                     if (debug)
                       fpassword_report(stderr, "[DEBUG] SOCKS5 proxy authentication success\n");
                   }
                 }
               }
 #ifdef AF_INET6
-              if (ipv6) {
+              if (ipv6)
+              {
                 /* Version 5, connect: IPv6 address */
                 buf[0] = SOCKS_V5;
                 buf[1] = SOCKS_CONNECT;
@@ -379,7 +434,9 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
                 memcpy(buf + 4, &target6.sin6_addr, sizeof target6.sin6_addr);
                 memcpy(buf + 20, &target6.sin6_port, sizeof target6.sin6_port);
                 wlen = 22;
-              } else {
+              }
+              else
+              {
 #endif
                 /* Version 5, connect: IPv4 address */
                 buf[0] = SOCKS_V5;
@@ -393,16 +450,21 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
               }
 #endif
               cnt = fpassword_send(s, buf, wlen, 0);
-              if (cnt != wlen) {
+              if (cnt != wlen)
+              {
                 fpassword_report(stderr, "[ERROR] SOCKS5 proxy write failed (%zu/%zu)\n", cnt, wlen);
                 err = 1;
-              } else {
+              }
+              else
+              {
                 cnt = fpassword_recv(s, buf, 10);
-                if (cnt != 10) {
+                if (cnt != 10)
+                {
                   fpassword_report(stderr, "[ERROR] SOCKS5 proxy read failed (%zu/10)\n", cnt);
                   err = 1;
                 }
-                if (buf[1] != 0) {
+                if (buf[1] != 0)
+                {
                   /* 0x05 = connection refused by destination host */
                   if (buf[1] == 5)
                     fpassword_report(stderr, "[ERROR] SOCKS proxy request failed\n");
@@ -413,12 +475,18 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
               }
             }
           }
-        } else {
-          if (fpassword_strcasestr(proxy_string_type[selected_proxy], "socks4")) {
-            if (ipv6) {
+        }
+        else
+        {
+          if (fpassword_strcasestr(proxy_string_type[selected_proxy], "socks4"))
+          {
+            if (ipv6)
+            {
               fpassword_report(stderr, "[ERROR] SOCKS4 proxy does not support IPv6\n");
               err = 1;
-            } else {
+            }
+            else
+            {
               //              char buf[1024];
               size_t cnt, wlen;
 
@@ -430,16 +498,21 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
               buf[8] = 0; /* empty username */
               wlen = 9;
               cnt = fpassword_send(s, buf, wlen, 0);
-              if (cnt != wlen) {
+              if (cnt != wlen)
+              {
                 fpassword_report(stderr, "[ERROR] SOCKS4 proxy write failed (%zu/%zu)\n", cnt, wlen);
                 err = 1;
-              } else {
+              }
+              else
+              {
                 cnt = fpassword_recv(s, buf, 8);
-                if (cnt != 8) {
+                if (cnt != 8)
+                {
                   fpassword_report(stderr, "[ERROR] SOCKS4 proxy read failed (%zu/8)\n", cnt);
                   err = 1;
                 }
-                if (buf[1] != 90) {
+                if (buf[1] != 90)
+                {
                   /* 91 = 0x5b = request rejected or failed */
                   if (buf[1] == 91)
                     fpassword_report(stderr, "[ERROR] SOCKS proxy request failed\n");
@@ -449,18 +522,21 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
                 }
               }
             }
-          } else {
+          }
+          else
+          {
             fpassword_report(stderr,
-                         "[ERROR] Unknown proxy type: %s, valid type are "
-                         "\"connect\", \"socks4\" or \"socks5\"\n",
-                         proxy_string_type[selected_proxy]);
+                             "[ERROR] Unknown proxy type: %s, valid type are "
+                             "\"connect\", \"socks4\" or \"socks5\"\n",
+                             proxy_string_type[selected_proxy]);
             err = 1;
           }
         }
       }
       free(buf);
     }
-    if (err) {
+    if (err)
+    {
       close(s);
       extern_socket = -1;
       if (reset_selected)
@@ -479,7 +555,8 @@ int32_t internal__fpassword_connect(char *host, int32_t port, int32_t type, int3
 }
 
 #if defined(LIBOPENSSL) && !defined(LIBRESSL_VERSION_NUMBER)
-RSA *ssl_temp_rsa_cb(SSL *ssl, int32_t export, int32_t keylength) {
+RSA *ssl_temp_rsa_cb(SSL *ssl, int32_t export, int32_t keylength)
+{
   int32_t nok = 0;
 #if !defined(LIBRESSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L
   BIGNUM *n;
@@ -491,14 +568,16 @@ RSA *ssl_temp_rsa_cb(SSL *ssl, int32_t export, int32_t keylength) {
   if (rsa->n == 0)
     nok = 1;
 #endif
-  if (nok == 0 && RSA_size(rsa) != (keylength / 8)) { // n is not zero
+  if (nok == 0 && RSA_size(rsa) != (keylength / 8))
+  { // n is not zero
 #if !defined(LIBRESSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L
     BN_free(n);
 #endif
     RSA_free(rsa);
     rsa = NULL;
   }
-  if (nok != 0) { // n is zero
+  if (nok != 0)
+  { // n is zero
 #if defined(NO_RSA_LEGACY) || OPENSSL_VERSION_NUMBER >= 0x10100000L
     RSA *rsa = RSA_new();
     BIGNUM *f4 = BN_new();
@@ -516,27 +595,35 @@ RSA *ssl_temp_rsa_cb(SSL *ssl, int32_t export, int32_t keylength) {
 #endif
 
 #if defined(LIBOPENSSL)
-int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname) {
+int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname)
+{
   int32_t err;
 
-  if (ssl_first) {
+  if (ssl_first)
+  {
     SSL_load_error_strings();
     //    SSL_add_ssl_algoritms();
     SSL_library_init(); // ?
     ssl_first = 0;
   }
 
-  if (sslContext == NULL) {
+  if (sslContext == NULL)
+  {
     /* context: ssl2 + ssl3 is allowed, whatever the server demands */
-    if (old_ssl) {
-      if ((sslContext = SSL_CTX_new(SSLv23_client_method())) == NULL) {
-        if (verbose) {
+    if (old_ssl)
+    {
+      if ((sslContext = SSL_CTX_new(SSLv23_client_method())) == NULL)
+      {
+        if (verbose)
+        {
           err = ERR_get_error();
           fprintf(stderr, "[ERROR] SSL allocating context: %s\n", ERR_error_string(err, NULL));
         }
         return -1;
       }
-    } else {
+    }
+    else
+    {
 #ifndef TLSv1_2_client_method
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 #define TLSv1_2_client_method TLSv1_2_client_method
@@ -544,8 +631,10 @@ int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname) {
 #define TLSv1_2_client_method TLS_client_method
 #endif
 #endif
-      if ((sslContext = SSL_CTX_new(TLSv1_2_client_method())) == NULL) {
-        if (verbose) {
+      if ((sslContext = SSL_CTX_new(TLSv1_2_client_method())) == NULL)
+      {
+        if (verbose)
+        {
           err = ERR_get_error();
           fprintf(stderr, "[ERROR] SSL allocating context: %s\n", ERR_error_string(err, NULL));
         }
@@ -565,8 +654,10 @@ int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname) {
     SSL_CTX_set_verify(sslContext, SSL_VERIFY_NONE, NULL);
   }
 
-  if ((ssl = SSL_new(sslContext)) == NULL) {
-    if (verbose) {
+  if ((ssl = SSL_new(sslContext)) == NULL)
+  {
+    if (verbose)
+    {
       err = ERR_get_error();
       fprintf(stderr, "[ERROR] preparing an SSL context: %s\n", ERR_error_string(err, NULL));
     }
@@ -580,9 +671,11 @@ int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname) {
 
   SSL_set_fd(ssl, socket);
 
-  if (SSL_connect(ssl) <= 0) {
+  if (SSL_connect(ssl) <= 0)
+  {
     //    fprintf(stderr, "[ERROR] SSL Connect %d\n", SSL_connect(ssl));
-    if (verbose) {
+    if (verbose)
+    {
       err = ERR_get_error();
       fprintf(stderr, "[VERBOSE] Could not create an SSL session: %s\n", ERR_error_string(err, NULL));
     }
@@ -597,7 +690,8 @@ int32_t internal__fpassword_connect_to_ssl(int32_t socket, char *hostname) {
   return socket;
 }
 
-int32_t internal__fpassword_connect_ssl(char *host, int32_t port, int32_t type, int32_t protocol, char *hostname) {
+int32_t internal__fpassword_connect_ssl(char *host, int32_t port, int32_t type, int32_t protocol, char *hostname)
+{
   int32_t socket;
 
   if ((socket = internal__fpassword_connect(host, port, type, protocol)) < 0)
@@ -607,27 +701,34 @@ int32_t internal__fpassword_connect_ssl(char *host, int32_t port, int32_t type, 
 }
 #endif
 
-int32_t internal__fpassword_recv(int32_t socket, char *buf, uint32_t length) {
+int32_t internal__fpassword_recv(int32_t socket, char *buf, uint32_t length)
+{
 #ifdef LIBOPENSSL
-  if (use_ssl) {
+  if (use_ssl)
+  {
     return SSL_read(ssl, buf, length);
-  } else
+  }
+  else
 #endif
     return recv(socket, buf, length, 0);
 }
 
-int32_t internal__fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options) {
+int32_t internal__fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options)
+{
 #ifdef LIBOPENSSL
-  if (use_ssl) {
+  if (use_ssl)
+  {
     return SSL_write(ssl, buf, size);
-  } else
+  }
+  else
 #endif
     return send(socket, buf, size, options);
 }
 
 /* ------------------ public functions ------------------ */
 
-void fpassword_child_exit(int32_t code) {
+void fpassword_child_exit(int32_t code)
+{
   char buf[2];
 
   if (debug)
@@ -642,12 +743,14 @@ void fpassword_child_exit(int32_t code) {
     __fck = write(intern_socket, "D", 1);
   // code 4 means exit without telling mommy about it - a bad idea. mommy should
   // know
-  else if (code == -1 || code > 4) {
+  else if (code == -1 || code > 4)
+  {
     fprintf(stderr, "[TOTAL FUCKUP] a module should not use "
                     "fpassword_child_exit(-1) ! Fix it in the source please ...\n");
     __fck = write(intern_socket, "E", 1);
   }
-  do {
+  do
+  {
     usleepn(10);
   } while (read(intern_socket, buf, 1) <= 0);
   close(intern_socket);
@@ -657,8 +760,10 @@ void fpassword_child_exit(int32_t code) {
 
 void fpassword_register_socket(int32_t s) { intern_socket = s; }
 
-char *fpassword_get_next_pair() {
-  if (pair[0] == 0) {
+char *fpassword_get_next_pair()
+{
+  if (pair[0] == 0)
+  {
     pair[sizeof(pair) - 1] = 0;
     __fck = read(intern_socket, pair, sizeof(pair) - 1);
     // if (debug) fpassword_dump_data(pair, __fck, "CHILD READ PAIR");
@@ -670,13 +775,15 @@ char *fpassword_get_next_pair() {
   return pair;
 }
 
-char *fpassword_get_next_login() {
+char *fpassword_get_next_login()
+{
   if (pair[0] == 0)
     return FPASSWORD_EMPTY;
   return pair;
 }
 
-char *fpassword_get_next_password() {
+char *fpassword_get_next_password()
+{
   char *ptr = pair;
 
   while (*ptr != '\0')
@@ -687,12 +794,14 @@ char *fpassword_get_next_password() {
   return ptr;
 }
 
-void fpassword_completed_pair() {
+void fpassword_completed_pair()
+{
   __fck = write(intern_socket, "N", 1);
   pair[0] = 0;
 }
 
-void fpassword_completed_pair_found() {
+void fpassword_completed_pair_found()
+{
   char *login;
 
   __fck = write(intern_socket, "F", 1);
@@ -701,7 +810,8 @@ void fpassword_completed_pair_found() {
   pair[0] = 0;
 }
 
-void fpassword_completed_pair_skip() {
+void fpassword_completed_pair_skip()
+{
   char *login;
 
   __fck = write(intern_socket, "f", 1);
@@ -713,7 +823,8 @@ void fpassword_completed_pair_skip() {
 /*
 based on writeError from Medusa project
 */
-void fpassword_report_debug(FILE *st, char *format, ...) {
+void fpassword_report_debug(FILE *st, char *format, ...)
+{
   va_list ap;
   char buf[8200];
   char bufOut[33000];
@@ -721,21 +832,27 @@ void fpassword_report_debug(FILE *st, char *format, ...) {
   unsigned char cTemp;
   int32_t i = 0, len;
 
-  if (format == NULL) {
+  if (format == NULL)
+  {
     fprintf(stderr, "[ERROR] no msg passed.\n");
-  } else {
+  }
+  else
+  {
     va_start(ap, format);
     memset(bufOut, 0, sizeof(bufOut));
     memset(buf, 0, sizeof(buf));
     len = vsnprintf(buf, sizeof(buf), format, ap);
 
     // Convert any chars less than 32d or greater than 126d to hex
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; i++)
+    {
       memset(temp, 0, 6);
       cTemp = (unsigned char)buf[i];
-      if (cTemp < 32 || cTemp > 126) {
+      if (cTemp < 32 || cTemp > 126)
+      {
         sprintf(temp, "[%02X]", cTemp);
-      } else
+      }
+      else
         sprintf(temp, "%c", cTemp);
 
       if (strlen(bufOut) + 6 < sizeof(bufOut))
@@ -749,7 +866,8 @@ void fpassword_report_debug(FILE *st, char *format, ...) {
   return;
 }
 
-void fpassword_report_found(int32_t port, char *svc, FILE *fp) {
+void fpassword_report_found(int32_t port, char *svc, FILE *fp)
+{
   /*
     if (!strcmp(svc, "rsh"))
       if (colored_output)
@@ -774,7 +892,8 @@ void fpassword_report_found(int32_t port, char *svc, FILE *fp) {
 }
 
 /* needed for irc module to display the general server password */
-void fpassword_report_pass_found(int32_t port, char *ip, char *svc, FILE *fp) {
+void fpassword_report_pass_found(int32_t port, char *ip, char *svc, FILE *fp)
+{
   /*
     strcpy(ipaddr_str, fpassword_address2string(ip));
     if (colored_output)
@@ -787,7 +906,8 @@ void fpassword_report_pass_found(int32_t port, char *ip, char *svc, FILE *fp) {
   */
 }
 
-void fpassword_report_found_host(int32_t port, char *ip, char *svc, FILE *fp) {
+void fpassword_report_found_host(int32_t port, char *ip, char *svc, FILE *fp)
+{
   /*  char *keyw = "password";
 
     strcpy(ipaddr_str, fpassword_address2string(ip));
@@ -829,7 +949,8 @@ void fpassword_report_found_host(int32_t port, char *ip, char *svc, FILE *fp) {
   */
 }
 
-void fpassword_report_found_host_msg(int32_t port, char *ip, char *svc, FILE *fp, char *msg) {
+void fpassword_report_found_host_msg(int32_t port, char *ip, char *svc, FILE *fp, char *msg)
+{
   /*
     strcpy(ipaddr_str, fpassword_address2string(ip));
     if (colored_output)
@@ -844,7 +965,8 @@ void fpassword_report_found_host_msg(int32_t port, char *ip, char *svc, FILE *fp
   */
 }
 
-int32_t fpassword_connect_to_ssl(int32_t socket, char *hostname) {
+int32_t fpassword_connect_to_ssl(int32_t socket, char *hostname)
+{
 #ifdef LIBOPENSSL
   return (internal__fpassword_connect_to_ssl(socket, hostname));
 #else
@@ -853,7 +975,8 @@ int32_t fpassword_connect_to_ssl(int32_t socket, char *hostname) {
 #endif
 }
 
-int32_t fpassword_connect_ssl(char *host, int32_t port, char *hostname) {
+int32_t fpassword_connect_ssl(char *host, int32_t port, char *hostname)
+{
   if (__first_connect != 0)
     __first_connect = 0;
   else
@@ -866,7 +989,8 @@ int32_t fpassword_connect_ssl(char *host, int32_t port, char *hostname) {
 #endif
 }
 
-int32_t fpassword_connect_tcp(char *host, int32_t port) {
+int32_t fpassword_connect_tcp(char *host, int32_t port)
+{
   if (__first_connect != 0)
     __first_connect = 0;
   else
@@ -874,7 +998,8 @@ int32_t fpassword_connect_tcp(char *host, int32_t port) {
   return (internal__fpassword_connect(host, port, SOCK_STREAM, 6));
 }
 
-int32_t fpassword_connect_udp(char *host, int32_t port) {
+int32_t fpassword_connect_udp(char *host, int32_t port)
+{
   if (__first_connect != 0)
     __first_connect = 0;
   else
@@ -882,9 +1007,11 @@ int32_t fpassword_connect_udp(char *host, int32_t port) {
   return (internal__fpassword_connect(host, port, SOCK_DGRAM, 17));
 }
 
-int32_t fpassword_disconnect(int32_t socket) {
+int32_t fpassword_disconnect(int32_t socket)
+{
 #ifdef LIBOPENSSL
-  if (use_ssl && SSL_get_fd(ssl) == socket) {
+  if (use_ssl && SSL_get_fd(ssl) == socket)
+  {
     /* SSL_shutdown(ssl); ...skip this--it slows things down */
     SSL_set_bio(ssl, NULL, NULL);
     SSL_clear(ssl);
@@ -897,7 +1024,8 @@ int32_t fpassword_disconnect(int32_t socket) {
   return -1;
 }
 
-int32_t fpassword_data_ready_writing_timed(int32_t socket, long sec, long usec) {
+int32_t fpassword_data_ready_writing_timed(int32_t socket, long sec, long usec)
+{
   fd_set fds;
 
   FD_ZERO(&fds);
@@ -907,7 +1035,8 @@ int32_t fpassword_data_ready_writing_timed(int32_t socket, long sec, long usec) 
 
 int32_t fpassword_data_ready_writing(int32_t socket) { return (fpassword_data_ready_writing_timed(socket, 30, 0)); }
 
-int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec) {
+int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec)
+{
   fd_set fds;
 
   FD_ZERO(&fds);
@@ -917,12 +1046,14 @@ int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec) {
 
 int32_t fpassword_data_ready(int32_t socket) { return (fpassword_data_ready_timed(socket, 0, 100)); }
 
-int32_t fpassword_recv(int32_t socket, char *buf, uint32_t length) {
+int32_t fpassword_recv(int32_t socket, char *buf, uint32_t length)
+{
   int32_t ret;
   char text[64];
 
   ret = internal__fpassword_recv(socket, buf, length);
-  if (debug) {
+  if (debug)
+  {
     sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
     fpassword_dump_data((unsigned char *)buf, ret, text);
     // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN|%s|END [pid:%d ret:%d]",
@@ -931,20 +1062,25 @@ int32_t fpassword_recv(int32_t socket, char *buf, uint32_t length) {
   return ret;
 }
 
-int32_t fpassword_recv_nb(int32_t socket, char *buf, uint32_t length) {
+int32_t fpassword_recv_nb(int32_t socket, char *buf, uint32_t length)
+{
   int32_t ret = -1;
   char text[64];
 
-  if (fpassword_data_ready_timed(socket, (long)waittime, 0) > 0) {
-    if ((ret = internal__fpassword_recv(socket, buf, length)) <= 0) {
+  if (fpassword_data_ready_timed(socket, (long)waittime, 0) > 0)
+  {
+    if ((ret = internal__fpassword_recv(socket, buf, length)) <= 0)
+    {
       buf[0] = 0;
-      if (debug) {
+      if (debug)
+      {
         sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
         fpassword_dump_data((unsigned char *)buf, ret, text);
       }
       return ret;
     }
-    if (debug) {
+    if (debug)
+    {
       sprintf(text, "[DEBUG] RECV [pid:%d]", getpid());
       fpassword_dump_data((unsigned char *)buf, ret, text);
       // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN|%s|END [pid:%d ret:%d]",
@@ -954,11 +1090,13 @@ int32_t fpassword_recv_nb(int32_t socket, char *buf, uint32_t length) {
   return ret;
 }
 
-char *fpassword_receive_line(int32_t socket) {
+char *fpassword_receive_line(int32_t socket)
+{
   char buf[1024], *buff, *buff2, pid[64];
   int32_t i, j, k, got = 0;
 
-  if ((buff = (char *)malloc(sizeof(buf))) == NULL) {
+  if ((buff = (char *)malloc(sizeof(buf))) == NULL)
+  {
     fprintf(stderr, "[ERROR] could not malloc\n");
     return NULL;
   }
@@ -970,17 +1108,21 @@ char *fpassword_receive_line(int32_t socket) {
            "pid: %d\n",
            waittime, conwait, socket, getpid());
 
-  if ((i = fpassword_data_ready_timed(socket, (long)waittime, 0)) > 0) {
-    do {
+  if ((i = fpassword_data_ready_timed(socket, (long)waittime, 0)) > 0)
+  {
+    do
+    {
       j = internal__fpassword_recv(socket, buf, sizeof(buf) - 1);
-      if (j > 0) {
+      if (j > 0)
+      {
         for (k = 0; k < j; k++)
           if (buf[k] == 0)
             buf[k] = 32;
 
         buf[j] = 0;
 
-        if ((buff2 = (char *)realloc(buff, got + j + 1)) == NULL) {
+        if ((buff2 = (char *)realloc(buff, got + j + 1)) == NULL)
+        {
           free(buff);
           return NULL;
         }
@@ -989,7 +1131,9 @@ char *fpassword_receive_line(int32_t socket) {
         memcpy(buff + got, &buf, j + 1);
         got += j;
         buff[got] = 0;
-      } else if (j < 0) {
+      }
+      else if (j < 0)
+      {
         // some error occured
         got = -1;
       }
@@ -999,16 +1143,22 @@ char *fpassword_receive_line(int32_t socket) {
 #endif
     );
 
-    if (got > 0) {
-      if (debug) {
+    if (got > 0)
+    {
+      if (debug)
+      {
         sprintf(pid, "[DEBUG] RECV [pid:%d]", getpid());
         fpassword_dump_data((unsigned char *)buff, got, pid);
         // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN [pid:%d len:%d]|%s|END",
         // getpid(), got, buff);
       }
-    } else {
-      if (got < 0) {
-        if (debug) {
+    }
+    else
+    {
+      if (got < 0)
+      {
+        if (debug)
+        {
           sprintf(pid, "[DEBUG] RECV [pid:%d]", getpid());
           fpassword_dump_data((unsigned char *)"", -1, pid);
           // fpassword_report_debug(stderr, "DEBUG_RECV_BEGIN||END [pid:%d %d]",
@@ -1021,7 +1171,9 @@ char *fpassword_receive_line(int32_t socket) {
     }
 
     usleepn(100);
-  } else {
+  }
+  else
+  {
     if (debug)
       printf("[DEBUG] fpassword_data_ready_timed: %d, waittime: %d, conwait: %d, "
              "socket: %d\n",
@@ -1031,10 +1183,12 @@ char *fpassword_receive_line(int32_t socket) {
   return buff;
 }
 
-int32_t fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options) {
+int32_t fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options)
+{
   char text[64];
 
-  if (debug) {
+  if (debug)
+  {
     sprintf(text, "[DEBUG] SEND [pid:%d]", getpid());
     fpassword_dump_data((unsigned char *)buf, size, text);
 
@@ -1058,17 +1212,20 @@ int32_t fpassword_send(int32_t socket, char *buf, uint32_t size, int32_t options
   return (internal__fpassword_send(socket, buf, size, options));
 }
 
-int32_t make_to_lower(char *buf) {
+int32_t make_to_lower(char *buf)
+{
   if (buf == NULL)
     return 1;
-  while (buf[0] != 0) {
+  while (buf[0] != 0)
+  {
     buf[0] = tolower((int32_t)buf[0]);
     buf++;
   }
   return 1;
 }
 
-char *fpassword_strrep(char *string, char *oldpiece, char *newpiece) {
+char *fpassword_strrep(char *string, char *oldpiece, char *newpiece)
+{
   int32_t str_index, newstr_index, oldpiece_index, end, new_len, old_len, cpy_len;
   char *c, oldstring[6096],
       newstring[6096]; // updated due to issue 192 on github.
@@ -1077,9 +1234,10 @@ char *fpassword_strrep(char *string, char *oldpiece, char *newpiece) {
   if (string == NULL || oldpiece == NULL || newpiece == NULL || strlen(string) >= sizeof(oldstring) - 1 || (strlen(string) + strlen(newpiece) - strlen(oldpiece) >= sizeof(newstring) - 1 && strlen(string) > strlen(oldpiece)))
     return NULL;
 
-  if (strlen(string) > 6000) {
+  if (strlen(string) > 6000)
+  {
     fpassword_report(stderr, "[ERROR] Supplied URL or POST data too large. Max "
-                         "limit is 6000 characters.\n");
+                             "limit is 6000 characters.\n");
     exit(-1);
   }
 
@@ -1094,7 +1252,8 @@ char *fpassword_strrep(char *string, char *oldpiece, char *newpiece) {
   oldpiece_index = c - oldstring;
   newstr_index = 0;
   str_index = 0;
-  while (c != NULL && str_index <= end) {
+  while (c != NULL && str_index <= end)
+  {
     /* Copy characters from the left of matched pattern occurence */
     cpy_len = oldpiece_index - str_index;
     strncpy(newstring + newstr_index, oldstring + str_index, cpy_len);
@@ -1117,7 +1276,8 @@ char *fpassword_strrep(char *string, char *oldpiece, char *newpiece) {
   return finalstring;
 }
 
-unsigned char fpassword_conv64(unsigned char in) {
+unsigned char fpassword_conv64(unsigned char in)
+{
   if (in < 26)
     return (in + 'A');
   else if (in >= 26 && in < 52)
@@ -1128,13 +1288,15 @@ unsigned char fpassword_conv64(unsigned char in) {
     return '+';
   else if (in == 63)
     return '/';
-  else {
+  else
+  {
     fprintf(stderr, "[ERROR] too high for base64: %d\n", in);
     return 0;
   }
 }
 
-void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize) {
+void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize)
+{
   unsigned char small[3] = {0, 0, 0};
   unsigned char big[5];
   unsigned char *ptr = buf;
@@ -1148,14 +1310,16 @@ void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize) {
   memset(big, 0, sizeof(big));
   memset(bof, 0, bufsize);
 
-  for (i = 0; i < buflen / 3; i++) {
+  for (i = 0; i < buflen / 3; i++)
+  {
     memset(big, 0, sizeof(big));
     big[0] = fpassword_conv64(*ptr >> 2);
     big[1] = fpassword_conv64(((*ptr & 3) << 4) + (*(ptr + 1) >> 4));
     big[2] = fpassword_conv64(((*(ptr + 1) & 15) << 2) + (*(ptr + 2) >> 6));
     big[3] = fpassword_conv64(*(ptr + 2) & 63);
     len += strlen((char *)big);
-    if (len > bufsize) {
+    if (len > bufsize)
+    {
       buf[0] = 0;
       return;
     }
@@ -1163,7 +1327,8 @@ void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize) {
     ptr += 3;
   }
 
-  if (*ptr != 0) {
+  if (*ptr != 0)
+  {
     small[0] = *ptr;
     if (*(ptr + 1) != 0)
       small[1] = *(ptr + 1);
@@ -1183,22 +1348,26 @@ void fpassword_tobase64(unsigned char *buf, uint32_t buflen, uint32_t bufsize) {
   strcpy((char *)buf, (char *)bof); /* can not overflow */
 }
 
-void fpassword_dump_asciihex(unsigned char *string, int32_t length) {
+void fpassword_dump_asciihex(unsigned char *string, int32_t length)
+{
   unsigned char *p = (unsigned char *)string;
   unsigned char lastrow_data[16];
   int32_t rows = length / FPASSWORD_DUMP_ROWS;
   int32_t lastrow = length % FPASSWORD_DUMP_ROWS;
   int32_t i, j;
 
-  for (i = 0; i < rows; i++) {
+  for (i = 0; i < rows; i++)
+  {
     printf("%04hx:  ", i * 16);
-    for (j = 0; j < FPASSWORD_DUMP_ROWS; j++) {
+    for (j = 0; j < FPASSWORD_DUMP_ROWS; j++)
+    {
       printf("%02x", p[(i * 16) + j]);
       if (j % 2 == 1)
         printf(" ");
     }
     printf("   [ ");
-    for (j = 0; j < FPASSWORD_DUMP_ROWS; j++) {
+    for (j = 0; j < FPASSWORD_DUMP_ROWS; j++)
+    {
       if (isprint(p[(i * 16) + j]))
         printf("%c", p[(i * 16) + j]);
       else
@@ -1206,29 +1375,34 @@ void fpassword_dump_asciihex(unsigned char *string, int32_t length) {
     }
     printf(" ]\n");
   }
-  if (lastrow > 0) {
+  if (lastrow > 0)
+  {
     memset(lastrow_data, 0, sizeof(lastrow_data));
     memcpy(lastrow_data, p + length - lastrow, lastrow);
     printf("%04hx:  ", i * 16);
-    for (j = 0; j < lastrow; j++) {
+    for (j = 0; j < lastrow; j++)
+    {
       printf("%02x", p[(i * 16) + j]);
       if (j % 2 == 1)
         printf(" ");
     }
-    while (j < FPASSWORD_DUMP_ROWS) {
+    while (j < FPASSWORD_DUMP_ROWS)
+    {
       printf("  ");
       if (j % 2 == 1)
         printf(" ");
       j++;
     }
     printf("   [ ");
-    for (j = 0; j < lastrow; j++) {
+    for (j = 0; j < lastrow; j++)
+    {
       if (isprint(p[(i * 16) + j]))
         printf("%c", p[(i * 16) + j]);
       else
         printf(".");
     }
-    while (j < FPASSWORD_DUMP_ROWS) {
+    while (j < FPASSWORD_DUMP_ROWS)
+    {
       printf(" ");
       j++;
     }
@@ -1236,20 +1410,25 @@ void fpassword_dump_asciihex(unsigned char *string, int32_t length) {
   }
 }
 
-char *fpassword_address2string(char *address) {
+char *fpassword_address2string(char *address)
+{
   struct sockaddr_in target;
   struct sockaddr_in6 target6;
 
-  if (address[0] == 4) {
+  if (address[0] == 4)
+  {
     memcpy(&target.sin_addr.s_addr, &address[1], 4);
     return inet_ntoa((struct in_addr)target.sin_addr);
-  } else
+  }
+  else
 #ifdef AF_INET6
-      if (address[0] == 16) {
+      if (address[0] == 16)
+  {
     memcpy(&target6.sin6_addr, &address[1], 16);
     inet_ntop(AF_INET6, &target6.sin6_addr, ipstring, sizeof(ipstring));
     return ipstring;
-  } else
+  }
+  else
 #endif
   {
     if (debug)
@@ -1259,26 +1438,32 @@ char *fpassword_address2string(char *address) {
   return NULL; // not reached
 }
 
-char *fpassword_address2string_beautiful(char *address) {
+char *fpassword_address2string_beautiful(char *address)
+{
   struct sockaddr_in target;
   struct sockaddr_in6 target6;
 
-  if (address[0] == 4) {
+  if (address[0] == 4)
+  {
     memcpy(&target.sin_addr.s_addr, &address[1], 4);
     return inet_ntoa((struct in_addr)target.sin_addr);
-  } else
+  }
+  else
 #ifdef AF_INET6
-      if (address[0] == 16) {
+      if (address[0] == 16)
+  {
     memcpy(&target6.sin6_addr, &address[1], 16);
     ipstring[0] = '[';
     inet_ntop(AF_INET6, &target6.sin6_addr, ipstring + 1, sizeof(ipstring) - 1);
-    if (address[17] != 0) {
+    if (address[17] != 0)
+    {
       strcat(ipstring, "%");
       strcat(ipstring, address + 17);
     }
     strcat(ipstring, "]");
     return ipstring;
-  } else
+  }
+  else
 #endif
   {
     if (debug)
@@ -1291,14 +1476,16 @@ char *fpassword_address2string_beautiful(char *address) {
 void fpassword_set_srcport(int32_t port) { src_port = port; }
 
 #ifdef HAVE_PCRE
-int32_t fpassword_string_match(char *str, const char *regex) {
+int32_t fpassword_string_match(char *str, const char *regex)
+{
   pcre2_code *re = NULL;
   int32_t error_code = 0;
   PCRE2_SIZE error_offset;
   int32_t rc = 0;
 
   re = pcre2_compile(regex, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS | PCRE2_DOTALL, &error_code, &error_offset, NULL);
-  if (re == NULL) {
+  if (re == NULL)
+  {
     fprintf(stderr, "[ERROR] PCRE compilation failed at offset %d: %d\n", error_offset, error_code);
     return 0;
   }
@@ -1308,7 +1495,8 @@ int32_t fpassword_string_match(char *str, const char *regex) {
   pcre2_match_data_free(match_data);
   pcre2_code_free(re);
 
-  if (rc >= 1) {
+  if (rc >= 1)
+  {
     return 1;
   }
   return 0;
@@ -1324,7 +1512,8 @@ int32_t fpassword_string_match(char *str, const char *regex) {
  * responsible for freeing this new string.
  *
  */
-char *fpassword_string_replace(const char *string, const char *substr, const char *replacement) {
+char *fpassword_string_replace(const char *string, const char *substr, const char *replacement)
+{
   char *tok = NULL;
   char *newstr = NULL;
 
@@ -1345,20 +1534,26 @@ char *fpassword_string_replace(const char *string, const char *substr, const cha
   return newstr;
 }
 
-char *fpassword_strcasestr(const char *haystack, const char *needle) {
+char *fpassword_strcasestr(const char *haystack, const char *needle)
+{
   if (needle == NULL || *needle == 0)
     return NULL;
 
-  for (; *haystack; ++haystack) {
-    if (toupper((int32_t)*haystack) == toupper((int32_t)*needle)) {
+  for (; *haystack; ++haystack)
+  {
+    if (toupper((int32_t)*haystack) == toupper((int32_t)*needle))
+    {
       const char *h, *n;
 
-      for (h = haystack, n = needle; *h && *n; ++h, ++n) {
-        if (toupper((int32_t)*h) != toupper((int32_t)*n)) {
+      for (h = haystack, n = needle; *h && *n; ++h, ++n)
+      {
+        if (toupper((int32_t)*h) != toupper((int32_t)*n))
+        {
           break;
         }
       }
-      if (!*n) {                 /* matched all of 'needle' to null termination */
+      if (!*n)
+      {                          /* matched all of 'needle' to null termination */
         return (char *)haystack; /* return the start of the match */
       }
     }
@@ -1366,7 +1561,8 @@ char *fpassword_strcasestr(const char *haystack, const char *needle) {
   return NULL;
 }
 
-void fpassword_dump_data(unsigned char *buf, int32_t len, char *text) {
+void fpassword_dump_data(unsigned char *buf, int32_t len, char *text)
+{
   unsigned char *p = (unsigned char *)buf;
   unsigned char lastrow_data[16];
   int32_t rows = len / 16;
@@ -1379,15 +1575,18 @@ void fpassword_dump_data(unsigned char *buf, int32_t len, char *text) {
   if (buf == NULL || len < 1)
     return;
 
-  for (i = 0; i < rows; i++) {
+  for (i = 0; i < rows; i++)
+  {
     printf("%04hx:  ", i * 16);
-    for (j = 0; j < 16; j++) {
+    for (j = 0; j < 16; j++)
+    {
       printf("%02x", p[(i * 16) + j]);
       if (j % 2 == 1)
         printf(" ");
     }
     printf("   [ ");
-    for (j = 0; j < 16; j++) {
+    for (j = 0; j < 16; j++)
+    {
       if (isprint(p[(i * 16) + j]))
         printf("%c", p[(i * 16) + j]);
       else
@@ -1395,29 +1594,34 @@ void fpassword_dump_data(unsigned char *buf, int32_t len, char *text) {
     }
     printf(" ]\n");
   }
-  if (lastrow > 0) {
+  if (lastrow > 0)
+  {
     memset(lastrow_data, 0, sizeof(lastrow_data));
     memcpy(lastrow_data, p + len - lastrow, lastrow);
     printf("%04hx:  ", i * 16);
-    for (j = 0; j < lastrow; j++) {
+    for (j = 0; j < lastrow; j++)
+    {
       printf("%02x", p[(i * 16) + j]);
       if (j % 2 == 1)
         printf(" ");
     }
-    while (j < 16) {
+    while (j < 16)
+    {
       printf("  ");
       if (j % 2 == 1)
         printf(" ");
       j++;
     }
     printf("   [ ");
-    for (j = 0; j < lastrow; j++) {
+    for (j = 0; j < lastrow; j++)
+    {
       if (isprint(p[(i * 16) + j]))
         printf("%c", p[(i * 16) + j]);
       else
         printf(".");
     }
-    while (j < 16) {
+    while (j < 16)
+    {
       printf(" ");
       j++;
     }
@@ -1425,7 +1629,8 @@ void fpassword_dump_data(unsigned char *buf, int32_t len, char *text) {
   }
 }
 
-int32_t fpassword_memsearch(char *haystack, int32_t hlen, char *needle, int32_t nlen) {
+int32_t fpassword_memsearch(char *haystack, int32_t hlen, char *needle, int32_t nlen)
+{
   int32_t i;
 
   for (i = 0; i <= hlen - nlen; i++)

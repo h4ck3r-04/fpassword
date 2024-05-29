@@ -28,7 +28,10 @@
 #endif
 #endif
 
-typedef enum { SASL_ALLOW_UNASSIGNED = 1 } sasl_saslprep_flags;
+typedef enum
+{
+  SASL_ALLOW_UNASSIGNED = 1
+} sasl_saslprep_flags;
 
 int32_t print_hex(unsigned char *buf, int32_t len);
 

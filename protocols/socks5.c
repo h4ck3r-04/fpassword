@@ -14,7 +14,8 @@ unsigned char *buf;
 
 int32_t fail_cnt;
 
-int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[300];
   int32_t pport, fud = 0;
@@ -25,10 +26,12 @@ int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, c
     pass = empty;
 
   memcpy(buffer, "\x05\x02\x00\x02", 4);
-  if (fpassword_send(s, buffer, 4, 0) < 0) {
+  if (fpassword_send(s, buffer, 4, 0) < 0)
+  {
     return 1;
   }
-  if ((buf = (unsigned char *)fpassword_receive_line(s)) == NULL) {
+  if ((buf = (unsigned char *)fpassword_receive_line(s)) == NULL)
+  {
     fail_cnt++;
     if (fail_cnt >= 10)
       return 5;
@@ -36,21 +39,27 @@ int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, c
   }
 
   fail_cnt = 0;
-  if (buf[0] != 5) {
-    if (buf[0] == 4) {
+  if (buf[0] != 5)
+  {
+    if (buf[0] == 4)
+    {
       fpassword_report(stderr, "[ERROR] Sorry Socks4 / Socks4a ident is not supported\n");
-    } else {
+    }
+    else
+    {
       fpassword_report(stderr, "[ERROR] Socks5 protocol or service shutdown: %s\n", buf);
     }
     free(buf);
     return (4);
   }
-  if (buf[1] == 0 || buf[1] == 32) {
+  if (buf[1] == 0 || buf[1] == 32)
+  {
     fpassword_report(stderr, "[INFO] Socks5 server does NOT require any authentication!\n");
     free(buf);
     return (4);
   }
-  if (buf[1] != 0x2) {
+  if (buf[1] != 0x2)
+  {
     fpassword_report(stderr, "[ERROR] Socks5 protocol or service shutdown: %s\n", buf);
     free(buf);
     return (4);
@@ -69,27 +78,35 @@ int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, c
   if ((buf = (unsigned char *)fpassword_receive_line(s)) == NULL)
     return (1);
 
-  if (buf[1] != 255) {
+  if (buf[1] != 255)
+  {
     /* new: false positive check */
     free(buf);
     pport = htons(port);
-    if (ip[0] == 16) {
+    if (ip[0] == 16)
+    {
       memcpy(buffer, "\x05\x01\x00\x04", 4);
       memcpy(buffer + 4, &ip[1], 16);
       memcpy(buffer + 20, &pport, 2);
       fpassword_send(s, buffer, 22, 0);
-    } else {
+    }
+    else
+    {
       memcpy(buffer, "\x05\x01\x00\x01", 4);
       memcpy(buffer + 4, &ip[1], 4);
       memcpy(buffer + 8, &pport, 2);
       fpassword_send(s, buffer, 10, 0);
     }
-    if ((buf = (unsigned char *)fpassword_receive_line(s)) != NULL) {
-      if (buf[1] == 0 || buf[1] == 32) {
+    if ((buf = (unsigned char *)fpassword_receive_line(s)) != NULL)
+    {
+      if (buf[1] == 0 || buf[1] == 32)
+      {
         fpassword_report_found_host(port, ip, "socks5", fp);
         fpassword_completed_pair_found();
         fud = 1;
-      } else if (buf[1] != 2) {
+      }
+      else if (buf[1] != 2)
+      {
         fpassword_report_found_host_msg(port, ip, "socks5", fp, "might be a false positive!");
       }
     }
@@ -104,7 +121,8 @@ int32_t start_socks5(int32_t s, char *ip, int32_t port, unsigned char options, c
   return 2;
 }
 
-void service_socks5(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_socks5(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_SOCKS5, mysslport = PORT_SOCKS5_SSL;
 
@@ -114,24 +132,30 @@ void service_socks5(char *ip, int32_t sp, unsigned char options, char *miscptr, 
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
@@ -165,7 +189,8 @@ void service_socks5(char *ip, int32_t sp, unsigned char options, char *miscptr, 
   }
 }
 
-int32_t service_socks5_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_socks5_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

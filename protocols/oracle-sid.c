@@ -21,7 +21,8 @@ extern char *FPASSWORD_EXIT;
 char *buf;
 unsigned char *hash;
 
-int32_t start_oracle_sid(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_oracle_sid(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   /*
      PP is the packet length
      XX is the length of connect data
@@ -48,23 +49,30 @@ int32_t start_oracle_sid(int32_t s, char *ip, int32_t port, unsigned char option
            "USER=)))(ADDRESS=(PROTOCOL=tcp)(HOST=%s)(PORT=%d)))",
            login, fpassword_address2string(ip), port);
   siz = 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string);
-  if (siz > 255) {
+  if (siz > 255)
+  {
     buffer2[0] = 1;
     buffer2[1] = siz - 256;
-  } else {
+  }
+  else
+  {
     buffer2[1] = siz;
   }
   memcpy(buffer2 + 2, (char *)tns_packet_begin, sizeof(tns_packet_begin));
   siz = strlen(connect_string);
-  if (siz > 255) {
+  if (siz > 255)
+  {
     buffer2[2 + sizeof(tns_packet_begin)] = 1;
     buffer2[1 + 2 + sizeof(tns_packet_begin)] = siz - 256;
-  } else {
+  }
+  else
+  {
     buffer2[1 + 2 + sizeof(tns_packet_begin)] = siz;
   }
   memcpy(buffer2 + 2 + sizeof(tns_packet_begin) + 2, (char *)tns_packet_end, sizeof(tns_packet_end));
   memcpy(buffer2 + 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end), connect_string, strlen(connect_string));
-  if (fpassword_send(s, buffer2, 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string), 0) < 0) {
+  if (fpassword_send(s, buffer2, 2 + sizeof(tns_packet_begin) + 2 + sizeof(tns_packet_end) + strlen(connect_string), 0) < 0)
+  {
     return 1;
   }
 
@@ -72,10 +80,12 @@ int32_t start_oracle_sid(int32_t s, char *ip, int32_t port, unsigned char option
     return 1;
   // if no error reported. it should be a resend packet type 00 08 00 00 0b 00
   // 00 00, 4 is refuse
-  if ((strstr(buf, "ERR=") == NULL) && (buf[4] != 4)) {
+  if ((strstr(buf, "ERR=") == NULL) && (buf[4] != 4))
+  {
     fpassword_report_found_host(port, ip, "oracle-sid", fp);
     fpassword_completed_pair_found();
-  } else
+  }
+  else
     fpassword_completed_pair();
 
   free(buf);
@@ -84,31 +94,38 @@ int32_t start_oracle_sid(int32_t s, char *ip, int32_t port, unsigned char option
   return 1;
 }
 
-void service_oracle_sid(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_oracle_sid(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_ORACLE, mysslport = PORT_ORACLE_SSL;
 
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
@@ -135,7 +152,8 @@ void service_oracle_sid(char *ip, int32_t sp, unsigned char options, char *miscp
   }
 }
 
-int32_t service_oracle_sid_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_oracle_sid_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.

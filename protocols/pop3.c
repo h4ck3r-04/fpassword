@@ -3,7 +3,8 @@
 
 // openssl s_client -starttls pop3 -crlf -connect 192.168.0.10:110
 
-typedef struct pool_str {
+typedef struct pool_str
+{
   char ip[36];
 
   /*  int32_t port;*/ // not needed
@@ -20,7 +21,8 @@ pool *plist = NULL, *p = NULL;
 /* functions */
 int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname);
 
-pool *list_create(pool data) {
+pool *list_create(pool data)
+{
   pool *p;
 
   if (!(p = (pool *)malloc(sizeof(pool))))
@@ -35,7 +37,8 @@ pool *list_create(pool data) {
   return p;
 }
 
-pool *list_insert(pool data) {
+pool *list_insert(pool data)
+{
   pool *newnode;
 
   newnode = list_create(data);
@@ -45,10 +48,12 @@ pool *list_insert(pool data) {
   return newnode;
 }
 
-pool *list_find(char *ip) {
+pool *list_find(char *ip)
+{
   pool *node = plist;
 
-  while (node != NULL) {
+  while (node != NULL)
+  {
     if (memcmp(node->ip, ip, 36) == 0)
       return node;
     node = node->next;
@@ -59,14 +64,16 @@ pool *list_find(char *ip) {
 
 /* how to know when to release the mem ?
    -> well, after _start has determined which pool number it is */
-int32_t list_remove(pool *node) {
+int32_t list_remove(pool *node)
+{
   pool *save, *list = plist;
   int32_t ok = -1;
 
   if (list == NULL || node == NULL)
     return -2;
 
-  do {
+  do
+  {
     save = list->next;
     if (list != node)
       free(list);
@@ -78,16 +85,19 @@ int32_t list_remove(pool *node) {
   return ok;
 }
 
-char *pop3_read_server_capacity(int32_t sock) {
+char *pop3_read_server_capacity(int32_t sock)
+{
   char *ptr = NULL;
   int32_t resp = 0;
   char *buf = NULL;
 
-  do {
+  do
+  {
     if (buf != NULL)
       free(buf);
     ptr = buf = fpassword_receive_line(sock);
-    if (buf != NULL) {
+    if (buf != NULL)
+    {
       /*
       exchange capa:
 
@@ -96,15 +106,19 @@ char *pop3_read_server_capacity(int32_t sock) {
       STLS
 
       */
-      if (strstr(buf, "\r\n.\r\n") != NULL && buf[0] == '+') {
+      if (strstr(buf, "\r\n.\r\n") != NULL && buf[0] == '+')
+      {
         resp = 1;
         /* we got the capability info then get the completed warning info from
          * server */
-        while (fpassword_data_ready(sock)) {
+        while (fpassword_data_ready(sock))
+        {
           free(buf);
           buf = fpassword_receive_line(sock);
         }
-      } else {
+      }
+      else
+      {
         if (buf[strlen(buf) - 1] == '\n')
           buf[strlen(buf) - 1] = 0;
         if (buf[strlen(buf) - 1] == '\r')
@@ -117,7 +131,8 @@ char *pop3_read_server_capacity(int32_t sock) {
   return buf;
 }
 
-int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "\"\"", *result = NULL;
   char *login, *pass, buffer[500], buffer2[500], *fooptr;
 
@@ -126,15 +141,18 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  while (fpassword_data_ready(s) > 0) {
+  while (fpassword_data_ready(s) > 0)
+  {
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
     free(buf);
   }
 
-  switch (p->pop3_auth_mechanism) {
+  switch (p->pop3_auth_mechanism)
+  {
 #ifdef LIBOPENSSL
-  case AUTH_APOP: {
+  case AUTH_APOP:
+  {
     MD5_CTX c;
     unsigned char md5_raw[MD5_DIGEST_LENGTH];
     int32_t i;
@@ -145,22 +163,27 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     MD5_Update(&c, pass, strlen(pass));
     MD5_Final(md5_raw, &c);
 
-    for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
+    for (i = 0; i < MD5_DIGEST_LENGTH; i++)
+    {
       sprintf(pbuffer, "%02x", md5_raw[i]);
       pbuffer += 2;
     }
     sprintf(buffer, "APOP %s %s\r\n", login, buffer2);
-  } break;
+  }
+  break;
 #endif
 
-  case AUTH_LOGIN: {
+  case AUTH_LOGIN:
+  {
     sprintf(buffer, "AUTH LOGIN\r\n");
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 LOGIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -170,13 +193,15 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
 
     sprintf(buffer, "%.250s\r\n", buffer2);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
 
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 LOGIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -185,16 +210,20 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     strcpy(buffer2, pass);
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
     sprintf(buffer, "%.250s\r\n", buffer2);
-  } break;
+  }
+  break;
 
-  case AUTH_PLAIN: {
+  case AUTH_PLAIN:
+  {
     sprintf(buffer, "AUTH PLAIN\r\n");
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 PLAIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -209,21 +238,25 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     char tmp_buffer[sizeof(buffer)];
     sprintf(tmp_buffer, "%.250s\r\n", buffer);
     strcpy(buffer, tmp_buffer);
-  } break;
+  }
+  break;
 
 #ifdef LIBOPENSSL
   case AUTH_CRAMMD5:
   case AUTH_CRAMSHA1:
-  case AUTH_CRAMSHA256: {
+  case AUTH_CRAMSHA256:
+  {
     int32_t rc = 0;
     char *preplogin;
 
     rc = sasl_saslprep(login, SASL_ALLOW_UNASSIGNED, &preplogin);
-    if (rc) {
+    if (rc)
+    {
       return 3;
     }
 
-    switch (p->pop3_auth_mechanism) {
+    switch (p->pop3_auth_mechanism)
+    {
     case AUTH_CRAMMD5:
       sprintf(buffer, "AUTH CRAM-MD5\r\n");
       break;
@@ -234,15 +267,18 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
       sprintf(buffer, "AUTH CRAM-SHA256\r\n");
       break;
     }
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     // get the one-time BASE64 encoded challenge
 
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
-      switch (p->pop3_auth_mechanism) {
+    if (buf[0] != '+')
+    {
+      switch (p->pop3_auth_mechanism)
+      {
       case AUTH_CRAMMD5:
         fpassword_report(stderr, "[ERROR] POP3 CRAM-MD5 AUTH : %s\n", buf);
         break;
@@ -263,25 +299,32 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
 
     memset(buffer2, 0, sizeof(buffer2));
 
-    switch (p->pop3_auth_mechanism) {
-    case AUTH_CRAMMD5: {
+    switch (p->pop3_auth_mechanism)
+    {
+    case AUTH_CRAMMD5:
+    {
       result = sasl_cram_md5(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
-    case AUTH_CRAMSHA1: {
+    }
+    break;
+    case AUTH_CRAMSHA1:
+    {
       result = sasl_cram_sha1(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
-    case AUTH_CRAMSHA256: {
+    }
+    break;
+    case AUTH_CRAMSHA256:
+    {
       result = sasl_cram_sha256(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
+    }
+    break;
     }
     fpassword_tobase64((unsigned char *)buffer, strlen(buffer), sizeof(buffer));
 
@@ -289,9 +332,11 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     sprintf(tmp_buffer, "%.250s\r\n", buffer);
     strcpy(buffer, tmp_buffer);
     free(preplogin);
-  } break;
+  }
+  break;
 
-  case AUTH_DIGESTMD5: {
+  case AUTH_DIGESTMD5:
+  {
     sprintf(buffer, "AUTH DIGEST-MD5\r\n");
 
     if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
@@ -299,7 +344,8 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     // receive
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 DIGEST-MD5 AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -320,10 +366,12 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
       fpassword_report(stderr, "[DEBUG] C: %s\n", buffer2);
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
     sprintf(buffer, "%s\r\n", buffer2);
-  } break;
+  }
+  break;
 #endif
 
-  case AUTH_NTLM: {
+  case AUTH_NTLM:
+  {
     unsigned char buf1[4096];
     unsigned char buf2[4096];
 
@@ -335,7 +383,8 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     // receive
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 NTLM AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -361,15 +410,18 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     to64frombits(buf1, buf2, SmbLength((tSmbNtlmAuthResponse *)buf2));
 
     sprintf(buffer, "%s\r\n", buf1);
-  } break;
+  }
+  break;
   default:
     sprintf(buffer, "USER %.250s\r\n", login);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 4;
-    if (buf[0] != '+') {
+    if (buf[0] != '+')
+    {
       fpassword_report(stderr, "[ERROR] POP3 protocol or service shutdown: %s\n", buf);
       free(buf);
       return (3);
@@ -378,15 +430,18 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     sprintf(buffer, "PASS %.250s\r\n", pass);
   }
 
-  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+  {
     return 1;
   }
 
-  if ((buf = fpassword_receive_line(s)) == NULL) {
+  if ((buf = fpassword_receive_line(s)) == NULL)
+  {
     return 4;
   }
 
-  if (buf[0] == '+') {
+  if (buf[0] == '+')
+  {
     fpassword_report_found_host(port, ip, "pop3", fp);
     fpassword_completed_pair_found();
     free(buf);
@@ -395,7 +450,8 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
     return 1;
   }
   /* special AS/400 hack */
-  if (strstr(buf, "CPF2204") != NULL || strstr(buf, "CPF22E3") != NULL || strstr(buf, "CPF22E4") != NULL || strstr(buf, "CPF22E5") != NULL) {
+  if (strstr(buf, "CPF2204") != NULL || strstr(buf, "CPF22E3") != NULL || strstr(buf, "CPF22E4") != NULL || strstr(buf, "CPF22E5") != NULL)
+  {
     if (verbose)
       printf("[INFO] user %s does not exist, skipping\n", login);
     fpassword_completed_pair_skip();
@@ -412,7 +468,8 @@ int32_t start_pop3(int32_t s, char *ip, int32_t port, unsigned char options, cha
   return 2;
 }
 
-void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   char *ptr = NULL;
 
@@ -421,7 +478,8 @@ void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
     if (service_pop3_init(ip, sp, options, miscptr, fp, port, hostname) != 0)
       fpassword_child_exit(2);
   p = list_find(ip);
-  if (p == NULL) {
+  if (p == NULL)
+  {
     fpassword_report(stderr, "[ERROR] Could not find ip %s in pool\n", fpassword_address2string(ip));
     return;
   }
@@ -432,32 +490,40 @@ void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
 
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
 
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         sock = fpassword_connect_tcp(ip, port);
-      } else {
+      }
+      else
+      {
         sock = fpassword_connect_ssl(ip, port, hostname);
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
       buf = fpassword_receive_line(sock);
-      if (buf == NULL || buf[0] != '+') { /* check the first line */
+      if (buf == NULL || buf[0] != '+')
+      { /* check the first line */
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Not an POP3 protocol or service shutdown: %s\n", buf);
         fpassword_child_exit(2);
       }
 
       ptr = strstr(buf, "<");
-      if (ptr != NULL && buf[0] == '+') {
+      if (ptr != NULL && buf[0] == '+')
+      {
         if (ptr[strlen(ptr) - 1] == '\n')
           ptr[strlen(ptr) - 1] = 0;
         if (ptr[strlen(ptr) - 1] == '\r')
@@ -467,21 +533,28 @@ void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
       free(buf);
 
 #ifdef LIBOPENSSL
-      if (!p->disable_tls) {
+      if (!p->disable_tls)
+      {
         /* check for STARTTLS, if available we may have access to more basic
          * auth methods */
         fpassword_send(sock, "STLS\r\n", strlen("STLS\r\n"), 0);
         buf = fpassword_receive_line(sock);
-        if (buf[0] != '+') {
+        if (buf[0] != '+')
+        {
           fpassword_report(stderr, "[ERROR] TLS negotiation failed, no answer "
-                               "received from STARTTLS request\n");
-        } else {
+                                   "received from STARTTLS request\n");
+        }
+        else
+        {
           free(buf);
-          if ((fpassword_connect_to_ssl(sock, hostname) == -1)) {
+          if ((fpassword_connect_to_ssl(sock, hostname) == -1))
+          {
             if (verbose)
               fpassword_report(stderr, "[ERROR] Can't use TLS\n");
             p->disable_tls = 1;
-          } else {
+          }
+          else
+          {
             if (verbose)
               fpassword_report(stderr, "[VERBOSE] TLS connection done\n");
           }
@@ -512,7 +585,8 @@ void service_pop3(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   }
 }
 
-int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t myport = PORT_POP3, mysslport = PORT_POP3_SSL;
   char *ptr = NULL;
   int32_t sock = -1;
@@ -525,29 +599,35 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
   p.next = NULL;
   memcpy(p.ip, ip, 36);
 
-  if ((options & OPTION_SSL) == 0) {
+  if ((options & OPTION_SSL) == 0)
+  {
     if (port != 0)
       myport = port;
     sock = fpassword_connect_tcp(p.ip, myport);
-  } else {
+  }
+  else
+  {
     if (port != 0)
       mysslport = port;
     sock = fpassword_connect_ssl(p.ip, mysslport, hostname);
   }
-  if (sock < 0) {
+  if (sock < 0)
+  {
     if (verbose || debug)
       fpassword_report(stderr, "[ERROR] pid %d terminating, can not connect\n", (int32_t)getpid());
     return -1;
   }
   buf = fpassword_receive_line(sock);
-  if (buf == NULL || buf[0] != '+') { /* check the first line */
+  if (buf == NULL || buf[0] != '+')
+  { /* check the first line */
     if (verbose || debug)
       fpassword_report(stderr, "[ERROR] Not an POP3 protocol or service shutdown: %s\n", buf);
     return -1;
   }
 
   ptr = strstr(buf, "<");
-  if (ptr != NULL && buf[0] == '+') {
+  if (ptr != NULL && buf[0] == '+')
+  {
     if (ptr[strlen(ptr) - 1] == '\n')
       ptr[strlen(ptr) - 1] = 0;
     if (ptr[strlen(ptr) - 1] == '\r')
@@ -557,7 +637,8 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
   free(buf);
 
   /* send capability request */
-  if (fpassword_send(sock, capa_str, strlen(capa_str), 0) < 0) {
+  if (fpassword_send(sock, capa_str, strlen(capa_str), 0) < 0)
+  {
     if (verbose || debug)
       fpassword_report(stderr, "[ERROR] Can not send the CAPABILITY request\n");
     return -1;
@@ -565,64 +646,80 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
 
   buf = pop3_read_server_capacity(sock);
 
-  if (buf == NULL) {
+  if (buf == NULL)
+  {
     fpassword_report(stderr, "[ERROR] No answer from CAPABILITY request\n");
     return -1;
   }
 
-  if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+  if ((miscptr != NULL) && (strlen(miscptr) > 0))
+  {
     int32_t i;
 
     for (i = 0; i < strlen(miscptr); i++)
       miscptr[i] = (char)toupper((int32_t)miscptr[i]);
 
-    if (strstr(miscptr, "TLS") || strstr(miscptr, "SSL") || strstr(miscptr, "STARTTLS")) {
+    if (strstr(miscptr, "TLS") || strstr(miscptr, "SSL") || strstr(miscptr, "STARTTLS"))
+    {
       p.disable_tls = 0;
     }
   }
 
 #ifdef LIBOPENSSL
-  if (!p.disable_tls) {
+  if (!p.disable_tls)
+  {
     /* check for STARTTLS, if available we may have access to more basic auth
      * methods */
-    if (strstr(buf, "STLS") != NULL) {
+    if (strstr(buf, "STLS") != NULL)
+    {
       fpassword_send(sock, "STLS\r\n", strlen("STLS\r\n"), 0);
       free(buf);
       buf = fpassword_receive_line(sock);
-      if (buf[0] != '+') {
+      if (buf[0] != '+')
+      {
         fpassword_report(stderr, "[ERROR] TLS negotiation failed, no answer "
-                             "received from STARTTLS request\n");
-      } else {
+                                 "received from STARTTLS request\n");
+      }
+      else
+      {
         free(buf);
-        if ((fpassword_connect_to_ssl(sock, hostname) == -1)) {
+        if ((fpassword_connect_to_ssl(sock, hostname) == -1))
+        {
           if (verbose)
             fpassword_report(stderr, "[ERROR] Can't use TLS\n");
           p.disable_tls = 1;
-        } else {
+        }
+        else
+        {
           if (verbose)
             fpassword_report(stderr, "[VERBOSE] TLS connection done\n");
         }
-        if (!p.disable_tls) {
+        if (!p.disable_tls)
+        {
           /* ask again capability request but in TLS mode */
-          if (fpassword_send(sock, capa_str, strlen(capa_str), 0) < 0) {
+          if (fpassword_send(sock, capa_str, strlen(capa_str), 0) < 0)
+          {
             if (verbose || debug)
               fpassword_report(stderr, "[ERROR] Can not send the CAPABILITY request\n");
             return -1;
           }
           buf = pop3_read_server_capacity(sock);
-          if (buf == NULL) {
+          if (buf == NULL)
+          {
             fpassword_report(stderr, "[ERROR] No answer from CAPABILITY request\n");
             return -1;
           }
         }
       }
-    } else
+    }
+    else
       fpassword_report(stderr, "[ERROR] option to use TLS/SSL failed as it is not "
-                           "supported by the server\n");
+                               "supported by the server\n");
   }
 #endif
 
-  if (fpassword_send(sock, quit_str, strlen(quit_str), 0) < 0) {
+  if (fpassword_send(sock, quit_str, strlen(quit_str), 0) < 0)
+  {
     // we don't care if the server is not receiving the quit msg
   }
   fpassword_disconnect(sock);
@@ -651,40 +748,51 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
 
   /* which mean threre will *always* have a space before the LOGIN auth keyword
    */
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "NTLM") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "NTLM") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_NTLM;
   }
 #ifdef LIBOPENSSL
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "DIGEST-MD5") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "DIGEST-MD5") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_DIGESTMD5;
   }
 
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-SHA256") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-SHA256") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_CRAMSHA256;
   }
 
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-SHA1") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-SHA1") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_CRAMSHA1;
   }
 
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-MD5") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "CRAM-MD5") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_CRAMMD5;
   }
 #endif
 
-  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "PLAIN") != NULL)) {
+  if ((strstr(buf, " LOGIN") == NULL) && (strstr(buf, "PLAIN") != NULL))
+  {
     p.pop3_auth_mechanism = AUTH_PLAIN;
   }
 
-  if (strstr(buf, " LOGIN") != NULL) {
+  if (strstr(buf, " LOGIN") != NULL)
+  {
     p.pop3_auth_mechanism = AUTH_LOGIN;
   }
 
-  if (strstr(buf, "SASL") == NULL) {
+  if (strstr(buf, "SASL") == NULL)
+  {
 #ifdef LIBOPENSSL
-    if (strlen(apop_challenge) == 0) {
+    if (strlen(apop_challenge) == 0)
+    {
       p.pop3_auth_mechanism = AUTH_CLEAR;
-    } else {
+    }
+    else
+    {
       p.pop3_auth_mechanism = AUTH_APOP;
     }
 #else
@@ -693,7 +801,8 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
   }
   free(buf);
 
-  if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+  if ((miscptr != NULL) && (strlen(miscptr) > 0))
+  {
     if (strstr(miscptr, "CLEAR"))
       p.pop3_auth_mechanism = AUTH_CLEAR;
 
@@ -724,8 +833,10 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
       p.pop3_auth_mechanism = AUTH_NTLM;
   }
 
-  if (verbose) {
-    switch (p.pop3_auth_mechanism) {
+  if (verbose)
+  {
+    switch (p.pop3_auth_mechanism)
+    {
     case AUTH_CLEAR:
       fpassword_report(stderr, "[VERBOSE] using POP3 CLEAR LOGIN mechanism\n");
       break;
@@ -737,10 +848,13 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
       break;
     case AUTH_APOP:
 #ifdef LIBOPENSSL
-      if (strlen(apop_challenge) == 0) {
+      if (strlen(apop_challenge) == 0)
+      {
         fpassword_report(stderr, "[VERBOSE] APOP not supported by server, using clear login\n");
         p.pop3_auth_mechanism = AUTH_CLEAR;
-      } else {
+      }
+      else
+      {
         fpassword_report(stderr, "[VERBOSE] using POP3 APOP AUTH mechanism\n");
       }
 #else
@@ -775,7 +889,8 @@ int32_t service_pop3_init(char *ip, int32_t sp, unsigned char options, char *mis
   return 0;
 }
 
-void usage_pop3(const char *service) {
+void usage_pop3(const char *service)
+{
   printf("Module pop3 is optionally taking one authentication type of:\n"
          "  CLEAR (default), LOGIN, PLAIN, CRAM-MD5, CRAM-SHA1,\n"
          "  CRAM-SHA256, DIGEST-MD5, NTLM.\n"

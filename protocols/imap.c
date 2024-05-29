@@ -7,31 +7,39 @@ int32_t counter;
 
 int32_t imap_auth_mechanism = AUTH_CLEAR;
 
-char *imap_read_server_capacity(int32_t sock) {
+char *imap_read_server_capacity(int32_t sock)
+{
   char *ptr = NULL;
   int32_t resp = 0;
   char *buf = NULL;
 
-  do {
+  do
+  {
     if (buf != NULL)
       free(buf);
     ptr = buf = fpassword_receive_line(sock);
-    if (buf != NULL) {
-      if (strstr(buf, "CAPABILITY") != NULL && buf[0] == '*') {
+    if (buf != NULL)
+    {
+      if (strstr(buf, "CAPABILITY") != NULL && buf[0] == '*')
+      {
         resp = 1;
         usleepn(300);
         /* we got the capability info then get the completed warning info from
          * server */
-        while (fpassword_data_ready(sock)) {
+        while (fpassword_data_ready(sock))
+        {
           free(buf);
           buf = fpassword_receive_line(sock);
         }
-      } else {
+      }
+      else
+      {
         if (buf[strlen(buf) - 1] == '\n')
           buf[strlen(buf) - 1] = 0;
         if (buf[strlen(buf) - 1] == '\r')
           buf[strlen(buf) - 1] = 0;
-        if (isdigit((int32_t)*ptr) && *(ptr + 1) == ' ') {
+        if (isdigit((int32_t)*ptr) && *(ptr + 1) == ' ')
+        {
           resp = 1;
         }
       }
@@ -40,7 +48,8 @@ char *imap_read_server_capacity(int32_t sock) {
   return buf;
 }
 
-int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "", *result = NULL;
   char *login, *pass, buffer[500], buffer2[500], *fooptr;
 
@@ -49,21 +58,25 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   if (strlen(pass = fpassword_get_next_password()) == 0)
     pass = empty;
 
-  while (fpassword_data_ready(s)) {
+  while (fpassword_data_ready(s))
+  {
     if ((buf = fpassword_receive_line(s)) == NULL)
       return (1);
     free(buf);
   }
 
-  switch (imap_auth_mechanism) {
+  switch (imap_auth_mechanism)
+  {
   case AUTH_LOGIN:
     sprintf(buffer, "%d AUTHENTICATE LOGIN\r\n", counter);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP LOGIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -73,12 +86,14 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
 
     sprintf(buffer, "%.250s\r\n", buffer2);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP LOGIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -91,12 +106,14 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
 
   case AUTH_PLAIN:
     sprintf(buffer, "%d AUTHENTICATE PLAIN\r\n", counter);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP PLAIN AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -113,16 +130,19 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
 #ifdef LIBOPENSSL
   case AUTH_CRAMMD5:
   case AUTH_CRAMSHA1:
-  case AUTH_CRAMSHA256: {
+  case AUTH_CRAMSHA256:
+  {
     int32_t rc = 0;
     char *preplogin;
 
     rc = sasl_saslprep(login, SASL_ALLOW_UNASSIGNED, &preplogin);
-    if (rc) {
+    if (rc)
+    {
       return 3;
     }
 
-    switch (imap_auth_mechanism) {
+    switch (imap_auth_mechanism)
+    {
     case AUTH_CRAMMD5:
       sprintf(buffer, "%d AUTHENTICATE CRAM-MD5\r\n", counter);
       break;
@@ -133,14 +153,17 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       sprintf(buffer, "%d AUTHENTICATE CRAM-SHA256\r\n", counter);
       break;
     }
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     // get the one-time BASE64 encoded challenge
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
-      switch (imap_auth_mechanism) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+    {
+      switch (imap_auth_mechanism)
+      {
       case AUTH_CRAMMD5:
         fpassword_report(stderr, "[ERROR] IMAP CRAM-MD5 AUTH : %s\n", buf);
         break;
@@ -161,25 +184,32 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
 
     memset(buffer2, 0, sizeof(buffer2));
 
-    switch (imap_auth_mechanism) {
-    case AUTH_CRAMMD5: {
+    switch (imap_auth_mechanism)
+    {
+    case AUTH_CRAMMD5:
+    {
       result = sasl_cram_md5(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
-    case AUTH_CRAMSHA1: {
+    }
+    break;
+    case AUTH_CRAMSHA1:
+    {
       result = sasl_cram_sha1(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
-    case AUTH_CRAMSHA256: {
+    }
+    break;
+    case AUTH_CRAMSHA256:
+    {
       result = sasl_cram_sha256(buffer2, pass, buffer);
       if (result == NULL)
         return 3;
       sprintf(buffer, "%s %.250s", preplogin, buffer2);
-    } break;
+    }
+    break;
     }
     fpassword_tobase64((unsigned char *)buffer, strlen(buffer), sizeof(buffer));
 
@@ -188,8 +218,10 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     strcpy(buffer, tmp_buffer);
 
     free(preplogin);
-  } break;
-  case AUTH_DIGESTMD5: {
+  }
+  break;
+  case AUTH_DIGESTMD5:
+  {
     sprintf(buffer, "%d AUTHENTICATE DIGEST-MD5\r\n", counter);
 
     if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
@@ -197,7 +229,8 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     // receive
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP DIGEST-MD5 AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -217,24 +250,28 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       fpassword_report(stderr, "DEBUG C: %s\n", buffer2);
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
     sprintf(buffer, "%s\r\n", buffer2);
-
-  } break;
-  case AUTH_SCRAMSHA1: {
+  }
+  break;
+  case AUTH_SCRAMSHA1:
+  {
     char clientfirstmessagebare[200];
     char serverfirstmessage[200];
     char *preplogin;
     int32_t rc = sasl_saslprep(login, SASL_ALLOW_UNASSIGNED, &preplogin);
 
-    if (rc) {
+    if (rc)
+    {
       return 3;
     }
     sprintf(buffer, "%d AUTHENTICATE SCRAM-SHA-1\r\n", counter);
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP SCRAM-SHA1 AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -248,18 +285,22 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
     snprintf(buffer, sizeof(buffer), "%s\r\n", buffer2);
 
-    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+    if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+    {
       return 1;
     }
     buf = fpassword_receive_line(s);
     if (buf == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+    {
       if (verbose || debug)
         fpassword_report(stderr, "[ERROR] Not a valid server challenge\n");
       free(buf);
       return 1;
-    } else {
+    }
+    else
+    {
       /* recover server challenge */
       memset(buffer, 0, sizeof(buffer));
       //+ cj1oeWRyYU9VNVZqcHQ5RjNqcmVXRVFWTCxzPWhGbTNnRGw0akdidzJVVHosaT00MDk2
@@ -271,16 +312,19 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       memset(buffer2, 0, sizeof(buffer2));
       fooptr = buffer2;
       result = sasl_scram_sha1(fooptr, pass, clientfirstmessagebare, serverfirstmessage);
-      if (result == NULL) {
+      if (result == NULL)
+      {
         fpassword_report(stderr, "[ERROR] Can't compute client response\n");
         return 1;
       }
       fpassword_tobase64((unsigned char *)buffer2, strlen(buffer2), sizeof(buffer2));
       sprintf(buffer, "%s\r\n", buffer2);
     }
-  } break;
+  }
+  break;
 #endif
-  case AUTH_NTLM: {
+  case AUTH_NTLM:
+  {
     unsigned char buf1[4096];
     unsigned char buf2[4096];
 
@@ -292,7 +336,8 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     // receive
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
+    if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+    {
       fpassword_report(stderr, "[ERROR] IMAP NTLM AUTH : %s\n", buf);
       free(buf);
       return 3;
@@ -308,7 +353,8 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
       return 1;
     if ((buf = fpassword_receive_line(s)) == NULL)
       return 1;
-    if (strlen(buf) < 6) {
+    if (strlen(buf) < 6)
+    {
       free(buf);
       return 1;
     }
@@ -322,19 +368,22 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
     to64frombits(buf1, buf2, SmbLength((tSmbNtlmAuthResponse *)buf2));
 
     sprintf(buffer, "%s\r\n", buf1);
-  } break;
+  }
+  break;
   default:
     // clear authentication
     sprintf(buffer, "%d LOGIN \"%.100s\" \"%.100s\"\r\n", counter, login, pass);
   }
 
-  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0) {
+  if (fpassword_send(s, buffer, strlen(buffer), 0) < 0)
+  {
     return 1;
   }
   if ((buf = fpassword_receive_line(s)) == NULL)
     return (1);
 
-  if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL) {
+  if (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL || strstr(buf, "BYE") != NULL)
+  {
     if (verbose)
       fpassword_report(stderr, "[ERROR] %s\n", buf);
     free(buf);
@@ -354,7 +403,8 @@ int32_t start_imap(int32_t s, char *ip, int32_t port, unsigned char options, cha
   return 1;
 }
 
-void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_IMAP, mysslport = PORT_IMAP_SSL, disable_tls = 1;
   char *buffer1 = "1 CAPABILITY\r\n";
@@ -362,31 +412,38 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   fpassword_register_socket(sp);
   if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
     return;
-  while (1) {
-    switch (run) {
+  while (1)
+  {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
       //      usleepn(275);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
-      if (sock < 0) {
+      if (sock < 0)
+      {
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
       buf = fpassword_receive_line(sock);
 
-      if ((buf == NULL) || (strstr(buf, "OK") == NULL && buf[0] != '*')) { /* check the first line */
+      if ((buf == NULL) || (strstr(buf, "OK") == NULL && buf[0] != '*'))
+      { /* check the first line */
         if (verbose || debug)
           fpassword_report(stderr, "[ERROR] Not an IMAP protocol or service shutdown:\n");
         if (buf != NULL)
@@ -400,41 +457,52 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
       counter = 2;
       buf = imap_read_server_capacity(sock);
 
-      if (buf == NULL) {
+      if (buf == NULL)
+      {
         fpassword_child_exit(2);
       }
 
-      if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+      if ((miscptr != NULL) && (strlen(miscptr) > 0))
+      {
         int32_t i;
 
         for (i = 0; i < strlen(miscptr); i++)
           miscptr[i] = (char)toupper((int32_t)miscptr[i]);
 
-        if (strstr(miscptr, "TLS") || strstr(miscptr, "SSL") || strstr(miscptr, "STARTTLS")) {
+        if (strstr(miscptr, "TLS") || strstr(miscptr, "SSL") || strstr(miscptr, "STARTTLS"))
+        {
           disable_tls = 0;
         }
       }
 #ifdef LIBOPENSSL
-      if (!disable_tls) {
+      if (!disable_tls)
+      {
         /* check for STARTTLS, if available we may have access to more basic
          * auth methods */
-        if (strstr(buf, "STARTTLS") != NULL) {
+        if (strstr(buf, "STARTTLS") != NULL)
+        {
           fpassword_send(sock, "2 STARTTLS\r\n", strlen("2 STARTTLS\r\n"), 0);
           counter++;
           free(buf);
           buf = fpassword_receive_line(sock);
-          if (buf == NULL || (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL)) {
+          if (buf == NULL || (strstr(buf, " NO ") != NULL || strstr(buf, "failed") != NULL || strstr(buf, " BAD ") != NULL))
+          {
             fpassword_report(stderr, "[ERROR] TLS negotiation failed, no answer "
-                                 "received from STARTTLS request\n");
-          } else {
+                                     "received from STARTTLS request\n");
+          }
+          else
+          {
             free(buf);
-            if ((fpassword_connect_to_ssl(sock, hostname) == -1)) {
+            if ((fpassword_connect_to_ssl(sock, hostname) == -1))
+            {
               if (verbose)
                 fpassword_report(stderr, "[ERROR] Can't use TLS\n");
               disable_tls = 1;
               run = 1;
               break;
-            } else {
+            }
+            else
+            {
               if (verbose)
                 fpassword_report(stderr, "[VERBOSE] TLS connection done\n");
             }
@@ -446,9 +514,10 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
             if (buf == NULL)
               fpassword_child_exit(2);
           }
-        } else
+        }
+        else
           fpassword_report(stderr, "[ERROR] option to use TLS/SSL failed as it is "
-                               "not supported by the server\n");
+                                   "not supported by the server\n");
       }
 #endif
 
@@ -457,40 +526,49 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
 
       // authentication should be listed AUTH= like in the extract below
       // STARTTLS LOGINDISABLED AUTH=GSSAPI AUTH=DIGEST-MD5 AUTH=CRAM-MD5
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=NTLM") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=NTLM") != NULL))
+      {
         imap_auth_mechanism = AUTH_NTLM;
       }
 #ifdef LIBOPENSSL
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=SCRAM-SHA-1") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=SCRAM-SHA-1") != NULL))
+      {
         imap_auth_mechanism = AUTH_SCRAMSHA1;
       }
 
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=DIGEST-MD5") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=DIGEST-MD5") != NULL))
+      {
         imap_auth_mechanism = AUTH_DIGESTMD5;
       }
 
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-SHA256") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-SHA256") != NULL))
+      {
         imap_auth_mechanism = AUTH_CRAMSHA256;
       }
 
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-SHA1") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-SHA1") != NULL))
+      {
         imap_auth_mechanism = AUTH_CRAMSHA1;
       }
 
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-MD5") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=CRAM-MD5") != NULL))
+      {
         imap_auth_mechanism = AUTH_CRAMMD5;
       }
 #endif
-      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=PLAIN") != NULL)) {
+      if ((strstr(buf, "=LOGIN") == NULL) && (strstr(buf, "=PLAIN") != NULL))
+      {
         imap_auth_mechanism = AUTH_PLAIN;
       }
 
-      if (strstr(buf, "=LOGIN") != NULL) {
+      if (strstr(buf, "=LOGIN") != NULL)
+      {
         imap_auth_mechanism = AUTH_LOGIN;
       }
       free(buf);
 
-      if ((miscptr != NULL) && (strlen(miscptr) > 0)) {
+      if ((miscptr != NULL) && (strlen(miscptr) > 0))
+      {
         if (strstr(miscptr, "CLEAR"))
           imap_auth_mechanism = AUTH_CLEAR;
 
@@ -521,8 +599,10 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
           imap_auth_mechanism = AUTH_NTLM;
       }
 
-      if (verbose) {
-        switch (imap_auth_mechanism) {
+      if (verbose)
+      {
+        switch (imap_auth_mechanism)
+        {
         case AUTH_CLEAR:
           fpassword_report(stderr, "[VERBOSE] using IMAP CLEAR LOGIN mechanism\n");
           break;
@@ -574,7 +654,8 @@ void service_imap(char *ip, int32_t sp, unsigned char options, char *miscptr, FI
   }
 }
 
-int32_t service_imap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_imap_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -588,7 +669,8 @@ int32_t service_imap_init(char *ip, int32_t sp, unsigned char options, char *mis
   return 0;
 }
 
-void usage_imap(const char *service) {
+void usage_imap(const char *service)
+{
   printf("Module imap is optionally taking one authentication type of:\n"
          "  CLEAR or APOP (default), LOGIN, PLAIN, CRAM-MD5, CRAM-SHA1,\n"
          "  CRAM-SHA256, DIGEST-MD5, NTLM\n"

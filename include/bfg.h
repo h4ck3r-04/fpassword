@@ -24,15 +24,16 @@
 #define BF_WEBSITE "http://houbysoft.com/bfg/"
 
 #define BF_BUFLEN 1024
-#define BF_CHARSMAX                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-  256 /* how many max possibilities there are for characters, normally it's                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
+#define BF_CHARSMAX                                                         \
+  256 /* how many max possibilities there are for characters, normally it's \
          2^8 = 256 */
 
 #define BF_LOWER 1
 #define BF_UPPER 2
 #define BF_NUMS 4
 
-typedef struct {
+typedef struct
+{
   unsigned char from;
   unsigned char to;
   unsigned char current;

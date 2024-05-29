@@ -5,7 +5,8 @@ extern int32_t fpassword_data_ready_timed(int32_t socket, long sec, long usec);
 extern char *FPASSWORD_EXIT;
 char *buf;
 
-int32_t start_cvs(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp) {
+int32_t start_cvs(int32_t s, char *ip, int32_t port, unsigned char options, char *miscptr, FILE *fp)
+{
   char *empty = "";
   char *login, *pass, buffer[1024], pass2[513];
   int32_t i;
@@ -40,7 +41,8 @@ int32_t start_cvs(int32_t s, char *ip, int32_t port, unsigned char options, char
   memset(pass2, 0, sizeof(pass2));
   strncpy(pass2, pass, 512);
 
-  for (i = 0; i < strlen(pass); i++) {
+  for (i = 0; i < strlen(pass); i++)
+  {
     pass2[i] = key[pass2[i] - 0x20];
   }
 
@@ -48,26 +50,34 @@ int32_t start_cvs(int32_t s, char *ip, int32_t port, unsigned char options, char
 
   i = 57 + strlen(directory) + strlen(login) + strlen(pass2);
 
-  if (fpassword_send(s, buffer, i - 1, 0) < 0) {
+  if (fpassword_send(s, buffer, i - 1, 0) < 0)
+  {
     return 1;
   }
 
-  if (fpassword_data_ready_timed(s, 5, 0) > 0) {
+  if (fpassword_data_ready_timed(s, 5, 0) > 0)
+  {
     buf = fpassword_receive_line(s);
-    if (strstr(buf, "I LOVE YOU\n")) {
+    if (strstr(buf, "I LOVE YOU\n"))
+    {
       fpassword_report_found_host(port, ip, "cvs", fp);
       fpassword_completed_pair_found();
       free(buf);
-      if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+      if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+      {
         return 3;
       }
-    } else if (strstr(buf, "no such user") || strstr(buf, "E PAM start error: Critical error - immediate abort\n")) {
-      if (verbose) {
+    }
+    else if (strstr(buf, "no such user") || strstr(buf, "E PAM start error: Critical error - immediate abort\n"))
+    {
+      if (verbose)
+      {
         fpassword_report(stderr, "[INFO] User %s does not exist, skipping\n", login);
       }
       fpassword_completed_pair_skip();
       free(buf);
-      if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0) {
+      if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
+      {
         return 3;
       }
     }
@@ -79,39 +89,47 @@ int32_t start_cvs(int32_t s, char *ip, int32_t port, unsigned char options, char
   return 3;
 }
 
-void service_cvs(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+void service_cvs(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   int32_t run = 1, next_run = 1, sock = -1;
   int32_t myport = PORT_CVS, mysslport = PORT_CVS_SSL;
 
   fpassword_register_socket(sp);
 
-  if ((miscptr == NULL) || (strlen(miscptr) == 0)) {
+  if ((miscptr == NULL) || (strlen(miscptr) == 0))
+  {
     miscptr = "/root";
   }
 
-  while (1) {
+  while (1)
+  {
     if (memcmp(fpassword_get_next_pair(), &FPASSWORD_EXIT, sizeof(FPASSWORD_EXIT)) == 0)
       return;
 
-    switch (run) {
+    switch (run)
+    {
     case 1: /* connect and service init function */
       if (sock >= 0)
         sock = fpassword_disconnect(sock);
 
       //      usleepn(300);
-      if ((options & OPTION_SSL) == 0) {
+      if ((options & OPTION_SSL) == 0)
+      {
         if (port != 0)
           myport = port;
         sock = fpassword_connect_tcp(ip, myport);
         port = myport;
-      } else {
+      }
+      else
+      {
         if (port != 0)
           mysslport = port;
         sock = fpassword_connect_ssl(ip, mysslport, hostname);
         port = mysslport;
       }
 
-      if (sock < 0) {
+      if (sock < 0)
+      {
         fpassword_report(stderr, "[ERROR] Child with pid %d terminating, can not connect\n", (int32_t)getpid());
         fpassword_child_exit(1);
       }
@@ -130,7 +148,8 @@ void service_cvs(char *ip, int32_t sp, unsigned char options, char *miscptr, FIL
   }
 }
 
-int32_t service_cvs_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname) {
+int32_t service_cvs_init(char *ip, int32_t sp, unsigned char options, char *miscptr, FILE *fp, int32_t port, char *hostname)
+{
   // called before the childrens are forked off, so this is the function
   // which should be filled if initial connections and service setup has to be
   // performed once only.
@@ -144,7 +163,8 @@ int32_t service_cvs_init(char *ip, int32_t sp, unsigned char options, char *misc
   return 0;
 }
 
-void usage_cvs(const char *service) {
+void usage_cvs(const char *service)
+{
   printf("Module cvs is optionally taking the repository name to attack, "
          "default is \"/root\"\n\n");
 }

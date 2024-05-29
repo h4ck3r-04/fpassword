@@ -8,12 +8,14 @@
 #include <stdio.h>
 
 /* handles select errors */
-int32_t my_select(int32_t fd, fd_set *fdread, fd_set *fdwrite, fd_set *fdex, long sec, long usec) {
+int32_t my_select(int32_t fd, fd_set *fdread, fd_set *fdwrite, fd_set *fdex, long sec, long usec)
+{
   int32_t ret_val;
   struct timeval stv;
   fd_set *fdr2, *fdw2, *fde2;
 
-  do {
+  do
+  {
     fdr2 = fdread;
     fdw2 = fdwrite;
     fde2 = fdex;
@@ -31,7 +33,8 @@ int32_t my_select(int32_t fd, fd_set *fdread, fd_set *fdwrite, fd_set *fdex, lon
 }
 
 /*reads in a non-blocking way*/
-ssize_t read_safe(int32_t fd, void *buffer, size_t len) {
+ssize_t read_safe(int32_t fd, void *buffer, size_t len)
+{
   int32_t r = 0;
   int32_t total = 0;
   uint32_t toread = len;
@@ -40,7 +43,8 @@ ssize_t read_safe(int32_t fd, void *buffer, size_t len) {
   int32_t ret = 0;
 
   (void)fcntl(fd, F_SETFL, O_NONBLOCK);
-  do {
+  do
+  {
     FD_ZERO(&fr);
     FD_SET(fd, &fr);
     tv.tv_sec = 0;
@@ -49,17 +53,22 @@ ssize_t read_safe(int32_t fd, void *buffer, size_t len) {
     /* XXX select() sometimes return errno=EINTR (signal found) */
   } while (ret == -1 && errno == EINTR);
 
-  if (ret < 0) {
-    if (debug) {
+  if (ret < 0)
+  {
+    if (debug)
+    {
       perror("select");
       printf("df:%d\n", fd);
     }
     return -1;
   }
 
-  if (ret > 0) {
-    while ((r = read(fd, (char *)((char *)buffer + total), toread))) {
-      if (r == -1) {
+  if (ret > 0)
+  {
+    while ((r = read(fd, (char *)((char *)buffer + total), toread)))
+    {
+      if (r == -1)
+      {
         if (errno == EAGAIN)
           break;
         return -1;
